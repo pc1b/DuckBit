@@ -24,10 +24,7 @@ import java.nio.file.Paths;
 
 @Controller
 public class WebController {
-    private static int i = 0;
-    private String nameFile ="";
     private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
-    private String imageName;
     private AlmacenUsuarios userDB;
 
     // INDEX
@@ -109,19 +106,18 @@ public class WebController {
     }
 
     @PostMapping("/upload_image")
-    public String uploadImage(@RequestParam MultipartFile image, Model model) throws IOException {
+    public String uploadImage(@RequestParam String username, @RequestParam MultipartFile image, Model model) throws IOException {
         Files.createDirectories(IMAGES_FOLDER);
-        nameFile = "profile" + i + ".jpg";
-        i++;
+        String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         image.transferTo(imagePath);
-        model.addAttribute("Cambiada", 1);
         return "admin";
     }
 
     @GetMapping("/download_image")
-    public ResponseEntity<Object> downloadImage(Model model)
+    public ResponseEntity<Object> downloadImage(@RequestParam String username, Model model)
             throws MalformedURLException {
+        String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         Resource image = new UrlResource(imagePath.toUri());
         return ResponseEntity.ok()
