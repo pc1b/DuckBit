@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
@@ -65,29 +67,31 @@ public class WebController {
     }
 
     @PostMapping("/login")
-    public String Login(@RequestParam String user, @RequestParam String pass, Model model)
+    public RedirectView Login(@RequestParam String user, @RequestParam String pass, Model model)
     {   
         int userID = this.userDB.getIDUser(user, pass);
         if (userID == 0)
         {
-            return "admin";
+            return new RedirectView("admin");
+
         }
         else if (userID > 0)
         {
             model.addAttribute("username", user);
-            return "user";
+            return new RedirectView("user");
+
         }
         else
         {
-            return "login";
+            return new RedirectView("login");
         }
     }
 
     @PostMapping("/register")
-    public String Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
+    public RedirectView Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
     {
         this.userDB.addUser(user, mail, pass);
-        return "login";
+        return new RedirectView("login");
     }
 
     // THE SHOP
