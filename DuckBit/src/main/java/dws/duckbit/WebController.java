@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 public class WebController {
     private static int i = 0;
     private String nameFile ="";
-    private static final Path IMAGES_FOLDER = Paths.get("../images");
+    private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
     private String imageName;
     private AlmacenUsuarios userDB;
 
@@ -98,21 +98,18 @@ public class WebController {
     }
 
     @PostMapping("/upload_image")
-    public String uploadImage(@RequestParam String imageName,
-                              @RequestParam MultipartFile image, Model model) throws IOException {
-        this.imageName = imageName;
+    public String uploadImage(@RequestParam MultipartFile image, Model model) throws IOException {
         Files.createDirectories(IMAGES_FOLDER);
         nameFile = "profile" + i + ".jpg";
         i++;
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         image.transferTo(imagePath);
-        model.addAttribute("imageName", imageName);
-        return "image";
+        model.addAttribute("Cambiada", 1);
+        return "admin";
     }
 
     @GetMapping("/image")
-    public String viewImage(Model model) {
-        model.addAttribute("imageName", imageName);
+    public String viewImage() {
         return "view_image";
     }
 
