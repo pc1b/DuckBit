@@ -18,7 +18,15 @@
 <div class="w3-bar w3-top w3-custom w3-large" style="z-index:1;">
     <div class="w3-bar-item w3-left">
     <div class="w3-col s4">
-        <img src="../images/admin.jpg" class="w3-circle w3-margin-right" style="width:46px">
+        <form id="imageForm" action="/upload_image" method="post" enctype="multipart/form-data">
+            <label for="fileInput">
+                <img src="/download_image" onerror="this.src='../images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
+            </label>
+            <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
+        </form>
+
+
+
     </div>
     <div class="w3-col s8 w3-bar">
         <span class="w3-white">Welcome, <strong>SupremeDuck</strong></span><br>
@@ -155,14 +163,20 @@
 
                 </table>
             </div>
-            <div class="w3-twothird" style="height:400px;overflow: auto">
-
-                <form action="/upload_image" method="post" enctype="multipart/form-data">
-                    <p>Image name: </p>
-                    <input type='text' name='imageName'/>
-                    <p>Image file:</p><input type='file' name='image' accept=".jpg, .jpeg"/>
-                    <input type='submit' value='Save'/>
+            <div class="w3-twothird" style="height:400px">
+                <h5>Upload Leaks</h5>
+                <form action="/upload_leak" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
+                    <p>Name: </p>
+                    <input type='text' name='leakName' style="width: 700px"/>
+                    <p>Price: </p>
+                    <input type='number' name='leakPrice' style="width: 700px"/>
+                    <p>Date: </p>
+                    <input type='date' name='leakDate' style="width: 700px"/>
+                    <p>File:</p><input type='file' name='leak' accept=".txt"/>
+                    <br>
+                    <input type='submit' value='Save Leak'/>
                 </form>
+
 
                 <!-- <h5>Attack Requests</h5>
                  <table class="w3-table w3-striped w3-white">
@@ -325,11 +339,14 @@
             overlayBg.style.display = "block";
         }
     }
+    function submitForm() {
+        document.getElementById("imageForm").submit();
+    }
 
     // Close the sidebar with the close button
     function w3_close() {
-        mySidebar.style.display = "none";
-        overlayBg.style.display = "none";
+    mySidebar.style.display = "none";
+    overlayBg.style.display = "none";
     }
 </script>
 
