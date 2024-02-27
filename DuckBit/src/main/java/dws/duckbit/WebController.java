@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+
+import dws.duckbit.Entities.AlmacenUsuarios;
+
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,7 @@ public class WebController {
     private String nameFile ="";
     private static final Path IMAGES_FOLDER = Paths.get("../images");
     private String imageName;
+    private AlmacenUsuarios userDB;
 
     // INDEX
 
@@ -32,13 +36,13 @@ public class WebController {
         return "index";
     }
 
+    // USERS TYPES
+
     @GetMapping("/admin")
     public String aboutUs()
     {
         return "admin";
     }
-
-    // USERS TYPES
 
     @GetMapping("/user")
     public String User(Model model)
@@ -61,7 +65,24 @@ public class WebController {
         return "register";
     }
 
-    // SHOP
+    @PostMapping("/login")
+    public String login(@RequestParam String user, @RequestParam String pass)
+    {
+        int userID = this.userDB.getIDUser(user, pass);
+        if (userID == 0)
+        {
+            return "admin";
+        }
+        else if (userID > 0)
+        {
+            return "user";
+        }
+        else
+        {
+            return "login";
+        }
+
+    }
 
     @GetMapping("/user/shop")
     public String shop_user(Model model)
