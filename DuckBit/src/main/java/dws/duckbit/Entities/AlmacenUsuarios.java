@@ -10,6 +10,7 @@ public class AlmacenUsuarios
     public AlmacenUsuarios()
     {
         this.nextID = 0;
+        userList = new ArrayList<>();
     }
 
     public void addUser(String user, String mail, String password)
@@ -32,5 +33,11 @@ public class AlmacenUsuarios
             }
         }
         return (-1);
+    }
+
+    //There is no error management. If the id is invalid, it will return an Exception, and the app will die
+    public User getByID(int ID)
+    {
+        return (this.userList.get(ID));
     }
 }
