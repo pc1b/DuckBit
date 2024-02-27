@@ -2,6 +2,7 @@ package dws.duckbit.Entities;
 
 import java.io.UnsupportedEncodingException;
 import java.security.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -12,7 +13,7 @@ public class User
     private String mail;
     private byte[] password;
     private MessageDigest md;
-
+    private ArrayList<Combo> combos;
 
     public User(int ID, String user, String mail, String password)
     {
@@ -24,6 +25,7 @@ public class User
             byte[] userPassword = password.getBytes("UTF-8");
             this.password = md.digest(userPassword);
             this.md = MessageDigest.getInstance("MD5");
+            this.combos = new ArrayList<>();
         }
         catch (Exception e)
         {
@@ -65,5 +67,10 @@ public class User
             e.printStackTrace();
             return (false);
         }
+    }
+
+    public void addCombosToUser(Combo combo)
+    {
+        this.combos.add(combo);
     }
 }
