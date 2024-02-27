@@ -18,6 +18,11 @@ public class Combo {
 		this.id = id;
 		createCombo();
 	}
+
+	public int getId() {
+		return this.id;
+	}
+
 	private void createCombo(){
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
 		try {
@@ -27,7 +32,7 @@ public class Combo {
 		}
 		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath())) {
 			for (Leak l : this.leaks){
-				writer.write("-----LEAK FROM " + l.toString() + "-----");
+				writer.write("-----LEAK FROM " + l.getEnterprise() + "-----");
 				Path leakPath = LEAKS_FOLDER.resolve(l.getId() + ".txt");
 				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath())) {
 					String line;
