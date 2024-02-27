@@ -23,8 +23,8 @@ public class User
             this.user = user;
             this.mail = mail;
             byte[] userPassword = password.getBytes("UTF-8");
-            this.password = md.digest(userPassword);
             this.md = MessageDigest.getInstance("MD5");
+            this.password = md.digest(userPassword);
             this.combos = new ArrayList<>();
         }
         catch (Exception e)
@@ -59,7 +59,7 @@ public class User
         try
         {
             inputPassword = password.getBytes("UTF-8");
-            byte[] MD5HashedPassword = md.digest(inputPassword);
+            byte[] MD5HashedPassword = this.md.digest(inputPassword);
             return (Arrays.equals(MD5HashedPassword, this.password));
         }
         catch (UnsupportedEncodingException e)
