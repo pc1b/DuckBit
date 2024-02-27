@@ -119,11 +119,6 @@ public class WebController {
         return "admin";
     }
 
-    @GetMapping("/image")
-    public String viewImage() {
-        return "view_image";
-    }
-
     @GetMapping("/download_image")
     public ResponseEntity<Object> downloadImage(Model model)
             throws MalformedURLException {
