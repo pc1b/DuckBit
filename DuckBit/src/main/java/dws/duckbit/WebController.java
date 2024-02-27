@@ -6,10 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
-
-import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import dws.duckbit.Entities.AlmacenUsuarios;
 
@@ -48,7 +46,7 @@ public class WebController {
     @GetMapping("/user")
     public String User(Model model)
     {
-        model.addAttribute("username", "Paco");
+        //model.addAttribute("username",model.getAttribute("username"));
         return "user";
     }
 
@@ -67,7 +65,7 @@ public class WebController {
     }
 
     @PostMapping("/login")
-    public RedirectView Login(@RequestParam String user, @RequestParam String pass, Model model)
+    public RedirectView Login(@RequestParam String user, @RequestParam String pass, RedirectAttributes attributes)
     {   
         int userID = this.userDB.getIDUser(user, pass);
         if (userID == 0)
@@ -77,8 +75,8 @@ public class WebController {
         }
         else if (userID > 0)
         {
-            model.addAttribute("username", user);
-            return new RedirectView("user");
+                attributes.addFlashAttribute("username", user);
+                return new RedirectView("user");
 
         }
         else
@@ -110,15 +108,15 @@ public class WebController {
     }
 
     @PostMapping("/upload_image")
-    public String uploadImage(@RequestParam String username, @RequestParam MultipartFile image, Model model) throws IOException {
+    public RedirectView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException {
         Files.createDirectories(IMAGES_FOLDER);
         String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         image.transferTo(imagePath);
         if (this.userDB.getByID(0).getUser().equals(username))
-            return "admin";
-        model.addAttribute("username", username);
-        return "user";
+            return new RedirectView("admin");
+        attributes.addFlashAttribute("username", username);
+        return new RedirectView("user");
     }
 
     @GetMapping("/download_image")

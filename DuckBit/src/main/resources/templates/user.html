@@ -25,9 +25,6 @@
                 <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
                 <input type='hidden' name='username' value="{{{username}}}"/>
             </form>
-
-
-
         </div>
         <div class="w3-col s8 w3-bar">
             <span class="w3-white">Welcome, <strong>{{username}}</strong></span><br>
@@ -76,8 +73,8 @@
 
     <div class="w3-panel">
         <div class="w3-row-padding" style="margin:0 -16px">
-            <div class="w3-third" style="height:400px;overflow: auto">
-                <h5>All Leaks</h5>
+            <div style="height:600px;overflow: auto">
+                <h5>My Leaks</h5>
                 <table class="w3-table w3-striped w3-white">
                     <tr>
                         <td>ABC Corporation</td>
@@ -131,82 +128,6 @@
                     </tr>
 
                 </table>
-            </div>
-            <div class="w3-twothird" style="height:400px">
-                <h5>Upload Leaks</h5>
-                <form action="/upload_leak" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
-                    <p>Name: </p>
-                    <input type='text' name='leakName' style="width: 700px"/>
-                    <p>Price: </p>
-                    <input type='number' name='leakPrice' style="width: 700px"/>
-                    <p>Date: </p>
-                    <input type='date' name='leakDate' style="width: 700px"/>
-                    <p>File:</p><input type='file' name='leak' accept=".txt"/>
-                    <br>
-                    <input type='submit' value='Save Leak'/>
-                </form>
-
-
-                <!-- <h5>Attack Requests</h5>
-                 <table class="w3-table w3-striped w3-white">
-                     <tr>
-                         <td>New record, over 40 users.</td>
-                         <td><i>Nasa</i></td>
-                         <td><button class="w3-button w3-green">Accept</button></td>
-                         <td><button class="w3-button w3-red">Deny</button></td>
-                         <td><button class="w3-button w3-blue">See Full Request</button></td>
-                     </tr>
-                     <tr>
-                         <td>New comments.</td>
-                         <td><i>Mercadona</i></td>
-                         <td><button class="w3-button w3-green">Accept</button></td>
-                         <td><button class="w3-button w3-red">Deny</button></td>
-                         <td><button class="w3-button w3-blue">See Full Request</button></td>
-                     </tr>
-                     <tr>
-                         <td>Check transactions.</td>
-                         <td><i>Ahorramas</i></td>
-                         <td><button class="w3-button w3-green">Accept</button></td>
-                         <td><button class="w3-button w3-red">Deny</button></td>
-                         <td><button class="w3-button w3-blue">See Full Request</button></td>
-                     </tr>
-                     <tr>
-                         <td>CPU overload.</td>
-                         <td><i>Nasa</i></td>
-                         <td><button class="w3-button w3-green">Accept</button></td>
-                         <td><button class="w3-button w3-red">Deny</button></td>
-                         <td><button class="w3-button w3-blue">See Full Request</button></td>
-                     </tr>
-                     <tr>
-                         <td>New shares.</td>
-                         <td><i>Nasa</i></td>
-                         <td><button class="w3-button w3-green">Accept</button></td>
-                         <td><button class="w3-button w3-red">Deny</button></td>
-                         <td><button class="w3-button w3-blue">See Full Request</button></td>
-                     </tr>
-                     <tr>
-                         <td>New shares.</td>
-                         <td><i>Nasa</i></td>
-                         <td><button class="w3-button w3-green">Accept</button></td>
-                         <td><button class="w3-button w3-red">Deny</button></td>
-                         <td><button class="w3-button w3-blue">See Full Request</button></td>
-                     </tr>
-                     <tr>
-                         <td>New shares.</td>
-                         <td><i>Nasa</i></td>
-                         <td><button class="w3-button w3-green">Accept</button></td>
-                         <td><button class="w3-button w3-red">Deny</button></td>
-                         <td><button class="w3-button w3-blue">See Full Request</button></td>
-                     </tr>
-                     <tr>
-                         <td>New shares.</td>
-                         <td><i>Nasa</i></td>
-                         <td><button class="w3-button w3-green">Accept</button></td>
-                         <td><button class="w3-button w3-red">Deny</button></td>
-                         <td><button class="w3-button w3-blue">See Full Request</button></td>
-                     </tr>
-                 </table>
-             </div>-->
             </div>
         </div>
         <hr>
