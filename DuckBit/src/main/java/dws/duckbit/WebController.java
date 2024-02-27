@@ -46,7 +46,7 @@ public class WebController {
     @GetMapping("/user")
     public String User(Model model)
     {
-        model.addAttribute("Name", "Paco");
+        model.addAttribute("username", "Paco");
         return "user";
     }
 
@@ -111,7 +111,10 @@ public class WebController {
         String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         image.transferTo(imagePath);
-        return "admin";
+        if (this.userDB.getByID(0).getUser().equals(username))
+            return "admin";
+        model.addAttribute("username", username);
+        return "user";
     }
 
     @GetMapping("/download_image")
