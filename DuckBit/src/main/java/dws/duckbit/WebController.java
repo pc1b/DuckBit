@@ -46,6 +46,8 @@ public class WebController {
         int idNum = Integer.parseInt(id);
         if (idNum == 0)
         {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
             return "admin";
         }
         else if (idNum > 0)
@@ -63,6 +65,8 @@ public class WebController {
         int idNum = Integer.parseInt(id);
         if (idNum == 0)
         {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
             return "admin";
         }
         else if (idNum > 0)
@@ -82,6 +86,8 @@ public class WebController {
         int idNum = Integer.parseInt(id);
         if (idNum == 0)
         {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
             return "admin";
         }
         else if (idNum > 0)
@@ -99,6 +105,8 @@ public class WebController {
         int idNum = Integer.parseInt(id);
         if (idNum == 0)
         {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
             return "admin";
         }
         else if (idNum > 0)

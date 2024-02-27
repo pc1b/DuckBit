@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin | DuckBit</title>
+    <title>{{username}} | DuckBit</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../css/w3.css">
@@ -25,6 +25,7 @@
                 <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
                 <input type='hidden' name='username' value="{{{username}}}"/>
             </form>
+
         </div>
         <div class="w3-col s8 w3-bar">
             <span class="w3-white">Welcome, <strong>{{username}}</strong></span><br>
@@ -32,6 +33,9 @@
             <a href="#" class="w3-bar-item w3-button"><i class="fa fa-user"></i></a>
             <a href="#" class="w3-bar-item w3-button"><i class="fa fa-cog"></i></a>-->
         </div>
+    </div>
+    <div style="margin-top: 10px" class="w3-right">
+        <a href="/logout"><img style="width: 50px" src="../images/logout.svg"></a>
     </div>
 </div>
 
@@ -67,64 +71,70 @@
 
     <!-- Header -->
     <header class="w3-container" style="padding-top:22px">
-        <h5><b><img style="width: 20px" src="../images/dashboard.svg"> My Dashboard</b></h5>
     </header>
 
 
-    <div class="w3-panel">
+    <div class="w3-panel w3-center">
         <div class="w3-row-padding" style="margin:0 -16px">
             <div style="height:600px;overflow: auto">
-                <h5>My Leaks</h5>
+                <h3>My Leaks</h3>
                 <table class="w3-table w3-striped w3-white">
                     <tr>
                         <td>ABC Corporation</td>
-                        <td><i>50$</i></td>
                         <td>15/03/2022</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
+
                     </tr>
                     <tr>
                         <td>XYZ Ltd.</td>
-                        <td><i>35$</i></td>
                         <td>22/04/2022</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
+
                     </tr>
                     <tr>
                         <td>QuickTech Solutions</td>
-                        <td><i>45$</i></td>
                         <td>10/06/2022</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
+
                     </tr>
                     <tr>
                         <td>InnoSoft Innovations</td>
-                        <td><i>28$</i></td>
                         <td>05/08/2022</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
+
                     </tr>
                     <tr>
                         <td>Global Innovations Inc.</td>
-                        <td><i>60$</i></td>
                         <td>20/09/2022</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
+
                     </tr>
                     <tr>
                         <td>DataSprint Technologies</td>
-                        <td><i>42$</i></td>
                         <td>15/11/2022</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
+
                     </tr>
                     <tr>
                         <td>NovaWare Solutions</td>
-                        <td><i>55$</i></td>
                         <td>03/01/2023</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
+
                     </tr>
                     <tr>
                         <td>Eagle Systems</td>
-                        <td><i>48$</i></td>
                         <td>18/03/2023</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
                     </tr>
                     <tr>
                         <td>Quantum Dynamics Ltd.</td>
-                        <td><i>37$</i></td>
                         <td>22/05/2023</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
                     </tr>
                     <tr>
                         <td>TechVision Innovations</td>
-                        <td><i>52$</i></td>
                         <td>09/07/2023</td>
+                        <td><button class="w3-button w3-orange">Download</button></td>
                     </tr>
 
                 </table>
