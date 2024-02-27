@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
+
 import dws.duckbit.Entities.AlmacenUsuarios;
 
 import org.springframework.core.io.Resource;
@@ -54,7 +56,7 @@ public class WebController {
     // LOGIN AND REGISTER
 
     @GetMapping("/login")
-    public String Form()
+    public String Login()
     {
         return "login";
     }
@@ -66,8 +68,8 @@ public class WebController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String user, @RequestParam String pass)
-    {
+    public String Login(@RequestParam String user, @RequestParam String pass, Model model)
+    {   
         int userID = this.userDB.getIDUser(user, pass);
         if (userID == 0)
         {
@@ -75,14 +77,23 @@ public class WebController {
         }
         else if (userID > 0)
         {
+            model.addAttribute("username", user);
             return "user";
         }
         else
         {
             return "login";
         }
-
     }
+
+    @PostMapping("/register")
+    public String Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
+    {
+        this.userDB.addUser(user, pass, mail);
+        return "login";
+    }
+
+    // THE SHOP
 
     @GetMapping("/user/shop")
     public String shop_user(Model model)
