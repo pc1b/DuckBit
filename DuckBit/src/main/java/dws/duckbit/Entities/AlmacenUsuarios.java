@@ -33,6 +33,4 @@ public class AlmacenUsuarios
         }
         return (-1);
     }
-
-
 }
