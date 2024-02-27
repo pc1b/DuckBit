@@ -25,7 +25,7 @@ import java.nio.file.Paths;
 @Controller
 public class WebController {
     private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
-    private AlmacenUsuarios userDB;
+    private AlmacenUsuarios userDB = new AlmacenUsuarios();
 
     // INDEX
 
@@ -38,7 +38,7 @@ public class WebController {
     // USERS TYPES
 
     @GetMapping("/admin")
-    public String aboutUs()
+    public String Admin()
     {
         return "admin";
     }
@@ -86,7 +86,7 @@ public class WebController {
     @PostMapping("/register")
     public String Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
     {
-        this.userDB.addUser(user, pass, mail);
+        this.userDB.addUser(user, mail, pass);
         return "login";
     }
 

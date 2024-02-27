@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login | DuckBit</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/w3.css">
+    <link rel="stylesheet" href="../css/w3-theme-red.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+</head>
+<body style="background-color: #050E1E">
+<!-- Header -->
+<header class="w3-container w3-theme w3-padding" id="myHeader">
+    <div class="w3-center">
+        <h4 style="font-weight: bold; font-size: 75px">Login</h4>
+        <img src="../images/logo.jpg" style="width: 250px">
+        <form id="loginForm" action="/login" method="post" enctype="multipart/form-data">
+            <p>Username: </p>
+            <input type='text' id='user' name='user' />
+            <p>Password: </p>
+            <input type='password' id="pass" name='pass'/>
+            <br>
+            <br>
+            <input type='submit' value='Login'/>
+        </form>
+    </div>
+</header>
+
+
+<!-- Footer -->
+<footer class="w3-container w3-theme-dark w3-padding-16">
+    <h3>DuckBit</h3>
+    <p>Previously known as <a href="https://en.wikipedia.org/wiki/Lockbit" target="_blank">LockBit</a></p>
+</footer>
+</body>
+</html>
