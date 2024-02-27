@@ -13,7 +13,7 @@ public class Leak {
 	public int getId(){
 		return this.id;
 	}
-	public String toString(){
+	public String getEnterprise(){
 		return this.enterprise;
 	}
 }
