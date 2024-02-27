@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.annotation.JsonCreator.Mode;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import dws.duckbit.Entities.AlmacenUsuarios;
 
@@ -46,7 +46,7 @@ public class WebController {
     @GetMapping("/user")
     public String User(Model model)
     {
-        model.addAttribute("username", "Paco");
+        //model.addAttribute("username",model.getAttribute("username"));
         return "user";
     }
 
@@ -65,29 +65,31 @@ public class WebController {
     }
 
     @PostMapping("/login")
-    public String Login(@RequestParam String user, @RequestParam String pass, Model model)
+    public RedirectView Login(@RequestParam String user, @RequestParam String pass, RedirectAttributes attributes)
     {   
         int userID = this.userDB.getIDUser(user, pass);
         if (userID == 0)
         {
-            return "admin";
+            return new RedirectView("admin");
+
         }
         else if (userID > 0)
         {
-            model.addAttribute("username", user);
-            return "user";
+                attributes.addFlashAttribute("username", user);
+                return new RedirectView("user");
+
         }
         else
         {
-            return "login";
+            return new RedirectView("login");
         }
     }
 
     @PostMapping("/register")
-    public String Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
+    public RedirectView Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
     {
         this.userDB.addUser(user, mail, pass);
-        return "login";
+        return new RedirectView("login");
     }
 
     // THE SHOP
@@ -106,15 +108,15 @@ public class WebController {
     }
 
     @PostMapping("/upload_image")
-    public String uploadImage(@RequestParam String username, @RequestParam MultipartFile image, Model model) throws IOException {
+    public RedirectView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException {
         Files.createDirectories(IMAGES_FOLDER);
         String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         image.transferTo(imagePath);
         if (this.userDB.getByID(0).getUser().equals(username))
-            return "admin";
-        model.addAttribute("username", username);
-        return "user";
+            return new RedirectView("admin");
+        attributes.addFlashAttribute("username", username);
+        return new RedirectView("user");
     }
 
     @GetMapping("/download_image")
