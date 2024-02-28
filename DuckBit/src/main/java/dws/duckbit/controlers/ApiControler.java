@@ -3,6 +3,7 @@ package dws.duckbit.controlers;
 import dws.duckbit.Entities.*;
 import dws.duckbit.responses.ResponseUser;
 import dws.duckbit.services.ComboService;
+import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -26,8 +27,13 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 public class ApiControler {
 	//@Autowired
 	private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
+	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
+
 	private static final UserService userDB = new UserService();
 	private static final ComboService combos = new ComboService();
+	private static final LeakService leaks = new LeakService();
+
+
 	@GetMapping("/api/user/{id}")
 	public ResponseEntity<ResponseUser> getUser(@PathVariable int id) {
 		User u = userDB.getByID(id);
@@ -52,6 +58,20 @@ public class ApiControler {
 		Combo c = combos.getByID(id);
 		if (c != null) {
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body(c.getLeakedInfo());
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+	@PostMapping("/api/upload_leak")
+	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo) throws IOException {
+		Leak l = leaks.createLeak(enterprise, date);
+		if (l != null) {
+			URI location = fromCurrentRequest().build().toUri();
+			Files.createDirectories(LEAKS_FOLDER);
+			String nameFile = l.getId() + ".txt";
+			Path txtPath = IMAGES_FOLDER.resolve(nameFile);
+			leakInfo.transferTo(txtPath);
+			return ResponseEntity.created(location).build();
 		} else {
 			return ResponseEntity.notFound().build();
 		}
