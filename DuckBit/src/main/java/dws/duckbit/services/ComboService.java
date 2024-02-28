@@ -4,6 +4,7 @@ import dws.duckbit.Entities.Combo;
 import dws.duckbit.Entities.Leak;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class ComboService
@@ -43,5 +44,23 @@ public class ComboService
 	public int getComboPrice(int comboID)
 	{
 		return (combos.get(comboID).getComboPrice());
+	}
+
+	// ENTERPRISES
+
+	public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
+	{
+		ArrayList<Integer> list = new ArrayList<>();
+		Collection<Combo> listOfValues = combos.values();
+		int value = 0;
+		for (Combo c: listOfValues)
+		{
+			if (c.isEnterpriseInCombo(enterprise))
+			{
+				list.add(value);
+			}
+			value++;
+		}
+		return list;
 	}
 }
