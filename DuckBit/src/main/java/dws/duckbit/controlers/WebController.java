@@ -3,6 +3,7 @@ package dws.duckbit.controlers;
 import dws.duckbit.Entities.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -23,10 +24,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @Controller
 public class WebController {
     private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
+    private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
     private UserService userDB = new UserService();
 
     // INDEX
@@ -217,6 +220,17 @@ public class WebController {
         }
     }
 
+    //LEAKS
+
+    @PostMapping("/upload_leak")
+    public RedirectView UploadLeak(@RequestParam String leakName, @RequestParam String leakDate, @RequestParam MultipartFile leak) throws IOException
+    {
+        Files.createDirectories(LEAKS_FOLDER);
+        String nameFile = leak.getOriginalFilename();
+        Path leakPath = LEAKS_FOLDER.resolve(nameFile);
+        leak.transferTo(leakPath);
+        return new RedirectView("admin");
+    }
 
     //ERROR MAPPING
     @GetMapping("/error")
