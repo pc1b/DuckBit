@@ -1,6 +1,5 @@
 package dws.duckbit.services;
 
-import dws.duckbit.Entities.Combo;
 import dws.duckbit.Entities.Leak;
 
 import java.text.ParseException;
@@ -14,8 +13,10 @@ public class LeakService {
 	private static int id = 0;
 	public LeakService(){}
 
-	public Leak createLeak(String enterprise, String date){
-		try {
+	public Leak createLeak(String enterprise, String date)
+	{
+		try
+		{
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			Date fechaDate = sdf.parse(date);
 
@@ -24,15 +25,25 @@ public class LeakService {
 			Leak l = new Leak(enterprise, calendar, id);
 			id++;
 			return l;
-		} catch (ParseException e) {
+		} catch (ParseException e)
+		{
 			e.printStackTrace();
 		}
 		return null;
 	}
-	public void addLeak(Leak l){
+
+	public void addLeak(Leak l)
+	{
 		leaks.put(l.getId(), l);
 	}
-	public Leak getByID(int id){
+
+	public Leak getByID(int id)
+	{
 		return leaks.get(id);
+	}
+
+	public int getNextId()
+	{
+		return id;
 	}
 }

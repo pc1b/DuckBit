@@ -14,6 +14,7 @@ public class User
     private byte[] password;
     private MessageDigest md;
     private ArrayList<Combo> combos;
+    private int credits = 0;
 
     public User(int ID, String user, String mail, String password)
     {
@@ -76,5 +77,22 @@ public class User
     public void addCombosToUser(Combo combo)
     {
         this.combos.add(combo);
+    }
+
+    // $$$$$ CREDIT AND MONEY $$$$$
+
+    public void addCredits(int plus)
+    {
+        this.credits = this.credits + plus;
+    }
+
+    public void substractCredits(int minus)
+    {
+        this.credits = this.credits - minus;
+    }
+
+    public boolean hasEnoughCredits(int price)
+    {
+        return (this.credits >= price);
     }
 }

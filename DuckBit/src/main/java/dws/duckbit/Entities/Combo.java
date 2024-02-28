@@ -13,9 +13,13 @@ public class Combo {
 
 	private ArrayList<Leak> leaks;
 	private int id;
-	public Combo(ArrayList<Leak> leaks, int id){
+	private int price;
+
+	public Combo(ArrayList<Leak> leaks, int id, int price)
+	{
 		this.leaks = leaks;
 		this.id = id;
+		this.price = price;
 		createCombo();
 	}
 
@@ -65,4 +69,8 @@ public class Combo {
 		}
 	}
 
+	public int getComboPrice()
+	{
+		return this.price;
+	}
 }

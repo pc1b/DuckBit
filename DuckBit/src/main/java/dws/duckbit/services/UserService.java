@@ -1,5 +1,6 @@
 package dws.duckbit.services;
 
+import dws.duckbit.Entities.Combo;
 import dws.duckbit.Entities.User;
 
 import java.util.ArrayList;
@@ -42,4 +43,28 @@ public class UserService
     {
         return (userList.get(ID));
     }
+
+    // COMBOS
+
+    public void addComboToUser(Combo combo, int ID)
+    {
+        userList.get(ID).addCombosToUser(combo);
+    }
+
+    // $$$$$ CREDIT AND MONEY $$$$$
+
+    public boolean hasEnoughCredits(int price, int ID)
+    {
+        return (userList.get(ID).hasEnoughCredits(price));
+    }
+
+    public void addCreditsToUser(int plus, int ID)
+    {
+        userList.get(ID).addCredits(plus);
+    }
+
+    public void substractCreditsToUser(int minus, int ID)
+    {
+        userList.get(ID).substractCredits(minus);
+    }    
 }

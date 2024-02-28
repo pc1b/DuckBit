@@ -3,32 +3,45 @@ package dws.duckbit.services;
 import dws.duckbit.Entities.Combo;
 import dws.duckbit.Entities.Leak;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 
-public class ComboService {
+public class ComboService
+{
 	private static HashMap<Integer, Combo> combos = new HashMap<>();
 	public static int id = 0;
 	public static LeakService leakService = new LeakService();
 	public ComboService(){}
 
-	public Combo createCombo(ArrayList<Integer> leaksID){
+	public Combo createCombo(ArrayList<Integer> leaksID, int price)
+	{
 		ArrayList<Leak> leaks = new ArrayList<>();
-		for (int lid : leaksID){
+		for (int lid : leaksID)
+		{
 			leaks.add(leakService.getByID(lid));
 		}
-		Combo combo = new Combo(leaks, id);
+		Combo combo = new Combo(leaks, id, price);
 		id++;
 		return combo;
 	}
-	public void addCombo(Combo c){
+
+	public void addCombo(Combo c)
+	{
 		combos.put(c.getId(), c);
 	}
-	public Combo getByID(int id){
+	
+	public Combo getByID(int id)
+	{
 		return combos.get(id);
+	}
+
+	public void removeByID(int id)
+	{
+		combos.remove(id);
+	}
+
+	public int getComboPrice(int comboID)
+	{
+		return (combos.get(comboID).getComboPrice());
 	}
 }

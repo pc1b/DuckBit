@@ -1,14 +1,16 @@
 package dws.duckbit.controlers;
 
+import dws.duckbit.Entities.Combo;
 import dws.duckbit.Entities.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+import dws.duckbit.services.ComboService;
+import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,13 +26,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 @Controller
 public class WebController {
     private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
     private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
     private UserService userDB = new UserService();
+    private LeakService leakDB = new LeakService();
+    private ComboService comboDB = new ComboService();
 
     // INDEX
 
@@ -220,22 +223,41 @@ public class WebController {
         }
     }
 
-    //LEAKS
+    // LEAKS
 
     @PostMapping("/upload_leak")
     public RedirectView UploadLeak(@RequestParam String leakName, @RequestParam String leakDate, @RequestParam MultipartFile leak) throws IOException
     {
         Files.createDirectories(LEAKS_FOLDER);
-        String nameFile = leak.getOriginalFilename();
+        String nameFile = String.valueOf(this.leakDB.getNextId()) + ".txt";
         Path leakPath = LEAKS_FOLDER.resolve(nameFile);
         leak.transferTo(leakPath);
+        this.leakDB.createLeak(nameFile, leakDate);
         return new RedirectView("admin");
     }
 
+    // COMBOS
+
+    @PostMapping("/buy_combo")
+    public RedirectView BuyCombo(@RequestParam int combo, @CookieValue(value = "id", defaultValue = "-1") String id)
+    {
+        // We must check if a combo exists
+        int userID = Integer.parseInt(id);
+        int comboPrice = this.comboDB.getComboPrice(combo);
+        if (this.userDB.hasEnoughCredits(comboPrice, userID))
+        {
+            this.userDB.substractCreditsToUser(comboPrice, userID);
+            Combo comboBuyed = this.comboDB.getByID(combo);
+            this.comboDB.removeByID(combo);
+            this.userDB.addComboToUser(comboBuyed, userID);
+        }
+        return new RedirectView("user");
+    }
+
     //ERROR MAPPING
+
     @GetMapping("/error")
     public String Error(){
         return "error";
     }
-
 }
