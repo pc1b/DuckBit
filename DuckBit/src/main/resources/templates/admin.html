@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin | DuckBit</title>
+    <title>{{username}} | DuckBit</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../css/w3.css">
@@ -17,21 +17,26 @@
 <!-- Top container -->
 <div class="w3-bar w3-top w3-custom w3-large" style="z-index:1;">
     <div class="w3-bar-item w3-left">
-    <div class="w3-col s4">
-        <form id="imageForm" action="/upload_image" method="post" enctype="multipart/form-data">
-            <label for="fileInput">
-                <img src="/download_image?username=admin" onerror="this.src='../images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
-            </label>
-            <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
-            <input type='hidden' name='username' value='admin'/>
-        </form>
+        <div class="w3-col s4">
+            <form id="imageForm" action="/upload_image" method="post" enctype="multipart/form-data">
+                <label for="fileInput">
+                    <img src="/download_image?username={{{username}}}" onerror="this.src='../images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
+                </label>
+                <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
+                <input type='hidden' name='username' value="{{{username}}}"/>
+            </form>
+
+        </div>
+        <div class="w3-col s8 w3-bar">
+            <span class="w3-white">Welcome, <strong>{{username}}</strong></span><br>
+            <!--<a href="#" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i></a>
+            <a href="#" class="w3-bar-item w3-button"><i class="fa fa-user"></i></a>
+            <a href="#" class="w3-bar-item w3-button"><i class="fa fa-cog"></i></a>-->
+        </div>
+
     </div>
-    <div class="w3-col s8 w3-bar">
-        <span class="w3-white">Welcome, <strong>SupremeDuck</strong></span><br>
-        <!--<a href="#" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i></a>
-        <a href="#" class="w3-bar-item w3-button"><i class="fa fa-user"></i></a>
-        <a href="#" class="w3-bar-item w3-button"><i class="fa fa-cog"></i></a>-->
-    </div>
+    <div style="margin-top: 10px" class="w3-right">
+        <a href="/logout"><img style="width: 50px" src="../images/logout.svg"></a>
     </div>
 </div>
 

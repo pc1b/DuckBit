@@ -48,6 +48,10 @@ public class User
         return (this.ID);
     }
 
+    public ArrayList<Combo> getCombos(){
+        return this.combos;
+    }
+
     public boolean isUser(String user, String password)
     {
         return(user.equals(this.user) && this.comparePassword(password));

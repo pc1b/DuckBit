@@ -2,6 +2,7 @@ package dws.duckbit;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,7 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import dws.duckbit.Entities.AlmacenUsuarios;
+import dws.duckbit.Entities.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +28,7 @@ import java.nio.file.Paths;
 @Controller
 public class WebController {
     private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
-    private AlmacenUsuarios userDB = new AlmacenUsuarios();
+    private UserService userDB = new UserService();
 
     // INDEX
 
@@ -38,46 +41,97 @@ public class WebController {
     // USERS TYPES
 
     @GetMapping("/admin")
-    public String Admin()
+    public String Admin(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
-        return "admin";
+        int idNum = Integer.parseInt(id);
+        if (idNum == 0)
+        {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
+            return "admin";
+        }
+        else if (idNum > 0)
+        {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
+            return "user";
+        }
+        return "login";
     }
 
     @GetMapping("/user")
-    public String User(Model model)
+    public String User(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
-        //model.addAttribute("username",model.getAttribute("username"));
-        return "user";
+        int idNum = Integer.parseInt(id);
+        if (idNum == 0)
+        {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
+            return "admin";
+        }
+        else if (idNum > 0)
+        {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
+            return "user";
+        }
+        return "login";
     }
 
     // LOGIN AND REGISTER
 
     @GetMapping("/login")
-    public String Login()
+    public String Login(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
+        int idNum = Integer.parseInt(id);
+        if (idNum == 0)
+        {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
+            return "admin";
+        }
+        else if (idNum > 0)
+        {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
+            return "user";
+        }
         return "login";
     }
 
     @GetMapping("/register")
-    public String Register()
+    public String Register(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
+        int idNum = Integer.parseInt(id);
+        if (idNum == 0)
+        {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
+            return "admin";
+        }
+        else if (idNum > 0)
+        {
+            String name = this.userDB.getByID(idNum).getUser();
+            model.addAttribute("username", name);
+            return "user";
+        }
         return "register";
     }
 
     @PostMapping("/login")
-    public RedirectView Login(@RequestParam String user, @RequestParam String pass, RedirectAttributes attributes)
-    {   
+    public RedirectView Login(@RequestParam String user, @RequestParam String pass, RedirectAttributes attributes, HttpServletResponse response)
+    {
         int userID = this.userDB.getIDUser(user, pass);
+        Cookie cookie = new Cookie("id", String.valueOf(userID));
         if (userID == 0)
         {
+            response.addCookie(cookie);
             return new RedirectView("admin");
-
         }
         else if (userID > 0)
         {
-                attributes.addFlashAttribute("username", user);
-                return new RedirectView("user");
-
+            response.addCookie(cookie);
+            return new RedirectView("user");
         }
         else
         {
@@ -90,6 +144,14 @@ public class WebController {
     {
         this.userDB.addUser(user, mail, pass);
         return new RedirectView("login");
+    }
+
+    @GetMapping("/logout")
+    public String Logout(@CookieValue(value = "id", defaultValue = "-1") String id, HttpServletResponse response)
+    {
+        Cookie cookie = new Cookie("id", null);
+        response.addCookie(cookie);
+        return "login";
     }
 
     // THE SHOP
@@ -107,6 +169,8 @@ public class WebController {
         return "shop_admin";
     }
 
+
+    //IMAGE MAPPING
     @PostMapping("/upload_image")
     public RedirectView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException {
         Files.createDirectories(IMAGES_FOLDER);
@@ -128,6 +192,13 @@ public class WebController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
                 .body(image);
+    }
+
+
+    //ERROR MAPPING
+    @GetMapping("/error")
+    public String Error(){
+        return "error";
     }
 
 }

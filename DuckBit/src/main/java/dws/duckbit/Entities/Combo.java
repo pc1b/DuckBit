@@ -49,4 +49,20 @@ public class Combo {
 		}
 	}
 
+	public String getLeakedInfo(){
+		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
+		try (BufferedReader reader = Files.newBufferedReader(comboPath.toAbsolutePath())) {
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line);
+				sb.append("\n");
+			}
+			return sb.toString();
+		}catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 }
