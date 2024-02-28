@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 public class LeakService {
 	private static final HashMap<Integer, Leak> leaks = new HashMap<>();
-	private int id = 0;
+	private static int id = 0;
 	public LeakService(){}
 
 	public Leak createLeak(String enterprise, String date){
@@ -23,6 +23,7 @@ public class LeakService {
 			calendar.setTime(fechaDate);
 			Leak l = new Leak(enterprise, calendar, id);
 			id++;
+			return l;
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

@@ -20,6 +20,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
@@ -66,6 +67,7 @@ public class ApiControler {
 	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo) throws IOException {
 		Leak l = leaks.createLeak(enterprise, date);
 		if (l != null) {
+			leaks.addLeak(l);
 			URI location = fromCurrentRequest().build().toUri();
 			Files.createDirectories(LEAKS_FOLDER);
 			String nameFile = l.getId() + ".txt";
@@ -75,6 +77,14 @@ public class ApiControler {
 		} else {
 			return ResponseEntity.notFound().build();
 		}
+	}
+	@PostMapping("/api/create_combo")
+	public ResponseEntity<Object> createCombo(@RequestParam ArrayList<Integer> leaks) {
+		Combo c = combos.createCombo(leaks);
+
+		combos.addCombo(c);
+		URI location = fromCurrentRequest().build().toUri();
+		return ResponseEntity.created(location).build();
 	}
 
 	@GetMapping("/api/{id}/image")

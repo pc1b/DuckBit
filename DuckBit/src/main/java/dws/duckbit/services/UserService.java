@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class UserService
 {
-    private ArrayList<User> userList;
-    private int nextID;
+    private static ArrayList<User> userList;
+    private static int nextID;
 
     public UserService()
     {
