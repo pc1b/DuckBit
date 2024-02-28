@@ -11,15 +11,15 @@ public class UserService
 
     public UserService()
     {
-        this.nextID = 0;
+        nextID = 0;
         userList = new ArrayList<>();
     }
 
     public void addUser(String user, String mail, String password)
     {
-        User newUser = new User(this.nextID, user, mail, password);
-        this.userList.add(newUser);
-        this.nextID++;
+        User newUser = new User(nextID, user, mail, password);
+        userList.add(newUser);
+        nextID++;
     }
 
     //If it returns 0, is the admin
@@ -27,7 +27,7 @@ public class UserService
     //If it returns a negative number, the user does not exists
     public int getIDUser(String user, String password)
     {
-        for (User u: this.userList)
+        for (User u: userList)
         {
             if (u.isUser(user, password))
             {
@@ -40,6 +40,6 @@ public class UserService
     //There is no error management. If the id is invalid, it will return an Exception, and the app will die
     public User getByID(int ID)
     {
-        return (this.userList.get(ID));
+        return (userList.get(ID));
     }
 }

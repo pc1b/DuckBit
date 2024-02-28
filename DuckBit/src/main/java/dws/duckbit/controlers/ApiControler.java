@@ -8,9 +8,11 @@ import dws.duckbit.services.UserService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 
 import java.io.File;
@@ -26,8 +28,8 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 
 @RestController
 public class ApiControler {
-	//@Autowired
-	private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
+
+	private static  Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
 	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 
 	private static final UserService userDB = new UserService();
@@ -35,12 +37,19 @@ public class ApiControler {
 	private static final LeakService leaks = new LeakService();
 
 
-	@GetMapping("/api/user/{id}")
+	@GetMapping("/api")
+	public ResponseEntity<Object> home() {
+
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body("aaaaaaaaaaaaaaaa");
+
+	}
+	@GetMapping(value = "/api/user/{id}/")
 	public ResponseEntity<ResponseUser> getUser(@PathVariable int id) {
 		User u = userDB.getByID(id);
 		if (u != null) {
 			ResponseUser response = new ResponseUser(u.getID(), u.getUser(), u.getMail(), u.getCombos());
-			return ResponseEntity.ok(response);
+			ResponseEntity<ResponseUser> resp =  ResponseEntity.ok(response);
+			return resp;
 		} else {
 			return ResponseEntity.notFound().build();
 		}
@@ -141,6 +150,7 @@ public class ApiControler {
 			return ResponseEntity.notFound().build();
 		}
 	}
+
 
 //	@PostMapping("/api/login")
 //	public ResponseEntity<Map<>> Login(@RequestBody String user, @RequestBody String pass, RedirectAttributes attributes, HttpServletResponse response)
