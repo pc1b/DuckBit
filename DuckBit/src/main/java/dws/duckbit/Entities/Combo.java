@@ -2,6 +2,7 @@ package dws.duckbit.Entities;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,11 +15,12 @@ public class Combo {
 
 	private ArrayList<Leak> leaks;
 	private int id;
+	private String name;
 	private int price;
 	private HashSet<String> enterpriseArray;
 
-	public Combo(ArrayList<Leak> leaks, int id, int price)
-	{
+	public Combo(String name, ArrayList<Leak> leaks, int id, int price) throws IOException {
+		this.name = name;
 		this.leaks = leaks;
 		this.id = id;
 		this.price = price;
@@ -34,7 +36,8 @@ public class Combo {
 		return this.id;
 	}
 
-	private void createCombo(){
+	private void createCombo() throws IOException {
+		Files.createDirectories(COMBOS_FOLDER);
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
 		try {
 			Files.createFile(comboPath);
@@ -43,7 +46,7 @@ public class Combo {
 		}
 		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath())) {
 			for (Leak l : this.leaks){
-				writer.write("-----LEAK FROM " + l.getEnterprise() + "-----");
+				writer.write("-----LEAK FROM " + l.getEnterprise() + " -----\n");
 				Path leakPath = LEAKS_FOLDER.resolve(l.getId() + ".txt");
 				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath())) {
 					String line;
@@ -79,6 +82,10 @@ public class Combo {
 	public int getComboPrice()
 	{
 		return this.price;
+	}
+
+	public String getName(){
+		return this.name;
 	}
 
 	// ENTERPRISE

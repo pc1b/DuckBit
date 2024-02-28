@@ -41,7 +41,7 @@ public class ApiControler {
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body("aaaaaaaaaaaaaaaa");
 
 	}
-	@GetMapping(value = "/api/user/{id}")
+	/*@GetMapping(value = "/api/user/{id}")
 	public ResponseEntity<User> getUser(@PathVariable int id) {
 		User u = userDB.getByID(id);
 		if (u != null) {
@@ -55,7 +55,7 @@ public class ApiControler {
 		} else {
 			return null;
 		}
-	}
+	}*/
 
 //	@GetMapping("/api/combos")
 //	public ResponseEntity<Combo> getCombos() {
@@ -102,8 +102,8 @@ public class ApiControler {
 		}
 	}
 	@PostMapping("/api/create_combo")
-	public ResponseEntity<Object> createCombo(@RequestParam ArrayList<Integer> leaks, @RequestParam int price) {
-		Combo c = combos.createCombo(leaks, price);
+	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks, @RequestParam int price) throws IOException {
+		Combo c = combos.createCombo(name, leaks, price);
 
 		combos.addCombo(c);
 		URI location = fromCurrentRequest().build().toUri();

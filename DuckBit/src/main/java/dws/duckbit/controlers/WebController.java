@@ -65,6 +65,11 @@ public class WebController {
                 }
                 model.addAttribute("leak", leaks);
             }
+            List<Combo> combos = new ArrayList<>();
+            for(int i = 0; i < comboDB.getComboSize(); i++){
+                    combos.add(comboDB.getByID(i));
+            }
+                model.addAttribute("combos", combos);
             return "admin";
         }
         else if (idNum > 0)
@@ -249,6 +254,15 @@ public class WebController {
     }
     // COMBOS
 
+    @PostMapping("/create_combo")
+	public RedirectView CreateCombo(@RequestParam String comboName, @RequestParam String price, @RequestParam String ... ids) throws IOException {
+        ArrayList<Integer> idS = new ArrayList<Integer>();
+        for (String i: ids)
+            idS.add(Integer.parseInt(i));
+        Combo c = comboDB.createCombo(comboName, idS, Integer.parseInt(price));
+        comboDB.addCombo(c);
+        return new RedirectView("admin");
+    }
     @PostMapping("/buy_combo")
     public RedirectView BuyCombo(@RequestParam int combo, @CookieValue(value = "id", defaultValue = "-1") String id)
     {

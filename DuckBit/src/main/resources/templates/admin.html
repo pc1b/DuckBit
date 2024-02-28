@@ -125,14 +125,16 @@
             </div>
             <div class="w3-third" style="height:auto">
                 <h5>Form Combo</h5>
-                <form action="/upload_leak" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
+                <form action="/create_combo" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
                     <p>Name: </p>
-                    <input type='text' name='leakName' style="width: 400px"/>
+                    <input type='text' name='comboName' style="width: 400px"/>
                     <p>Price: </p>
                     <input type='number' name='price' style="width: 400px"/>
-                    <select name="leaks" id="lang" multiple>
+                    <br>
+                    <p>Leaks: </p>
+                    <select name="ids" multiple>
                         {{#leak}}
-                        <option value="{{{id}}}">{{enterprise}}</option>
+                        <option style="width: 300px;" value="{{{id}}}">{{enterprise}}</option>
                         {{/leak}}
                     </select>
                     <br>
@@ -142,11 +144,12 @@
             <div class="w3-third" style="height:auto;overflow: auto">
                 <h5>All Combos</h5>
                 <table class="w3-table w3-striped w3-white">
-                    {{#leak}}
+                    {{#combos}}
                     <tr>
-                        <td>{{enterprise}}</td>
+                        <td>{{name}}</td>
+                        <td>{{price}} $</td>
                     </tr>
-                    {{/leak}}
+                    {{/combos}}
                 </table>
             </div>
 
