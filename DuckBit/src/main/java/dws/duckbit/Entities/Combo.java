@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Combo {
 	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
@@ -14,6 +15,7 @@ public class Combo {
 	private ArrayList<Leak> leaks;
 	private int id;
 	private int price;
+	private HashSet<String> enterpriseArray;
 
 	public Combo(ArrayList<Leak> leaks, int id, int price)
 	{
@@ -21,6 +23,11 @@ public class Combo {
 		this.id = id;
 		this.price = price;
 		createCombo();
+		enterpriseArray = new HashSet<>();
+		for (Leak l: leaks)
+		{
+			this.enterpriseArray.add(l.getEnterprise());
+		}
 	}
 
 	public int getId() {
@@ -72,5 +79,19 @@ public class Combo {
 	public int getComboPrice()
 	{
 		return this.price;
+	}
+
+	// ENTERPRISE
+
+	public boolean isEnterpriseInCombo(String enterprise)
+	{
+		for (Leak l: this.leaks)
+		{
+			if (enterprise.equals(l.getEnterprise()))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }
