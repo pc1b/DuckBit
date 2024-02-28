@@ -1,14 +1,12 @@
 package dws.duckbit.controlers;
 
 import dws.duckbit.Entities.*;
-import dws.duckbit.responses.ResponseUser;
 import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,17 +41,32 @@ public class ApiControler {
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body("aaaaaaaaaaaaaaaa");
 
 	}
-	@GetMapping(value = "/api/user/{id}/")
-	public ResponseEntity<ResponseUser> getUser(@PathVariable int id) {
+	@GetMapping(value = "/api/user/{id}")
+	public ResponseEntity<User> getUser(@PathVariable int id) {
 		User u = userDB.getByID(id);
 		if (u != null) {
 			ResponseUser response = new ResponseUser(u.getID(), u.getUser(), u.getMail(), u.getCombos());
-			ResponseEntity<ResponseUser> resp =  ResponseEntity.ok(response);
+			ResponseEntity<User> resp =  ResponseEntity.ok(u);
+			System.out.println(resp.toString());
+			System.out.println(resp.getHeaders());
+			System.out.println(resp.getBody());
+			System.out.println(resp.hashCode());
 			return resp;
 		} else {
-			return ResponseEntity.notFound().build();
+			return null;
 		}
 	}
+
+//	@GetMapping("/api/combos")
+//	public ResponseEntity<Combo> getCombos() {
+//		 c = combos.getAll();
+//		if (c != null) {
+//			return ResponseEntity.ok(c);
+//		} else {
+//			return ResponseEntity.notFound().build();
+//		}
+//	}
+
 	@GetMapping("/api/combo/{id}")
 	public ResponseEntity<Combo> getComboInfo(@PathVariable int id) {
 		Combo c = combos.getByID(id);
@@ -63,6 +76,7 @@ public class ApiControler {
 			return ResponseEntity.notFound().build();
 		}
 	}
+
 	@GetMapping("/api/download_combo/{id}")
 	public ResponseEntity<String> getCombo(@PathVariable int id) {
 		Combo c = combos.getByID(id);
@@ -88,8 +102,8 @@ public class ApiControler {
 		}
 	}
 	@PostMapping("/api/create_combo")
-	public ResponseEntity<Object> createCombo(@RequestParam ArrayList<Integer> leaks) {
-		Combo c = combos.createCombo(leaks);
+	public ResponseEntity<Object> createCombo(@RequestParam ArrayList<Integer> leaks, @RequestParam int price) {
+		Combo c = combos.createCombo(leaks, price);
 
 		combos.addCombo(c);
 		URI location = fromCurrentRequest().build().toUri();

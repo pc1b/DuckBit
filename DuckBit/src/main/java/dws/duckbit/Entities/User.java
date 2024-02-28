@@ -95,4 +95,15 @@ public class User
     {
         return (this.credits >= price);
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "ID=" + ID +
+                ", user='" + user + '\'' +
+                ", mail='" + mail + '\'' +
+                ", combos=" + combos +
+                ", credits=" + credits +
+                '}';
+    }
 }
