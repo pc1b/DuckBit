@@ -1,4 +1,6 @@
-package dws.duckbit.Entities;
+package dws.duckbit.services;
+
+import dws.duckbit.Entities.User;
 
 import java.util.ArrayList;
 

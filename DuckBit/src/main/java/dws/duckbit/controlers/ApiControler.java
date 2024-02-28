@@ -1,6 +1,9 @@
-package dws.duckbit;
+package dws.duckbit.controlers;
 
 import dws.duckbit.Entities.*;
+import dws.duckbit.responses.ResponseUser;
+import dws.duckbit.services.ComboService;
+import dws.duckbit.services.UserService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;

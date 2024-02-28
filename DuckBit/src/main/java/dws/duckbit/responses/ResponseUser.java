@@ -1,4 +1,6 @@
-package dws.duckbit.Entities;
+package dws.duckbit.responses;
+
+import dws.duckbit.Entities.Combo;
 
 import java.util.ArrayList;
 

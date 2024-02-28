@@ -1,16 +1,14 @@
-package dws.duckbit;
+package dws.duckbit.controlers;
 
+import dws.duckbit.Entities.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import dws.duckbit.Entities.UserService;
+import dws.duckbit.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -19,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.UrlResource;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -192,6 +191,30 @@ public class WebController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
                 .body(image);
+    }
+
+    @DeleteMapping("delete_image")
+    public ResponseEntity<Object> deleteImage(@RequestParam int id) throws IOException {
+
+        User user = userDB.getByID(id);
+
+        if(user != null) {
+            Files.createDirectories(IMAGES_FOLDER);
+            String nameFile = user.getUser() + ".jpg";
+            Path imagePath = IMAGES_FOLDER.resolve(nameFile);
+            File img = imagePath.toFile();
+            if (img.exists()) {
+                try{
+                    img.delete();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            return ResponseEntity.noContent().build();
+
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 
