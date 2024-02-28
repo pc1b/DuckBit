@@ -192,4 +192,9 @@ public class WebController {
                 .body(image);
     }
 
+    @GetMapping("/error")
+    public String Error(){
+        return "error";
+    }
+
 }
