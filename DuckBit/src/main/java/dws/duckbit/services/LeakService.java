@@ -24,6 +24,7 @@ public class LeakService {
 			calendar.setTime(fechaDate);
 			Leak l = new Leak(enterprise, calendar, id);
 			id++;
+			addLeak(l);
 			return l;
 		} catch (ParseException e)
 		{

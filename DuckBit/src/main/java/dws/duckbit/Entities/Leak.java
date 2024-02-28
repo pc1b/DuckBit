@@ -16,4 +16,7 @@ public class Leak {
 	public String getEnterprise(){
 		return this.enterprise;
 	}
+	public String getDate(){
+		return this.date.toString();
+	}
 }

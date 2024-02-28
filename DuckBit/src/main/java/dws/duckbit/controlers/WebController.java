@@ -1,6 +1,7 @@
 package dws.duckbit.controlers;
 
 import dws.duckbit.Entities.Combo;
+import dws.duckbit.Entities.Leak;
 import dws.duckbit.Entities.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Controller
 public class WebController {
@@ -53,6 +57,14 @@ public class WebController {
         {
             String name = this.userDB.getByID(idNum).getUser();
             model.addAttribute("username", name);
+            List<Leak> leaks = new ArrayList<>();
+            if (this.leakDB.getNextId() > 0){
+                for(int i = 0; i < this.leakDB.getNextId(); i++) {
+                    Leak leak = this.leakDB.getByID(i);
+                    leaks.add(leak);
+                }
+                model.addAttribute("leak", leaks);
+            }
             return "admin";
         }
         else if (idNum > 0)
@@ -232,10 +244,9 @@ public class WebController {
         String nameFile = String.valueOf(this.leakDB.getNextId()) + ".txt";
         Path leakPath = LEAKS_FOLDER.resolve(nameFile);
         leak.transferTo(leakPath);
-        this.leakDB.createLeak(nameFile, leakDate);
+        this.leakDB.createLeak(leakName, leakDate);
         return new RedirectView("admin");
     }
-
     // COMBOS
 
     @PostMapping("/buy_combo")
