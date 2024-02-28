@@ -2,12 +2,12 @@ package dws.duckbit.Entities;
 
 import java.util.ArrayList;
 
-public class AlmacenUsuarios
+public class UserService
 {
     private ArrayList<User> userList;
     private int nextID;
 
-    public AlmacenUsuarios()
+    public UserService()
     {
         this.nextID = 0;
         userList = new ArrayList<>();

@@ -1,30 +1,30 @@
 package dws.duckbit;
 
 import dws.duckbit.Entities.*;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
+
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
 public class ApiControler {
 	//@Autowired
 	private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
-	private static final AlmacenUsuarios userDB = new AlmacenUsuarios();
-	private static final ComboControler combos = new ComboControler();
+	private static final UserService userDB = new UserService();
+	private static final ComboService combos = new ComboService();
 	@GetMapping("/api/user/{id}")
 	public ResponseEntity<ResponseUser> getUser(@PathVariable int id) {
 		User u = userDB.getByID(id);
@@ -55,8 +55,8 @@ public class ApiControler {
 	}
 
 	@GetMapping("/api/{id}/image")
-	public ResponseEntity<Object> downloadImage(@PathVariable long id) throws MalformedURLException {
-		Path imgPath = IMAGES_FOLDER.resolve(id +".jpg");
+	public ResponseEntity<Object> downloadImage(@PathVariable int id) throws MalformedURLException {
+		Path imgPath = IMAGES_FOLDER.resolve(userDB.getByID(id) +".jpg");
 		Resource file = new UrlResource(imgPath.toUri());
 
 		if(!Files.exists(imgPath)) {
@@ -66,7 +66,48 @@ public class ApiControler {
 		}
 	}
 
+	@PostMapping("/api/{id}/upload_image")
+	public ResponseEntity<Object> uploadImage(@PathVariable int id, @RequestParam MultipartFile image) throws IOException {
 
+		User user = userDB.getByID(id);
+
+		if (user != null) {
+			URI location = fromCurrentRequest().build().toUri();
+			Files.createDirectories(IMAGES_FOLDER);
+			String nameFile = user.getUser() + ".jpg";
+			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
+			image.transferTo(imagePath);
+			return ResponseEntity.created(location).build();
+
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@DeleteMapping("api/{id}/delete_image")
+	public ResponseEntity<Object> deleteImage(@PathVariable int id) throws IOException {
+
+		User user = userDB.getByID(id);
+
+		if(user != null) {
+
+			Files.createDirectories(IMAGES_FOLDER);
+			String nameFile = user.getUser() + ".jpg";
+			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
+			File img = imagePath.toFile();
+			if (img.exists()) {
+				try{
+					img.delete();
+				}catch (Exception e){
+					e.printStackTrace();
+				}
+			}
+			return ResponseEntity.noContent().build();
+
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
 
 //	@PostMapping("/api/login")
 //	public ResponseEntity<Map<>> Login(@RequestBody String user, @RequestBody String pass, RedirectAttributes attributes, HttpServletResponse response)

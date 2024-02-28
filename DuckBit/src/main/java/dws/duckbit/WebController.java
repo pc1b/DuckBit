@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import dws.duckbit.Entities.AlmacenUsuarios;
+import dws.duckbit.Entities.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 @Controller
 public class WebController {
     private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
-    private AlmacenUsuarios userDB = new AlmacenUsuarios();
+    private UserService userDB = new UserService();
 
     // INDEX
 
@@ -169,6 +169,8 @@ public class WebController {
         return "shop_admin";
     }
 
+
+    //IMAGE MAPPING
     @PostMapping("/upload_image")
     public RedirectView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException {
         Files.createDirectories(IMAGES_FOLDER);
@@ -192,6 +194,8 @@ public class WebController {
                 .body(image);
     }
 
+
+    //ERROR MAPPING
     @GetMapping("/error")
     public String Error(){
         return "error";
