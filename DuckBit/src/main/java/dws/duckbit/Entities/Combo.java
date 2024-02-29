@@ -101,4 +101,15 @@ public class Combo {
 		}
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "Combo{" +
+				"leaks=" + leaks +
+				", id=" + id +
+				", name='" + name + '\'' +
+				", price=" + price +
+				", enterpriseArray=" + enterpriseArray +
+				'}';
+	}
 }

@@ -28,4 +28,13 @@ public class Leak
 	{
 		return this.date.toString();
 	}
+
+	@Override
+	public String toString() {
+		return "Leak{" +
+				"enterprise='" + enterprise + '\'' +
+				", date=" + date +
+				", id=" + id +
+				'}';
+	}
 }

@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
@@ -35,39 +36,33 @@ public class ApiControler {
 	private static final LeakService leaks = new LeakService();
 
 
-	@GetMapping("/api")
+	@GetMapping(value = {"/api", "/api/"})
 	public ResponseEntity<Object> home() {
 
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body("aaaaaaaaaaaaaaaa");
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body("Wellcome to Duckbit api");
 
 	}
-	/*@GetMapping(value = "/api/user/{id}")
+	@GetMapping(value = {"/api/user/{id}", "/api/user/{id}/"})
 	public ResponseEntity<User> getUser(@PathVariable int id) {
 		User u = userDB.getByID(id);
 		if (u != null) {
-			ResponseUser response = new ResponseUser(u.getID(), u.getUser(), u.getMail(), u.getCombos());
-			ResponseEntity<User> resp =  ResponseEntity.ok(u);
-			System.out.println(resp.toString());
-			System.out.println(resp.getHeaders());
-			System.out.println(resp.getBody());
-			System.out.println(resp.hashCode());
-			return resp;
+			return ResponseEntity.ok(u);
 		} else {
 			return null;
 		}
-	}*/
+	}
 
-//	@GetMapping("/api/combos")
-//	public ResponseEntity<Combo> getCombos() {
-//		 c = combos.getAll();
-//		if (c != null) {
-//			return ResponseEntity.ok(c);
-//		} else {
-//			return ResponseEntity.notFound().build();
-//		}
-//	}
+	@GetMapping(value = {"/api/combos", "/api/combos/"})
+	public ResponseEntity<Collection<Combo>> getCombos() {
+		 Collection<Combo> c = combos.getAll();
+		if (c != null) {
+			return ResponseEntity.ok(c);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
 
-	@GetMapping("/api/combo/{id}")
+	@GetMapping(value = {"/api/combo/{id}", "/api/combo/{id}/"})
 	public ResponseEntity<Combo> getComboInfo(@PathVariable int id) {
 		Combo c = combos.getByID(id);
 		if (c != null) {
@@ -77,7 +72,7 @@ public class ApiControler {
 		}
 	}
 
-	@GetMapping("/api/download_combo/{id}")
+	@GetMapping(value = {"/api/download_combo/{id}", "/api/download_combo/{id}/"})
 	public ResponseEntity<String> getCombo(@PathVariable int id) {
 		Combo c = combos.getByID(id);
 		if (c != null) {
@@ -86,7 +81,7 @@ public class ApiControler {
 			return ResponseEntity.notFound().build();
 		}
 	}
-	@PostMapping("/api/upload_leak")
+	@PostMapping(value = {"/api/upload_leak", "/api/upload_leak/"})
 	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo) throws IOException {
 		Leak l = leaks.createLeak(enterprise, date);
 		if (l != null) {
@@ -101,7 +96,8 @@ public class ApiControler {
 			return ResponseEntity.notFound().build();
 		}
 	}
-	@PostMapping("/api/create_combo")
+
+	@PostMapping(value = {"/api/create_combo", "/api/create_combo/"})
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks, @RequestParam int price) throws IOException {
 		Combo c = combos.createCombo(name, leaks, price);
 
@@ -110,7 +106,9 @@ public class ApiControler {
 		return ResponseEntity.created(location).build();
 	}
 
-	@GetMapping("/api/{id}/image")
+
+	//IMAGE MAPPING
+	@GetMapping(value = {"/api/{id}/image", "/api/{id}/image/"})
 	public ResponseEntity<Object> downloadImage(@PathVariable int id) throws MalformedURLException {
 		Path imgPath = IMAGES_FOLDER.resolve(userDB.getByID(id) +".jpg");
 		Resource file = new UrlResource(imgPath.toUri());
@@ -122,7 +120,7 @@ public class ApiControler {
 		}
 	}
 
-	@PostMapping("/api/{id}/upload_image")
+	@PostMapping(value = {"/api/{id}/upload_image", "/api/{id}/upload_image/"})
 	public ResponseEntity<Object> uploadImage(@PathVariable int id, @RequestParam MultipartFile image) throws IOException {
 
 		User user = userDB.getByID(id);
@@ -140,7 +138,7 @@ public class ApiControler {
 		}
 	}
 
-	@DeleteMapping("api/{id}/delete_image")
+	@DeleteMapping(value = {"api/{id}/delete_image", "api/{id}/delete_image/"})
 	public ResponseEntity<Object> deleteImage(@PathVariable int id) throws IOException {
 
 		User user = userDB.getByID(id);

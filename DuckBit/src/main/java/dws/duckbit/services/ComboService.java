@@ -48,6 +48,10 @@ public class ComboService
 		return combos.size();
 	}
 
+	public Collection<Combo> getAll(){
+		return combos.values();
+	}
+
 	// ENTERPRISES
 
 	public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
