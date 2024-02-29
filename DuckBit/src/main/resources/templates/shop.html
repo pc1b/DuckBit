@@ -51,8 +51,31 @@
 <div class="w3-main" style="margin-top:43px;">
 
     <!-- Header -->
-    <header class="w3-container" style="padding-top:22px">
-    </header>
+    <div class="w3-bar w3-top w3-custom w3-large" style="z-index:1;">
+        <div class="w3-bar-item w3-left">
+            <div class="w3-col s4">
+                <form id="imageForm" action="/upload_image" method="post" enctype="multipart/form-data">
+                    <label for="fileInput">
+                        <img src="/download_image?username={{{username}}}" onerror="this.src='../images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
+                    </label>
+                    <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
+                    <input type='hidden' name='username' value="{{{username}}}"/>
+                </form>
+
+            </div>
+            <div style="display: flex;align-items: center;flex-direction: row;flex-wrap: wrap" class="w3-col s8 w3-bar">
+                <span style="width: 160px" class="w3-white">Welcome, <strong>{{username}}</strong></span><br>
+                <h4 style="width:160px;color:white;margin-bottom: 3px; margin-right: 5px">Credits: {{credits}}</h4>
+                <!--<a href="#" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i></a>
+                <a href="#" class="w3-bar-item w3-button"><i class="fa fa-user"></i></a>
+                <a href="#" class="w3-bar-item w3-button"><i class="fa fa-cog"></i></a>-->
+            </div>
+        </div>
+        <div style="margin-top: 10px" class="w3-right">
+            <a href="/user"><img style="width: 50px; margin-right: 5px" src="../images/profile.svg"></a>
+            <a href="/logout"><img style="width: 50px; margin-right: 5px" src="../images/logout.svg"></a>
+        </div>
+    </div>
 
 
     <div class="w3-panel w3-center">
@@ -65,7 +88,10 @@
                         <div style="display: flex;align-items: center;justify-content: center;margin-top: 20px;flex-wrap: wrap;" class="w3-container w3-black">
                             <div style="margin-right: 20px" class="w3-left"><h4>{{name}}</h4></div>
                             <div class="w3-right"><h4>{{price}} $</h4></div>
-                            <div class="w3-center"><button style="width: 100px;margin-left: 15px" class="w3-button w3-teal">Buy</button></div>
+                            <form action="/buy_combo" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="combo" value="{{{id}}}">
+                                <div class="w3-center"><input style="width: 100px;margin-left: 15px" class="w3-button w3-teal" type='submit' value="Buy"/></div>
+                            </form>
                         </div>
                     </div>
                     {{/combos}}

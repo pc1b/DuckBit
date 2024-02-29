@@ -3,6 +3,7 @@ package dws.duckbit.controlers;
 import dws.duckbit.Entities.Combo;
 import dws.duckbit.Entities.Leak;
 import dws.duckbit.Entities.User;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,23 +22,26 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.UrlResource;
 
+import javax.xml.stream.events.DTD;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class WebController {
     private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
     private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
+    private static final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
     private UserService userDB = new UserService();
     private LeakService leakDB = new LeakService();
     private ComboService comboDB = new ComboService();
+
 
     // INDEX
 
@@ -69,6 +73,7 @@ public class WebController {
             for(int i = 0; i < comboDB.getComboSize(); i++){
                     combos.add(comboDB.getByID(i));
             }
+            if (!combos.isEmpty())
                 model.addAttribute("combos", combos);
             return "admin";
         }
@@ -95,8 +100,10 @@ public class WebController {
         {
             String name = this.userDB.getByID(idNum).getUser();
             int credits = this.userDB.getByID(idNum).getCredits();
+            ArrayList<Combo> combos = this.userDB.getByID(idNum).getCombos();
             model.addAttribute("credits", credits);
             model.addAttribute("username", name);
+            model.addAttribute("combos", combos);
             return "user";
         }
         return "login";
@@ -180,21 +187,25 @@ public class WebController {
 
     // THE SHOP
 
-    @GetMapping("/user/shop")
-    public String shop_user(Model model)
-    {
+    @GetMapping("/shop")
+    public String shop(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) throws IOException {
+        /*Calendar date = Calendar.getInstance();
+        ArrayList<Leak> leaks = new ArrayList<>();
+        leaks.add( new Leak("pepe",date, 0));
+        leaks.add( new Leak("ere",date, 1));
+        comboDB.addCombo(new Combo("Pepe", leaks, 0, 190));*/
         List<Combo> combos = new ArrayList<>();
         for(int i = 0; i < comboDB.getComboSize(); i++){
             combos.add(comboDB.getByID(i));
         }
+        if (!combos.isEmpty()){
         model.addAttribute("combos", combos);
-        return "shop_user";
-    }
-
-    @GetMapping("/admin/shop")
-    public String shop_admin()
-    {
-        return "shop_admin";
+        }
+        String name = this.userDB.getByID(Integer.parseInt(id)).getUser();
+        int credits = this.userDB.getByID(Integer.parseInt(id)).getCredits();
+        model.addAttribute("credits", credits);
+        model.addAttribute("username", name);
+        return "shop";
     }
 
 
@@ -265,13 +276,29 @@ public class WebController {
     // COMBOS
 
     @PostMapping("/create_combo")
-	public RedirectView CreateCombo(@RequestParam String comboName, @RequestParam String price, @RequestParam String ... ids) throws IOException {
+	public String CreateCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String ... ids) throws IOException {
         ArrayList<Integer> idS = new ArrayList<Integer>();
         for (String i: ids)
             idS.add(Integer.parseInt(i));
         Combo c = comboDB.createCombo(comboName, idS, Integer.parseInt(price));
         comboDB.addCombo(c);
-        return new RedirectView("admin");
+        String name = this.userDB.getByID(0).getUser();
+        model.addAttribute("username", name);
+        List<Leak> leaks = new ArrayList<>();
+        if (this.leakDB.getNextId() > 0){
+            for(int i = 0; i < this.leakDB.getNextId(); i++) {
+                Leak leak = this.leakDB.getByID(i);
+                leaks.add(leak);
+            }
+            model.addAttribute("leak", leaks);
+        }
+        List<Combo> combos = new ArrayList<>();
+        for(int i = 0; i < comboDB.getComboSize(); i++){
+            combos.add(comboDB.getByID(i));
+        }
+        if (!combos.isEmpty())
+            model.addAttribute("combos", combos);
+        return "admin";
     }
     @PostMapping("/buy_combo")
     public RedirectView BuyCombo(@RequestParam int combo, @CookieValue(value = "id", defaultValue = "-1") String id)
@@ -288,15 +315,41 @@ public class WebController {
         }
         return new RedirectView("user");
     }
+
+    @PostMapping("/download_combo")
+    public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam String idCombo, @CookieValue(value = "id", defaultValue = "-1") String id)
+            throws MalformedURLException, FileNotFoundException {
+        for (Combo combo : userDB.getByID(Integer.parseInt(id)).getCombos()){
+            if (Integer.parseInt(idCombo) == combo.getId()){
+                String nameFile = idCombo + ".txt";
+                Path comboPath = COMBOS_FOLDER.resolve(nameFile);
+                Resource comboF = new UrlResource(comboPath.toUri());
+                if (comboF.exists()) {
+                    File comboFile = comboPath.toFile();
+                    FileInputStream fileInputStream = new FileInputStream(comboFile);
+                    InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
+                            .body(inputStreamResource);
+                }
+            }
+        }
+        return ResponseEntity.notFound()
+                .build();
+    }
+
     @PostMapping("/add_credits")
     public String AddCredits(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) {
         User user = this.userDB.getByID(Integer.parseInt(id));
         int currentCreds = user.getCredits();
         user.addCredits(500);
+        ArrayList<Combo> combos = this.userDB.getByID(Integer.parseInt(id)).getCombos();
         model.addAttribute("username",user.getUser());
+        model.addAttribute("combos",combos);
         model.addAttribute("credits", currentCreds + 500);
         return "user";
     }
+
     //ERROR MAPPING
 
     @GetMapping("/error")
