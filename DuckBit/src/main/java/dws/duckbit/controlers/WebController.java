@@ -194,12 +194,12 @@ public class WebController {
         leaks.add( new Leak("pepe",date, 0));
         leaks.add( new Leak("ere",date, 1));
         comboDB.addCombo(new Combo("Pepe", leaks, 0, 190));*/
-        List<Combo> combos = new ArrayList<>();
+        ArrayList<Combo> combos = new ArrayList<>();
         for(int i = 0; i < comboDB.getComboSize(); i++){
             combos.add(comboDB.getByID(i));
         }
         if (!combos.isEmpty()){
-        model.addAttribute("combos", combos);
+            model.addAttribute("combos", combos);
         }
         String name = this.userDB.getByID(Integer.parseInt(id)).getUser();
         int credits = this.userDB.getByID(Integer.parseInt(id)).getCredits();
@@ -301,7 +301,7 @@ public class WebController {
         return "admin";
     }
     @PostMapping("/buy_combo")
-    public RedirectView BuyCombo(@RequestParam int combo, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public String BuyCombo(Model model, @RequestParam int combo, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         // We must check if a combo exists
         int userID = Integer.parseInt(id);
@@ -313,7 +313,14 @@ public class WebController {
             this.comboDB.removeByID(combo);
             this.userDB.addComboToUser(comboBuyed, userID);
         }
-        return new RedirectView("user");
+        int iD = Integer.parseInt(id);
+        String name = this.userDB.getByID(iD).getUser();
+        int credits = this.userDB.getByID(iD).getCredits();
+        ArrayList<Combo> combos = this.userDB.getByID(iD).getCombos();
+        model.addAttribute("credits", credits);
+        model.addAttribute("username", name);
+        model.addAttribute("combos", combos);
+        return "user";
     }
 
     @PostMapping("/download_combo")
