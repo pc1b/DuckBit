@@ -195,8 +195,15 @@ public class WebController {
         leaks.add( new Leak("ere",date, 1));
         comboDB.addCombo(new Combo("Pepe", leaks, 0, 190));*/
         ArrayList<Combo> combos = new ArrayList<>();
-        for(int i = 0; i < comboDB.getComboSize(); i++){
-            combos.add(comboDB.getByID(i));
+        int i = 0;
+        int j = 0;
+        while (i < comboDB.getComboSize()){
+            Combo c = comboDB.getByID(j);
+            j++;
+            if (c != null) {
+                combos.add(c);
+                i++;
+            }
         }
         if (!combos.isEmpty()){
             model.addAttribute("combos", combos);
