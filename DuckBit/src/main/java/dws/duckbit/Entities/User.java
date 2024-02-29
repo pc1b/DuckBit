@@ -96,6 +96,8 @@ public class User
         return (this.credits >= price);
     }
 
+    public int getCredits(){return this.credits;}
+
     @Override
     public String toString() {
         return "User{" +

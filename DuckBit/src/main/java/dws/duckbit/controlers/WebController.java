@@ -94,6 +94,8 @@ public class WebController {
         else if (idNum > 0)
         {
             String name = this.userDB.getByID(idNum).getUser();
+            int credits = this.userDB.getByID(idNum).getCredits();
+            model.addAttribute("credits", credits);
             model.addAttribute("username", name);
             return "user";
         }
@@ -181,7 +183,11 @@ public class WebController {
     @GetMapping("/user/shop")
     public String shop_user(Model model)
     {
-        model.addAttribute("Name", "Paco");
+        List<Combo> combos = new ArrayList<>();
+        for(int i = 0; i < comboDB.getComboSize(); i++){
+            combos.add(comboDB.getByID(i));
+        }
+        model.addAttribute("combos", combos);
         return "shop_user";
     }
 
@@ -211,9 +217,13 @@ public class WebController {
         String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         Resource image = new UrlResource(imagePath.toUri());
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-                .body(image);
+        if (image.exists()) {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
+                    .body(image);
+        }
+        return ResponseEntity.notFound()
+                .build();
     }
 
     @DeleteMapping("delete_image")
@@ -278,7 +288,15 @@ public class WebController {
         }
         return new RedirectView("user");
     }
-
+    @PostMapping("/add_credits")
+    public String AddCredits(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) {
+        User user = this.userDB.getByID(Integer.parseInt(id));
+        int currentCreds = user.getCredits();
+        user.addCredits(500);
+        model.addAttribute("username",user.getUser());
+        model.addAttribute("credits", currentCreds + 500);
+        return "user";
+    }
     //ERROR MAPPING
 
     @GetMapping("/error")
