@@ -120,6 +120,7 @@ public class ApiControler {
 		}
 	}
 
+	//COMBO MAPPING
 	@GetMapping(value = {"/api/combos", "/api/combos/"})
 	public ResponseEntity<Collection<Combo>> getComboDB() {
 		 Collection<Combo> c = this.comboDB.getAll();
@@ -129,7 +130,7 @@ public class ApiControler {
 			return ResponseEntity.notFound().build();
 		}
 	}
-
+/*
 	@GetMapping(value = {"/api/combo/{id}", "/api/combo/{id}/"})
 	public ResponseEntity<Combo> getComboInfo(@PathVariable int id) {
 		Combo c = this.comboDB.getByID(id);
@@ -138,19 +139,17 @@ public class ApiControler {
 		} else {
 			return ResponseEntity.notFound().build();
 		}
-	}
+	}*/
 
 	@GetMapping(value = {"/api/download_combo/{id}", "/api/download_combo/{id}/"})
 	public ResponseEntity<String> getCombo(@PathVariable int id) {
 		Combo c = this.comboDB.getByID(id);
 		if (c != null) {
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body(c.getLeakedInfo());
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body(c.leakedInfo());
 		} else {
 			return ResponseEntity.notFound().build();
 		}
 	}
-
-
 
 	@PostMapping(value = {"/api/create_combo", "/api/create_combo/"})
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks, @RequestParam int price) throws IOException {
@@ -159,7 +158,7 @@ public class ApiControler {
 			return status(HttpStatus.BAD_REQUEST).build();
 		}
 		this.comboDB.addCombo(c);
-		URI location = fromCurrentRequest().build().toUri();
+		//URI location = fromCurrentRequest().build().toUri();
 		return status(HttpStatus.CREATED).body(c);
 	}
 

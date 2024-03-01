@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 
 public class Combo {
@@ -25,7 +26,7 @@ public class Combo {
 		this.id = id;
 		this.price = price;
 		createCombo();
-		enterpriseArray = new HashSet<>();
+		this.enterpriseArray = new HashSet<>();
 		for (Leak l: leaks)
 		{
 			this.enterpriseArray.add(l.getEnterprise());
@@ -34,6 +35,7 @@ public class Combo {
 
 	public void deleteLeak(Leak l){
 		this.leaks.remove(l);
+		this.enterpriseArray.remove(l.getEnterprise());
 		try{
 			this.createCombo();
 		}catch (Exception e){
@@ -72,7 +74,7 @@ public class Combo {
 		}
 	}
 
-	public String getLeakedInfo(){
+	public String leakedInfo(){
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
 		try (BufferedReader reader = Files.newBufferedReader(comboPath.toAbsolutePath())) {
 			StringBuilder sb = new StringBuilder();
@@ -110,6 +112,10 @@ public class Combo {
 		}
 		return false;
 	}
+	public Collection<String> getEnterprises(){
+		return this.enterpriseArray;
+	}
+
 
 	@Override
 	public String toString() {
