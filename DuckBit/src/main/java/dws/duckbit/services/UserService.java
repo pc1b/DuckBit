@@ -72,6 +72,36 @@ public class UserService
         return (userList.get(ID));
     }
 
+    // CHANGE 
+
+    public void changeUserName(int ID, String name, String password)
+    {
+        for (User u: userList)
+        {
+            if (u.getID() == ID)
+            {
+                if (u.comparePassword(password))
+                {
+                    u.changeUserName(name);
+                }
+            }
+        }
+    }
+
+    public void changeUserPassword(int ID, String password)
+    {
+        for (User u: userList)
+        {
+            if (u.getID() == ID)
+            {
+                if (u.comparePassword(password))
+                {
+                    u.changeUserPassword(password);
+                }
+            }
+        }
+    }
+
     // COMBOS
 
     public void addComboToUser(Combo combo, int ID)
