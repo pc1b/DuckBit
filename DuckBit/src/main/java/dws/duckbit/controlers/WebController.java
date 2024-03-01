@@ -55,7 +55,7 @@ public class WebController {
     public String Admin(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
-        if (this.userDB.IDExists(idNum))
+        if (!(this.userDB.IDExists(idNum)))
         {
             idNum = -1;
         }
@@ -95,7 +95,7 @@ public class WebController {
     public String User(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
-        if (this.userDB.IDExists(idNum))
+        if (!(this.userDB.IDExists(idNum)))
         {
             idNum = -1;
         }
@@ -124,7 +124,7 @@ public class WebController {
     public String Login(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
-        if (this.userDB.IDExists(idNum))
+        if (!(this.userDB.IDExists(idNum)))
         {
             idNum = -1;
         }
