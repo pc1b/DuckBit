@@ -71,9 +71,16 @@ public class WebController {
                 }
                 model.addAttribute("leak", leaks);
             }
-            List<Combo> combos = new ArrayList<>();
-            for(int i = 0; i < comboDB.getComboSize(); i++){
-                    combos.add(comboDB.getByID(i));
+            ArrayList<Combo> combos = new ArrayList<>();
+            int i = 0;
+            int j = 0;
+            while (i < comboDB.getComboSize()){
+                Combo co = comboDB.getByID(j);
+                j++;
+                if (co != null) {
+                    combos.add(co);
+                    i++;
+                }
             }
             if (!combos.isEmpty())
                 model.addAttribute("combos", combos);
@@ -330,13 +337,12 @@ public class WebController {
             Combo co = comboDB.getByID(j);
             j++;
             if (co != null) {
-                combos.add(c);
+                combos.add(co);
                 i++;
             }
         }
-        if (!combos.isEmpty()){
+        if (!combos.isEmpty())
             model.addAttribute("combos", combos);
-        }
         model.addAttribute("registredUsers", userDB.getSize());
         model.addAttribute("combosCreated", comboDB.getComboSize());
         model.addAttribute("soldCombos", soldCombos);

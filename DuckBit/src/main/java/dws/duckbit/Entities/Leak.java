@@ -26,7 +26,7 @@ public class Leak
 	
 	public String getDate()
 	{
-		return this.date.toString();
+		return  this.date.get(Calendar.DAY_OF_MONTH) + "/" + (this.date.get(Calendar.MONTH) + 1) + "/" + this.date.get(Calendar.YEAR);
 	}
 
 	@Override
