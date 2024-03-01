@@ -123,7 +123,9 @@ public class ApiControler {
 	@PostMapping(value = {"/api/create_combo", "/api/create_combo/"})
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks, @RequestParam int price) throws IOException {
 		Combo c = combos.createCombo(name, leaks, price);
-
+		if (c == null){
+			return status(HttpStatus.BAD_REQUEST).build();
+		}
 		combos.addCombo(c);
 		URI location = fromCurrentRequest().build().toUri();
 		return status(HttpStatus.CREATED).body(c);

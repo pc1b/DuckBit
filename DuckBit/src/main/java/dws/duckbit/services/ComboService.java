@@ -24,39 +24,45 @@ public class ComboService
 		ArrayList<Leak> leaks = new ArrayList<>();
 		for (int lid : leaksID)
 		{
-			leaks.add(leakService.getByID(lid));
+			Leak l = this.leakService.getByID(lid);
+			if (l != null){
+				leaks.add(l);
+			}
+			else{
+				return  null;
+			}
 		}
-		Combo combo = new Combo(name, leaks, id, price);
-		id++;
+		Combo combo = new Combo(name, leaks, this.id, price);
+		this.id++;
 		return combo;
 	}
 
 	public void addCombo(Combo c)
 	{
-		combos.put(c.getId(), c);
+		this.combos.put(c.getId(), c);
 	}
 	
 	public Combo getByID(int id)
 	{
-		return combos.get(id);
+		return this.combos.get(id);
 	}
 
 	public void removeByID(int id)
 	{
-		combos.remove(id);
+		this.combos.remove(id);
 	}
 
 	public int getComboPrice(int comboID)
 	{
-		return (combos.get(comboID).getComboPrice());
+		return (this.combos.get(comboID).getComboPrice());
 	}
 
 	public int getComboSize(){
-		return combos.size();
+		return this.combos.size();
 	}
 
 	public Collection<Combo> getAll(){
-		return combos.values();
+		return this.combos.values();
 	}
 
 	// ENTERPRISES
@@ -64,7 +70,7 @@ public class ComboService
 	public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
 	{
 		ArrayList<Integer> list = new ArrayList<>();
-		Collection<Combo> listOfValues = combos.values();
+		Collection<Combo> listOfValues = this.combos.values();
 		int value = 0;
 		for (Combo c: listOfValues)
 		{
