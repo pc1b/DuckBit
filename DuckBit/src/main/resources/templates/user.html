@@ -81,14 +81,16 @@
             <div class="w3-twothird" style="height:600px;overflow: auto">
                 <h3>My Combos</h3>
                 {{#combos}}
-                <form action="/download_combo" method="post" enctype="multipart/form-data" id="download"><input type="hidden" name="idCombo" value="{{{id}}}"></form>
+                <form action="/download_combo" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="idCombo" value="{{id}}">
                 <table class="w3-table w3-striped w3-white">
                     <tr style="display: flex;align-items: center;justify-content: space-evenly">
                         <td style="width: 100px;">{{name}}</td>
                         <td>{{price}} $</td>
-                        <td><input class="w3-button w3-orange" style="width: 300px; height: 50px" type="submit" value="Download" form="download" /></td>
+                        <td><input class="w3-button w3-orange" style="width: 300px; height: 50px" type="submit" value="Download"/></td>
                     </tr>
                 </table>
+                </form>
                 {{/combos}}
                 {{^combos}}
                 <h4>You have no combos</h4>
