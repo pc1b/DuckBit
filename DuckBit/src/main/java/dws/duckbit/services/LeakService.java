@@ -23,8 +23,8 @@ public class LeakService {
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(fechaDate);
-			Leak l = new Leak(enterprise, calendar, id);
-			id++;
+			Leak l = new Leak(enterprise, calendar, this.id);
+			this.id++;
 			addLeak(l);
 			return l;
 		} catch (ParseException e)
@@ -36,16 +36,16 @@ public class LeakService {
 
 	public void addLeak(Leak l)
 	{
-		leaks.put(l.getId(), l);
+		this.leaks.put(l.getId(), l);
 	}
 
 	public Leak getByID(int id)
 	{
-		return leaks.get(id);
+		return this.leaks.get(id);
 	}
 
 	public int getNextId()
 	{
-		return id;
+		return this.id;
 	}
 }

@@ -14,20 +14,20 @@ public class UserService
 
     public UserService()
     {
-        nextID = 0;
-        userList = new ArrayList<>();
+        this.nextID = 0;
+        this.userList = new ArrayList<>();
     }
 
     public void addUser(String user, String mail, String password)
     {
-        User newUser = new User(nextID, user, mail, password);
-        userList.add(newUser);
-        nextID++;
+        User newUser = new User(this.nextID, user, mail, password);
+        this.userList.add(newUser);
+        this.nextID++;
     }
 
     public boolean userExists (String user)
     {
-        for (User u: userList)
+        for (User u: this.userList)
         {
             if (u.getUser().equals(user))
             {
@@ -39,7 +39,7 @@ public class UserService
 
     public boolean IDExists(int ID)
     {
-        for (User u: userList)
+        for (User u: this.userList)
         {
             if (u.getID() == ID)
             {
@@ -54,7 +54,7 @@ public class UserService
     //If it returns a negative number, the user does not exists
     public int getIDUser(String user, String password)
     {
-        for (User u: userList)
+        for (User u: this.userList)
         {
             if (u.isUser(user, password))
             {
@@ -65,20 +65,20 @@ public class UserService
     }
 
     public int getSize(){
-        return userList.size();
+        return this.userList.size();
     }
 
     //There is no error management. If the id is invalid, it will return an Exception, and the app will die
     public User getByID(int ID)
     {
-        return (userList.get(ID));
+        return (this.userList.get(ID));
     }
 
     // CHANGE 
 
     public void changeUserName(int ID, String name, String password)
     {
-        for (User u: userList)
+        for (User u: this.userList)
         {
             if (u.getID() == ID)
             {
@@ -92,7 +92,7 @@ public class UserService
 
     public void changeUserPassword(int ID, String password)
     {
-        for (User u: userList)
+        for (User u: this.userList)
         {
             if (u.getID() == ID)
             {
@@ -108,23 +108,23 @@ public class UserService
 
     public void addComboToUser(Combo combo, int ID)
     {
-        userList.get(ID).addCombosToUser(combo);
+        this.userList.get(ID).addCombosToUser(combo);
     }
 
     // $$$$$ CREDIT AND MONEY $$$$$
 
     public boolean hasEnoughCredits(int price, int ID)
     {
-        return (userList.get(ID).hasEnoughCredits(price));
+        return (this.userList.get(ID).hasEnoughCredits(price));
     }
 
     public void addCreditsToUser(int plus, int ID)
     {
-        userList.get(ID).addCredits(plus);
+        this.userList.get(ID).addCredits(plus);
     }
 
     public void substractCreditsToUser(int minus, int ID)
     {
-        userList.get(ID).substractCredits(minus);
+        this.userList.get(ID).substractCredits(minus);
     }    
 }
