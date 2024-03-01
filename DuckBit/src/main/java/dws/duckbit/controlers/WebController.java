@@ -22,7 +22,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.UrlResource;
 
-import javax.xml.stream.events.DTD;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -56,6 +55,10 @@ public class WebController {
     public String Admin(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
+        if (this.userDB.IDExists(idNum))
+        {
+            idNum = -1;
+        }
         if (idNum == 0)
         {
             String name = this.userDB.getByID(idNum).getUser();
@@ -92,6 +95,10 @@ public class WebController {
     public String User(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
+        if (this.userDB.IDExists(idNum))
+        {
+            idNum = -1;
+        }
         if (idNum == 0)
         {
             String name = this.userDB.getByID(idNum).getUser();
@@ -117,6 +124,10 @@ public class WebController {
     public String Login(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
+        if (this.userDB.IDExists(idNum))
+        {
+            idNum = -1;
+        }
         if (idNum == 0)
         {
             String name = this.userDB.getByID(idNum).getUser();
@@ -175,7 +186,14 @@ public class WebController {
     @PostMapping("/register")
     public RedirectView Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
     {
-        this.userDB.addUser(user, mail, pass);
+        if (this.userDB.userExists(user))
+        {
+            return new RedirectView("register");
+        }
+        else
+        {
+            this.userDB.addUser(user, mail, pass);
+        }    
         return new RedirectView("login");
     }
 

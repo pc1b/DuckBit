@@ -23,6 +23,30 @@ public class UserService
         nextID++;
     }
 
+    public boolean userExists (String user)
+    {
+        for (User u: userList)
+        {
+            if (u.getUser().equals(user))
+            {
+                return (true);
+            }
+        }
+        return (false);
+    }
+
+    public boolean IDExists(int ID)
+    {
+        for (User u: userList)
+        {
+            if (u.getID() == ID)
+            {
+                return (true);
+            }
+        }
+        return (false);
+    }
+
     //If it returns 0, is the admin
     //If it return a positive number, is a user
     //If it returns a negative number, the user does not exists
