@@ -16,6 +16,9 @@ public class UserService
     {
         this.nextID = 0;
         this.userList = new ArrayList<>();
+        this.addUser("admin", "admin@duckbit.org", "admin");
+        this.addUser("paco", "paco@duckbit.org", "paco");
+        this.addUser("juan", "juan@duckbit.org", "juan");
     }
 
     public void addUser(String user, String mail, String password)
@@ -69,8 +72,9 @@ public class UserService
     }
 
     //There is no error management. If the id is invalid, it will return an Exception, and the app will die
-    public User getByID(int ID)
-    {
+    public User getByID(int ID) {
+        if (ID >= this.getSize())
+            return null;
         return (this.userList.get(ID));
     }
 

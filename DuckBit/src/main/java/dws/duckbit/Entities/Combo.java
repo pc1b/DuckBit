@@ -32,6 +32,15 @@ public class Combo {
 		}
 	}
 
+	public void deleteLeak(Leak l){
+		this.leaks.remove(l);
+		try{
+			this.createCombo();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
+	}
 	public int getId() {
 		return this.id;
 	}

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 @Service
@@ -34,6 +35,9 @@ public class LeakService {
 		return null;
 	}
 
+	public void deleteLeak(Leak l){
+		this.leaks.remove(l.getId());
+	}
 	public void addLeak(Leak l)
 	{
 		this.leaks.put(l.getId(), l);
@@ -41,11 +45,22 @@ public class LeakService {
 
 	public Leak getByID(int id)
 	{
+		if (id >= this.getSize())
+			return null;
 		return this.leaks.get(id);
 	}
 
 	public int getNextId()
 	{
 		return this.id;
+	}
+
+	public int getSize(){
+		return this.leaks.size();
+	}
+
+
+	public Collection<Leak> getAll(){
+		return this.leaks.values();
 	}
 }

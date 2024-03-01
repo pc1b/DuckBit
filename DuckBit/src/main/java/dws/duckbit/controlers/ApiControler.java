@@ -4,12 +4,10 @@ import dws.duckbit.Entities.*;
 import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,17 +30,17 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 @RestController
 public class ApiControler {
 
-	private static  Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
-	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
+	private Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
+	private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 
 	private final UserService userDB;
-	private final ComboService combos;
-	private final LeakService leaks;
+	private final ComboService comboDB;
+	private final LeakService leaksDB;
 
-	public ApiControler(UserService userDB, ComboService combos, LeakService leaks) {
+	public ApiControler(UserService userDB, ComboService comboDB, LeakService leaksDB) {
 		this.userDB = userDB;
-		this.combos = combos;
-		this.leaks = leaks;
+		this.comboDB = comboDB;
+		this.leaksDB = leaksDB;
 	}
 
 
@@ -55,7 +53,7 @@ public class ApiControler {
 
 	@GetMapping(value = {"/api/user/{id}", "/api/user/{id}/"})
 	public ResponseEntity<User> getUser(@PathVariable int id) {
-		User u = userDB.getByID(id);
+		User u = this.userDB.getByID(id);
 		if (u != null) {
 			return ResponseEntity.ok(u);
 		} else {
@@ -63,9 +61,68 @@ public class ApiControler {
 		}
 	}
 
+	//LEAKS MAPPING
+	@GetMapping(value = {"/api/leak/{id}/", "/api/leak/{id}"})
+	public ResponseEntity<Object> getLeak(@PathVariable int id) throws IOException {
+		Leak l = this.leaksDB.getByID(id);
+		if (l != null) {
+			return ResponseEntity.ok(l);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@GetMapping(value = {"/api/leaks", "/api/leaks"})
+	public ResponseEntity<Object> getLeaks() {
+		return ResponseEntity.ok(this.leaksDB.getAll());
+	}
+
+	@PostMapping(value = {"/api/upload_leak", "/api/upload_leak/"})
+	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo) throws IOException {
+		Leak l = this.leaksDB.createLeak(enterprise, date);
+		if (l != null) {
+			this.leaksDB.addLeak(l);
+			URI location = fromCurrentRequest().build().toUri();
+			Files.createDirectories(LEAKS_FOLDER);
+			String nameFile = l.getId() + ".txt";
+			Path txtPath = LEAKS_FOLDER.resolve(nameFile);
+			leakInfo.transferTo(txtPath);
+			return status(HttpStatus.CREATED).body(l);
+			//return ResponseEntity.ok(l);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@DeleteMapping(value = {"/api/delete_leak/{id}", "/api/delete_leak/{id}/"})
+	public ResponseEntity<Object> deleteLeak(@PathVariable int id) throws IOException {
+		Leak l = this.leaksDB.getByID(id);
+		if (l != null) {
+			this.leaksDB.deleteLeak(l);
+			this.comboDB.deleteLeak(l);
+			Files.createDirectories(this.LEAKS_FOLDER);
+			String nameFile = l.getId() + ".txt";
+			Path leakPath = this.LEAKS_FOLDER.resolve(nameFile);
+			File leak = leakPath.toFile();
+			if (leak.exists()) {
+				try{
+					if (!leak.delete()){
+						status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+					}
+				}catch (Exception e){
+					e.printStackTrace();
+					status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+				}
+			}
+			return ResponseEntity.noContent().build();
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@GetMapping(value = {"/api/combos", "/api/combos/"})
-	public ResponseEntity<Collection<Combo>> getCombos() {
-		 Collection<Combo> c = combos.getAll();
+	public ResponseEntity<Collection<Combo>> getComboDB() {
+		 Collection<Combo> c = this.comboDB.getAll();
 		if (c != null) {
 			return ResponseEntity.ok(c);
 		} else {
@@ -75,7 +132,7 @@ public class ApiControler {
 
 	@GetMapping(value = {"/api/combo/{id}", "/api/combo/{id}/"})
 	public ResponseEntity<Combo> getComboInfo(@PathVariable int id) {
-		Combo c = combos.getByID(id);
+		Combo c = this.comboDB.getByID(id);
 		if (c != null) {
 			return ResponseEntity.ok(c);
 		} else {
@@ -85,7 +142,7 @@ public class ApiControler {
 
 	@GetMapping(value = {"/api/download_combo/{id}", "/api/download_combo/{id}/"})
 	public ResponseEntity<String> getCombo(@PathVariable int id) {
-		Combo c = combos.getByID(id);
+		Combo c = this.comboDB.getByID(id);
 		if (c != null) {
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body(c.getLeakedInfo());
 		} else {
@@ -93,40 +150,15 @@ public class ApiControler {
 		}
 	}
 
-	@GetMapping(value = {"/api/leak/{id}/", "/api/leak/{id}"})
-	public ResponseEntity<Object> getLeak(@PathVariable int id) throws IOException {
-		Leak l = leaks.getByID(id);
-		if (l != null) {
-			return ResponseEntity.ok(l);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
 
-	@PostMapping(value = {"/api/upload_leak", "/api/upload_leak/"})
-	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo) throws IOException {
-		Leak l = leaks.createLeak(enterprise, date);
-		if (l != null) {
-			leaks.addLeak(l);
-			URI location = fromCurrentRequest().build().toUri();
-			Files.createDirectories(LEAKS_FOLDER);
-			String nameFile = l.getId() + ".txt";
-			Path txtPath = LEAKS_FOLDER.resolve(nameFile);
-			leakInfo.transferTo(txtPath);
-			return ResponseEntity.created(location).build();
-			//return ResponseEntity.ok(l);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
 
 	@PostMapping(value = {"/api/create_combo", "/api/create_combo/"})
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks, @RequestParam int price) throws IOException {
-		Combo c = combos.createCombo(name, leaks, price);
+		Combo c = this.comboDB.createCombo(name, leaks, price);
 		if (c == null){
 			return status(HttpStatus.BAD_REQUEST).build();
 		}
-		combos.addCombo(c);
+		this.comboDB.addCombo(c);
 		URI location = fromCurrentRequest().build().toUri();
 		return status(HttpStatus.CREATED).body(c);
 	}
@@ -135,7 +167,7 @@ public class ApiControler {
 	//IMAGE MAPPING
 	@GetMapping(value = {"/api/{id}/image", "/api/{id}/image/"})
 	public ResponseEntity<Object> downloadImage(@PathVariable int id) throws MalformedURLException {
-		Path imgPath = IMAGES_FOLDER.resolve(userDB.getByID(id).getUser() +".jpg");
+		Path imgPath = IMAGES_FOLDER.resolve(this.userDB.getByID(id).getUser() +".jpg");
 		Resource file = new UrlResource(imgPath.toUri());
 
 		if(!Files.exists(imgPath)) {
@@ -148,7 +180,7 @@ public class ApiControler {
 	@PostMapping(value = {"/api/{id}/upload_image", "/api/{id}/upload_image/"})
 	public ResponseEntity<Object> uploadImage(@PathVariable int id, @RequestParam MultipartFile image) throws IOException {
 
-		User user = userDB.getByID(id);
+		User user = this.userDB.getByID(id);
 
 		if (user != null) {
 			URI location = fromCurrentRequest().build().toUri();
@@ -166,7 +198,7 @@ public class ApiControler {
 	@DeleteMapping(value = {"api/{id}/delete_image", "api/{id}/delete_image/"})
 	public ResponseEntity<Object> deleteImage(@PathVariable int id) throws IOException {
 
-		User user = userDB.getByID(id);
+		User user = this.userDB.getByID(id);
 
 		if(user != null) {
 
@@ -176,9 +208,12 @@ public class ApiControler {
 			File img = imagePath.toFile();
 			if (img.exists()) {
 				try{
-					img.delete();
+					if (!img.delete()){
+						status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+					}
 				}catch (Exception e){
 					e.printStackTrace();
+					status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 				}
 			}
 			return ResponseEntity.noContent().build();

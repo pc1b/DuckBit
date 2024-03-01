@@ -27,6 +27,7 @@ public class User
             this.md = MessageDigest.getInstance("MD5");
             this.password = md.digest(userPassword);
             this.combos = new ArrayList<>();
+            
         }
         catch (Exception e)
         {
