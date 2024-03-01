@@ -1,16 +1,17 @@
 package dws.duckbit.services;
 
 import dws.duckbit.Entities.Leak;
+import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-
+@Service
 public class LeakService {
-	private static final HashMap<Integer, Leak> leaks = new HashMap<>();
-	private static int id = 0;
+	private final HashMap<Integer, Leak> leaks = new HashMap<>();
+	private int id = 0;
 	public LeakService(){}
 
 	public Leak createLeak(String enterprise, String date)

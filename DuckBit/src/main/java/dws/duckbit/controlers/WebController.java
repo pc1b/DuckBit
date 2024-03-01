@@ -34,14 +34,21 @@ import java.util.*;
 
 @Controller
 public class WebController {
-    private static final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
-    private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
-    private static final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
-    private UserService userDB = new UserService();
-    private LeakService leakDB = new LeakService();
-    private ComboService comboDB = new ComboService();
+    private final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
+    private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
+    private final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
+    private final UserService userDB;
+    private final LeakService leakDB;
+    private final ComboService comboDB;
+
     private int soldCombos = 0;
-    // INDEX
+
+	public WebController(UserService userDB, LeakService leakDB, ComboService comboDB) {
+		this.userDB = userDB;
+		this.leakDB = leakDB;
+		this.comboDB = comboDB;
+	}
+	// INDEX
 
     @GetMapping("/")
     public String index()

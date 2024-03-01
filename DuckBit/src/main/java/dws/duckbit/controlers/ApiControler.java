@@ -4,9 +4,12 @@ import dws.duckbit.Entities.*;
 import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.springframework.http.ResponseEntity.status;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
@@ -31,9 +35,15 @@ public class ApiControler {
 	private static  Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
 	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 
-	private static final UserService userDB = new UserService();
-	private static final ComboService combos = new ComboService();
-	private static final LeakService leaks = new LeakService();
+	private final UserService userDB;
+	private final ComboService combos;
+	private final LeakService leaks;
+
+	public ApiControler(UserService userDB, ComboService combos, LeakService leaks) {
+		this.userDB = userDB;
+		this.combos = combos;
+		this.leaks = leaks;
+	}
 
 
 	@GetMapping(value = {"/api", "/api/"})
@@ -42,6 +52,7 @@ public class ApiControler {
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body("Wellcome to Duckbit api");
 
 	}
+
 	@GetMapping(value = {"/api/user/{id}", "/api/user/{id}/"})
 	public ResponseEntity<User> getUser(@PathVariable int id) {
 		User u = userDB.getByID(id);
@@ -86,7 +97,6 @@ public class ApiControler {
 	public ResponseEntity<Object> getLeak(@PathVariable int id) throws IOException {
 		Leak l = leaks.getByID(id);
 		if (l != null) {
-			System.out.println(l.toString());
 			return ResponseEntity.ok(l);
 		} else {
 			return ResponseEntity.notFound().build();
@@ -104,6 +114,7 @@ public class ApiControler {
 			Path txtPath = LEAKS_FOLDER.resolve(nameFile);
 			leakInfo.transferTo(txtPath);
 			return ResponseEntity.created(location).build();
+			//return ResponseEntity.ok(l);
 		} else {
 			return ResponseEntity.notFound().build();
 		}
@@ -115,7 +126,7 @@ public class ApiControler {
 
 		combos.addCombo(c);
 		URI location = fromCurrentRequest().build().toUri();
-		return ResponseEntity.created(location).build();
+		return status(HttpStatus.CREATED).body(c);
 	}
 
 

@@ -2,13 +2,15 @@ package dws.duckbit.services;
 
 import dws.duckbit.Entities.Combo;
 import dws.duckbit.Entities.User;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+@Service
 public class UserService
 {
-    private static ArrayList<User> userList;
-    private static int nextID;
+    private final ArrayList<User> userList;
+    private int nextID;
 
     public UserService()
     {

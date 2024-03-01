@@ -2,17 +2,24 @@ package dws.duckbit.services;
 
 import dws.duckbit.Entities.Combo;
 import dws.duckbit.Entities.Leak;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+@Service
 public class ComboService
 {
-	private static HashMap<Integer, Combo> combos = new HashMap<>();
-	public static int id = 0;
-	public static LeakService leakService = new LeakService();
+	private HashMap<Integer, Combo> combos = new HashMap<>();
+	public int id = 0;
+	public final LeakService leakService;
+
+	public ComboService(LeakService leakService) {
+		this.leakService = leakService;
+	}
+
 	public Combo createCombo(String name, ArrayList<Integer> leaksID, int price) throws IOException {
 		ArrayList<Leak> leaks = new ArrayList<>();
 		for (int lid : leaksID)
