@@ -38,6 +38,10 @@ public class UserService
         return (-1);
     }
 
+    public int getSize(){
+        return userList.size();
+    }
+
     //There is no error management. If the id is invalid, it will return an Exception, and the app will die
     public User getByID(int ID)
     {

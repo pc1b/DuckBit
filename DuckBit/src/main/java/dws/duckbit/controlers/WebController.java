@@ -41,8 +41,7 @@ public class WebController {
     private UserService userDB = new UserService();
     private LeakService leakDB = new LeakService();
     private ComboService comboDB = new ComboService();
-
-
+    private int soldCombos = 0;
     // INDEX
 
     @GetMapping("/")
@@ -75,6 +74,9 @@ public class WebController {
             }
             if (!combos.isEmpty())
                 model.addAttribute("combos", combos);
+            model.addAttribute("registredUsers", userDB.getSize());
+            model.addAttribute("combosCreated", comboDB.getComboSize());
+            model.addAttribute("soldCombos", soldCombos);
             return "admin";
         }
         else if (idNum > 0)
@@ -305,6 +307,9 @@ public class WebController {
         }
         if (!combos.isEmpty())
             model.addAttribute("combos", combos);
+        model.addAttribute("registredUsers", userDB.getSize());
+        model.addAttribute("combosCreated", comboDB.getComboSize());
+        model.addAttribute("soldCombos", soldCombos);
         return "admin";
     }
     @PostMapping("/buy_combo")
@@ -327,6 +332,7 @@ public class WebController {
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
         model.addAttribute("combos", combos);
+        soldCombos++;
         return "user";
     }
 
