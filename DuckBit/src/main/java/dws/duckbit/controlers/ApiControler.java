@@ -81,6 +81,18 @@ public class ApiControler {
 			return ResponseEntity.notFound().build();
 		}
 	}
+
+	@GetMapping(value = {"/api/leak/{id}/", "/api/leak/{id}"})
+	public ResponseEntity<Object> getLeak(@PathVariable int id) throws IOException {
+		Leak l = leaks.getByID(id);
+		if (l != null) {
+			System.out.println(l.toString());
+			return ResponseEntity.ok(l);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
 	@PostMapping(value = {"/api/upload_leak", "/api/upload_leak/"})
 	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo) throws IOException {
 		Leak l = leaks.createLeak(enterprise, date);
@@ -89,7 +101,7 @@ public class ApiControler {
 			URI location = fromCurrentRequest().build().toUri();
 			Files.createDirectories(LEAKS_FOLDER);
 			String nameFile = l.getId() + ".txt";
-			Path txtPath = IMAGES_FOLDER.resolve(nameFile);
+			Path txtPath = LEAKS_FOLDER.resolve(nameFile);
 			leakInfo.transferTo(txtPath);
 			return ResponseEntity.created(location).build();
 		} else {
@@ -110,7 +122,7 @@ public class ApiControler {
 	//IMAGE MAPPING
 	@GetMapping(value = {"/api/{id}/image", "/api/{id}/image/"})
 	public ResponseEntity<Object> downloadImage(@PathVariable int id) throws MalformedURLException {
-		Path imgPath = IMAGES_FOLDER.resolve(userDB.getByID(id) +".jpg");
+		Path imgPath = IMAGES_FOLDER.resolve(userDB.getByID(id).getUser() +".jpg");
 		Resource file = new UrlResource(imgPath.toUri());
 
 		if(!Files.exists(imgPath)) {
