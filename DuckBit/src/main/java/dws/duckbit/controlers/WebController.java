@@ -147,6 +147,10 @@ public class WebController {
     public String Register(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
+        if (!(this.userDB.IDExists(idNum)))
+        {
+            idNum = -1;
+        }
         if (idNum == 0)
         {
             String name = this.userDB.getByID(idNum).getUser();
