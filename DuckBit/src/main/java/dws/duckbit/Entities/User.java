@@ -14,6 +14,7 @@ public class User
     private byte[] password;
     private MessageDigest md;
     private ArrayList<Combo> combos;
+    private int credits = 0;
 
     public User(int ID, String user, String mail, String password)
     {
@@ -26,6 +27,7 @@ public class User
             this.md = MessageDigest.getInstance("MD5");
             this.password = md.digest(userPassword);
             this.combos = new ArrayList<>();
+            
         }
         catch (Exception e)
         {
@@ -76,5 +78,56 @@ public class User
     public void addCombosToUser(Combo combo)
     {
         this.combos.add(combo);
+    }
+
+    // CHANGE USER
+
+    public void changeUserName(String user)
+    {
+        this.user = user;
+    }
+
+    public void changeUserPassword(String password)
+    {
+        try
+        {
+            byte[] userPassword = password.getBytes("UTF-8");
+            this.md = MessageDigest.getInstance("MD5");
+            this.password = md.digest(userPassword);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    // $$$$$ CREDIT AND MONEY $$$$$
+
+    public void addCredits(int plus)
+    {
+        this.credits = this.credits + plus;
+    }
+
+    public void substractCredits(int minus)
+    {
+        this.credits = this.credits - minus;
+    }
+
+    public boolean hasEnoughCredits(int price)
+    {
+        return (this.credits >= price);
+    }
+
+    public int getCredits(){return this.credits;}
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "ID=" + ID +
+                ", user='" + user + '\'' +
+                ", mail='" + mail + '\'' +
+                ", combos=" + combos +
+                ", credits=" + credits +
+                '}';
     }
 }

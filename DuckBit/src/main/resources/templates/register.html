@@ -9,8 +9,16 @@
   <link rel="stylesheet" href="../css/font-awesome.min.css">
 </head>
 <body style="background-color: #050E1E">
+<nav class="w3-sidebar w3-bar-block w3-card w3-animate-left w3-center" style="display:none" id="mySidebar">
+  <a href="/" class="w3-bar-item w3-button">Home</a>
+  <a href="/login" class="w3-bar-item w3-button">Login</a>
+  <a href="/register" class="w3-bar-item w3-button">Register</a>
+  <a href="/shop" class="w3-bar-item w3-button">Shop</a>
+  <button class="w3-bar-item w3-button" onclick="w3_close()">Close <img src="../images/close.svg" width="30px"></button>
+</nav>
 <!-- Header -->
 <header class="w3-container w3-theme w3-padding" id="myHeader">
+  <img src="../images/hamburger.svg" class="fa fa-bars w3-xlarge w3-button w3-theme" style="width: 80px;" onclick="w3_open()">
   <div class="w3-center">
     <h4 style="font-weight: bold; font-size: 75px">Register</h4>
     <img src="../images/logo.jpg" style="width: 250px">
@@ -34,5 +42,18 @@
   <h3>DuckBit</h3>
   <p>Previously known as <a href="https://en.wikipedia.org/wiki/Lockbit" target="_blank">LockBit</a></p>
 </footer>
+<script>
+  // Side navigation
+  function w3_open() {
+    var x = document.getElementById("mySidebar");
+    x.style.width = "100%";
+    x.style.fontSize = "40px";
+    x.style.paddingTop = "10%";
+    x.style.display = "block";
+  }
+  function w3_close() {
+    document.getElementById("mySidebar").style.display = "none";
+  }
+</script>
 </body>
 </html>

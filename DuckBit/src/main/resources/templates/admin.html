@@ -36,7 +36,8 @@
 
     </div>
     <div style="margin-top: 10px" class="w3-right">
-        <a href="/logout"><img style="width: 50px" src="../images/logout.svg"></a>
+        <a href="/shop"><img style="width: 45px; margin-bottom: 3px; margin-right: 5px" src="../images/shop.svg"></a>
+        <a href="/logout"><img style="width: 50px; margin-right: 5px" src="../images/logout.svg"></a>
     </div>
 </div>
 
@@ -80,7 +81,7 @@
             <div class="w3-container w3-teal w3-padding-16">
                 <div class="w3-left"><img style="width: 50px" src="../images/users.svg"></i></div>
                 <div class="w3-right">
-                    <h3>52</h3>
+                    <h3>{{registredUsers}}</h3>
                 </div>
                 <div class="w3-clear"></div>
                 <h4>Users</h4>
@@ -90,96 +91,70 @@
             <div class="w3-container w3-red w3-padding-16">
                 <div class="w3-left"><img style="width: 50px" src="../images/attack.svg"></div>
                 <div class="w3-right">
-                    <h3>42</h3>
+                    <h3>{{combosCreated}}</h3>
                 </div>
                 <div class="w3-clear"></div>
-                <h4>Leaks</h4>
+                <h4>Combos</h4>
             </div>
         </div>
         <div class="w3-third">
             <div class="w3-container w3-orange w3-text-white w3-padding-16">
                 <div class="w3-left"><img style="width: 57px" src="../images/money.svg"></div>
                 <div class="w3-right">
-                    <h3>25</h3>
+                    <h3>{{soldCombos}}</h3>
                 </div>
                 <div class="w3-clear"></div>
-                <h4>Sold Leaks</h4>
+                <h4>Sold Combos</h4>
             </div>
         </div>
     </div>
 
     <div class="w3-panel">
         <div class="w3-row-padding" style="margin:0 -16px">
-            <div class="w3-third" style="height:400px;overflow: auto">
-                <h5>All Leaks</h5>
-                <table class="w3-table w3-striped w3-white">
-                    <tr>
-                        <td>ABC Corporation</td>
-                        <td><i>50$</i></td>
-                        <td>15/03/2022</td>
-                    </tr>
-                    <tr>
-                        <td>XYZ Ltd.</td>
-                        <td><i>35$</i></td>
-                        <td>22/04/2022</td>
-                    </tr>
-                    <tr>
-                        <td>QuickTech Solutions</td>
-                        <td><i>45$</i></td>
-                        <td>10/06/2022</td>
-                    </tr>
-                    <tr>
-                        <td>InnoSoft Innovations</td>
-                        <td><i>28$</i></td>
-                        <td>05/08/2022</td>
-                    </tr>
-                    <tr>
-                        <td>Global Innovations Inc.</td>
-                        <td><i>60$</i></td>
-                        <td>20/09/2022</td>
-                    </tr>
-                    <tr>
-                        <td>DataSprint Technologies</td>
-                        <td><i>42$</i></td>
-                        <td>15/11/2022</td>
-                    </tr>
-                    <tr>
-                        <td>NovaWare Solutions</td>
-                        <td><i>55$</i></td>
-                        <td>03/01/2023</td>
-                    </tr>
-                    <tr>
-                        <td>Eagle Systems</td>
-                        <td><i>48$</i></td>
-                        <td>18/03/2023</td>
-                    </tr>
-                    <tr>
-                        <td>Quantum Dynamics Ltd.</td>
-                        <td><i>37$</i></td>
-                        <td>22/05/2023</td>
-                    </tr>
-                    <tr>
-                        <td>TechVision Innovations</td>
-                        <td><i>52$</i></td>
-                        <td>09/07/2023</td>
-                    </tr>
-
-                </table>
-            </div>
-            <div class="w3-twothird" style="height:400px">
-                <h5>Upload Leaks</h5>
+            <div class="w3-third" style="height:auto">
+                <h5>Upload Leak</h5>
                 <form action="/upload_leak" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
                     <p>Name: </p>
-                    <input type='text' name='leakName' style="width: 700px"/>
-                    <p>Price: </p>
-                    <input type='number' name='leakPrice' style="width: 700px"/>
+                    <input type='text' name='leakName' style="width: 400px"/>
                     <p>Date: </p>
-                    <input type='date' name='leakDate' style="width: 700px"/>
+                    <input type='date' name='leakDate' style="width: 400px"/>
                     <p>File:</p><input type='file' name='leak' accept=".txt"/>
                     <br>
                     <input type='submit' value='Save Leak'/>
                 </form>
-
+            </div>
+            <div class="w3-third" style="height:auto">
+                <h5>Form Combo</h5>
+                <form action="/create_combo" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
+                    <p>Name: </p>
+                    <input type='text' name='comboName' style="width: 400px"/>
+                    <p>Price: </p>
+                    <input type='number' name='price' style="width: 400px"/>
+                    <br>
+                    <p>Leaks: </p>
+                    <select name="ids" multiple>
+                        {{#leak}}
+                        <option style="width: 300px;" value="{{{id}}}">{{enterprise}}</option>
+                        {{/leak}}
+                    </select>
+                    <br>
+                    <input type='submit' value='Save Combo'/>
+                </form>
+            </div>
+            <div class="w3-third" style="height:auto;overflow: auto">
+                <h5>All Combos</h5>
+                <table class="w3-table w3-striped w3-white">
+                    {{#combos}}
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{price}} $</td>
+                    </tr>
+                    {{/combos}}
+                    {{^combos}}
+                    <h3>There are no combos</h3>
+                    {{/combos}}
+                </table>
+            </div>
 
                 <!-- <h5>Attack Requests</h5>
                  <table class="w3-table w3-striped w3-white">
@@ -241,9 +216,10 @@
                      </tr>
                  </table>
              </div>-->
-        </div>
+
     </div>
     <hr>
+    </div>
 
    <!-- <div class="w3-container">
         <h5>General Stats</h5>
