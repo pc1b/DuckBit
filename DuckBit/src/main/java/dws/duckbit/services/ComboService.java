@@ -65,8 +65,6 @@ public class ComboService
 	
 	public Combo getByID(int id)
 	{
-		if (id >= this.getComboSize())
-			return null;
 		return this.combos.get(id);
 	}
 

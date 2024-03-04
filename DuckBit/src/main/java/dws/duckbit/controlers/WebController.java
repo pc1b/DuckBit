@@ -78,19 +78,10 @@ public class WebController {
                 }
                 model.addAttribute("leak", leaks);
             }
-            ArrayList<Combo> combos = new ArrayList<>();
-            int i = 0;
-            int j = 0;
-            while (i < comboDB.getComboSize()){
-                Combo co = comboDB.getByID(j);
-                j++;
-                if (co != null) {
-                    combos.add(co);
-                    i++;
-                }
+            Collection<Combo> c = this.comboDB.getAll();
+            if (!c.isEmpty()) {
+                model.addAttribute("combos", c);
             }
-            if (!combos.isEmpty())
-                model.addAttribute("combos", combos);
             model.addAttribute("registredUsers", userDB.getSize());
             model.addAttribute("combosCreated", comboDB.getComboSize());
             model.addAttribute("soldCombos", soldCombos);
@@ -117,6 +108,21 @@ public class WebController {
         {
             String name = this.userDB.getByID(idNum).getUser();
             model.addAttribute("username", name);
+            List<Leak> leaks = new ArrayList<>();
+            if (this.leakDB.getNextId() > 0){
+                for(int i = 0; i < this.leakDB.getNextId(); i++) {
+                    Leak leak = this.leakDB.getByID(i);
+                    leaks.add(leak);
+                }
+                model.addAttribute("leak", leaks);
+            }
+            Collection<Combo> c = this.comboDB.getAll();
+            if (!c.isEmpty()) {
+                model.addAttribute("combos", c);
+            }
+            model.addAttribute("registredUsers", userDB.getSize());
+            model.addAttribute("combosCreated", comboDB.getComboSize());
+            model.addAttribute("soldCombos", soldCombos);
             return "admin";
         }
         else if (idNum > 0)
@@ -232,19 +238,9 @@ public class WebController {
         leaks.add( new Leak("pepe",date, 0));
         leaks.add( new Leak("ere",date, 1));
         comboDB.addCombo(new Combo("Pepe", leaks, 0, 190));*/
-        ArrayList<Combo> combos = new ArrayList<>();
-        int i = 0;
-        int j = 0;
-        while (i < comboDB.getComboSize()){
-            Combo c = comboDB.getByID(j);
-            j++;
-            if (c != null) {
-                combos.add(c);
-                i++;
-            }
-        }
-        if (!combos.isEmpty()){
-            model.addAttribute("combos", combos);
+        Collection<Combo> c = this.comboDB.getAll();
+        if (!c.isEmpty()) {
+                model.addAttribute("combos", c);
         }
         String name = this.userDB.getByID(Integer.parseInt(id)).getUser();
         int credits = this.userDB.getByID(Integer.parseInt(id)).getCredits();
@@ -337,19 +333,10 @@ public class WebController {
             }
             model.addAttribute("leak", leaks);
         }
-        ArrayList<Combo> combos = new ArrayList<>();
-        int i = 0;
-        int j = 0;
-        while (i < comboDB.getComboSize()){
-            Combo co = comboDB.getByID(j);
-            j++;
-            if (co != null) {
-                combos.add(co);
-                i++;
-            }
+        Collection<Combo> cb = this.comboDB.getAll();
+        if (!cb.isEmpty()) {
+            model.addAttribute("combos", cb);
         }
-        if (!combos.isEmpty())
-            model.addAttribute("combos", combos);
         model.addAttribute("registredUsers", userDB.getSize());
         model.addAttribute("combosCreated", comboDB.getComboSize());
         model.addAttribute("soldCombos", soldCombos);
@@ -399,6 +386,50 @@ public class WebController {
         }
         return ResponseEntity.notFound()
                 .build();
+    }
+
+    @PostMapping("/edit_combo")
+        public String EditCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String id, @RequestParam String ... ids) throws IOException {
+        ArrayList<Integer> idS = new ArrayList<Integer>();
+        for (String i: ids)
+            idS.add(Integer.parseInt(i));
+        Combo c = comboDB.getByID(Integer.parseInt(id));
+        ArrayList<Leak> leaksEdit = new ArrayList<>();
+        if (c != null) {
+            if (this.leakDB.getNextId() > 0) {
+                for (int i : idS) {
+                    Leak leak = this.leakDB.getByID(i);
+                    if (leak != null) {
+                        leaksEdit.add(leak);
+                    }
+                }
+                String nameFile = id + ".txt";
+                Path comboPath = COMBOS_FOLDER.resolve(nameFile);
+                Resource comboF = new UrlResource(comboPath.toUri());
+                if (comboF.exists()) {
+                    Files.delete(comboPath);
+                }
+                c.editCombo(comboName, Integer.parseInt(price), leaksEdit);
+            }
+        }
+        String name = this.userDB.getByID(0).getUser();
+        model.addAttribute("username", name);
+        ArrayList<Leak> leaks = new ArrayList<>();
+        if (this.leakDB.getNextId() > 0){
+            for(int i = 0; i < this.leakDB.getNextId(); i++) {
+                Leak leak = this.leakDB.getByID(i);
+                leaks.add(leak);
+            }
+            model.addAttribute("leak", leaks);
+        }
+        Collection<Combo> cb = this.comboDB.getAll();
+        if (!cb.isEmpty()) {
+            model.addAttribute("combos", cb);
+        }
+        model.addAttribute("registredUsers", userDB.getSize());
+        model.addAttribute("combosCreated", comboDB.getComboSize());
+        model.addAttribute("soldCombos", soldCombos);
+        return "admin";
     }
 
     @PostMapping("/add_credits")
