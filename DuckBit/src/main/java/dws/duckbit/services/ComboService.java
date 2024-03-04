@@ -15,6 +15,7 @@ public class ComboService
 	private HashMap<Integer, Combo> combos = new HashMap<>();
 	public int id = 0;
 	public final LeakService leakService;
+	private int soldCombos = 0;
 
 	public ComboService(LeakService leakService) throws IOException{
 		this.leakService = leakService;
@@ -29,6 +30,10 @@ public class ComboService
 		id.add(1);
 		this.addCombo(this.createCombo("Combo2", id, 40));
 
+	}
+
+	public void updateSoldCombo(){
+		this.soldCombos++;
 	}
 
 	public Combo createCombo(String name, ArrayList<Integer> leaksID, int price) throws IOException {

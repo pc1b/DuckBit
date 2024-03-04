@@ -4,14 +4,18 @@ import dws.duckbit.Entities.*;
 import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.web.servlet.view.RedirectView;
 
 
 import java.io.File;
@@ -51,13 +55,13 @@ public class ApiControler {
 
 	}
 
-	@GetMapping(value = {"/api/user/{id}", "/api/user/{id}/"})
-	public ResponseEntity<User> getUser(@PathVariable int id) {
-		User u = this.userDB.getByID(id);
+	@GetMapping(value = {"/api/user/", "/api/user"})
+	public ResponseEntity<User> getUser(@CookieValue(value = "id", defaultValue = "-1") String id) {
+		User u = this.userDB.getByID(Integer.parseInt(id));
 		if (u != null) {
 			return ResponseEntity.ok(u);
 		} else {
-			return null;
+			return status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
 
@@ -78,7 +82,9 @@ public class ApiControler {
 	}
 
 	@PostMapping(value = {"/api/upload_leak", "/api/upload_leak/"})
-	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo) throws IOException {
+	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo, @CookieValue(value = "id", defaultValue = "-1") String id) throws IOException {
+		if (Integer.parseInt(id) != 0)
+			return status(HttpStatus.UNAUTHORIZED).build();
 		Leak l = this.leaksDB.createLeak(enterprise, date);
 		if (l != null) {
 			this.leaksDB.addLeak(l);
@@ -121,15 +127,6 @@ public class ApiControler {
 	}
 
 	//COMBO MAPPING
-	@GetMapping(value = {"/api/combos", "/api/combos/"})
-	public ResponseEntity<Collection<Combo>> getComboDB() {
-		 Collection<Combo> c = this.comboDB.getAll();
-		if (c != null) {
-			return ResponseEntity.ok(c);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
 /*
 	@GetMapping(value = {"/api/combo/{id}", "/api/combo/{id}/"})
 	public ResponseEntity<Combo> getComboInfo(@PathVariable int id) {
@@ -162,6 +159,75 @@ public class ApiControler {
 		return status(HttpStatus.CREATED).body(c);
 	}
 
+	//SESION MAPPING
+	@PostMapping(value = {"/api/login/", "/api/login"})
+	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password, HttpServletResponse response){
+		int userID = this.userDB.getIDUser(username, password);
+		Cookie cookie = new Cookie("id", String.valueOf(userID));
+		if (userID == 0)
+		{
+			response.addCookie(cookie);
+			return ResponseEntity.ok().build();
+		}
+		else if (userID > 0)
+		{
+			response.addCookie(cookie);
+			return ResponseEntity.ok().build();
+		}
+		else
+		{
+			return status(HttpStatus.BAD_REQUEST).build();
+		}
+
+	}
+
+	@PostMapping(value = {"/api/register","/api/register/"})
+	public ResponseEntity<Object> Register(@RequestParam String username, @RequestParam String password, @RequestParam String mail)
+	{
+		if (this.userDB.userExists(username))
+		{
+			return status(HttpStatus.BAD_REQUEST).body("Username allready registered");
+		}
+		else
+		{
+			this.userDB.addUser(username, mail, password);
+		}
+		return status(HttpStatus.CREATED).build();
+	}
+
+	//SHOP MAPPING
+	@GetMapping(value = {"/api/shop", "/api/shop/"})
+	public ResponseEntity<Collection<Combo>> getComboDB() {
+		Collection<Combo> c = this.comboDB.getAll();
+		if (c != null) {
+			return ResponseEntity.ok(c);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@PostMapping(value = {"/buy_combo/{id}", "/buy_combo/{id}/"})
+	public ResponseEntity<Object> BuyCombo(@RequestParam int combo, @PathVariable int id)
+	{
+		// We must check if a combo exists
+		if (this.comboDB.getByID(combo) == null){
+			return ResponseEntity.notFound().build();
+		}
+		int comboPrice = this.comboDB.getComboPrice(combo);
+		if (this.userDB.hasEnoughCredits(comboPrice, id))
+		{
+			this.userDB.substractCreditsToUser(comboPrice, id);
+			Combo comboBuyed = this.comboDB.getByID(combo);
+			this.comboDB.removeByID(combo);
+			this.userDB.addComboToUser(comboBuyed, id);
+			this.comboDB.updateSoldCombo();
+			return ResponseEntity.ok(comboBuyed);
+
+		}
+		else {
+			return status(HttpStatus.BAD_REQUEST).body("NOT ENAUGH CREDITS");
+		}
+	}
 
 	//IMAGE MAPPING
 	@GetMapping(value = {"/api/{id}/image", "/api/{id}/image/"})

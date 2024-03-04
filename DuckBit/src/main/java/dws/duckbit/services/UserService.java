@@ -73,7 +73,7 @@ public class UserService
 
     //There is no error management. If the id is invalid, it will return an Exception, and the app will die
     public User getByID(int ID) {
-        if (ID >= this.getSize())
+        if (ID >= this.getSize() || ID <= 0)
             return null;
         return (this.userList.get(ID));
     }
