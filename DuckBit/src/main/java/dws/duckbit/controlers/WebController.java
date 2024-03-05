@@ -14,11 +14,14 @@ import org.springframework.web.servlet.view.RedirectView;
 import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.UrlResource;
 
@@ -446,8 +449,19 @@ public class WebController {
 
     //ERROR MAPPING
 
-    @GetMapping("/error")
-    public String Error(){
+    @RequestMapping("/error")
+    public String handleError(Model model, HttpServletRequest request) {
+        Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+        Integer statusCode;
+        if (status != null)
+        {
+            statusCode = Integer.valueOf(status.toString());
+        }
+        else
+        {
+            statusCode = 500;
+        }
+        model.addAttribute("statusCode", statusCode);
         return "error";
     }
 }
