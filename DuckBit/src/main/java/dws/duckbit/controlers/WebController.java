@@ -449,19 +449,4 @@ public class WebController {
 
     //ERROR MAPPING
 
-    @RequestMapping("/error")
-    public String handleError(Model model, HttpServletRequest request) {
-        Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-        Integer statusCode;
-        if (status != null)
-        {
-            statusCode = Integer.valueOf(status.toString());
-        }
-        else
-        {
-            statusCode = 500;
-        }
-        model.addAttribute("statusCode", statusCode);
-        return "error";
-    }
 }
