@@ -60,6 +60,11 @@ public class ComboService
 		return combo;
 	}
 
+	public void deleteCombo(int id)
+	{
+		this.combos.remove(id);
+	}
+
 	public void deleteLeak(Leak l){
 		for (Combo c : this.combos.values()){
 			c.deleteLeak(l);
