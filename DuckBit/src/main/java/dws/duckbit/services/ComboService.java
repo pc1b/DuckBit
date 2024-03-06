@@ -19,8 +19,8 @@ public class ComboService
 
 	public ComboService(LeakService leakService) throws IOException{
 		this.leakService = leakService;
-		this.leakService.addLeak(this.leakService.createLeak("Microsft", "2024-10-8"));
-		this.leakService.addLeak(this.leakService.createLeak("Google", "2024-10-8"));
+		this.leakService.addLeak(this.leakService.createLeak("Orange", "2024-10-8"));
+		this.leakService.addLeak(this.leakService.createLeak("URJC", "2024-10-8"));
 		this.leakService.addLeak(this.leakService.createLeak("Amazon", "2024-10-8"));
 		ArrayList<Integer> id = new ArrayList<>();
 		id.add(0);
@@ -30,6 +30,13 @@ public class ComboService
 		id.add(1);
 		this.addCombo(this.createCombo("Combo2", id, 40));
 
+	}
+
+	public void deleteCombo(Combo c){
+		this.combos.remove(c.getId());
+	}
+	public int getSoldCombos() {
+		return this.soldCombos;
 	}
 
 	public void updateSoldCombo(){

@@ -34,20 +34,22 @@ public class Combo {
 	}
 
 	public void deleteLeak(Leak l){
-		this.leaks.remove(l);
-		this.enterpriseArray.remove(l.getEnterprise());
-		try{
-			this.createCombo();
-		}catch (Exception e){
-			e.printStackTrace();
+		if (this.leaks.remove(l)){
+			this.enterpriseArray.remove(l.getEnterprise());
+			try{
+				this.createCombo();
+			}catch (Exception e){
+				e.printStackTrace();
+			}
 		}
+
 
 	}
 	public int getId() {
 		return this.id;
 	}
 
-	public void editCombo(String name, int price, ArrayList<Leak> leaks){
+	public void editCombo(String name, int price, ArrayList<Leak> leaks) throws IOException{
 		this.name = name;
 		this.price = price;
 		this.leaks = leaks;
@@ -57,11 +59,7 @@ public class Combo {
 			this.enterpriseArray.add(l.getEnterprise());
 		}
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
-		try {
-			Files.createFile(comboPath);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
+		//Files.createFile(comboPath);
 		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath())) {
 			for (Leak l : this.leaks){
 				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
