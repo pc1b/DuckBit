@@ -115,10 +115,10 @@
                 <h5>Upload Leak</h5>
                 <form action="/upload_leak" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
                     <p>Name: </p>
-                    <input type='text' name='leakName' style="width: 400px"/>
+                    <input type='text' name='leakName' style="width: 400px" required/>
                     <p>Date: </p>
-                    <input type='date' name='leakDate' style="width: 400px"/>
-                    <p>File:</p><input type='file' name='leak' accept=".txt"/>
+                    <input type='date' name='leakDate' style="width: 400px" required/>
+                    <p>File:</p><input type='file' name='leak' accept=".txt" required/>
                     <br>
                     <input type='submit' value='Save Leak'/>
                 </form>
@@ -127,9 +127,9 @@
                 <h5 class="editFormHeader">Form Combo</h5>
                 <form action="/create_combo" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;" id="editForm">
                     <p>Name: </p>
-                    <input type='text' name='comboName' style="width: 400px" id="name" value=""/>
+                    <input type='text' name='comboName' style="width: 400px" id="name" value="" required/>
                     <p>Price: </p>
-                    <input type='number' name='price' style="width: 400px" id="price" value=""/>
+                    <input type='number' name='price' style="width: 400px" id="price" value="" required/>
                     <input type='hidden' id="idH" name="id" value=""/>
                     <br>
                     <p>Leaks: </p>

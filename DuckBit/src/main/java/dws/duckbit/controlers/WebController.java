@@ -241,6 +241,8 @@ public class WebController {
         leaks.add( new Leak("pepe",date, 0));
         leaks.add( new Leak("ere",date, 1));
         comboDB.addCombo(new Combo("Pepe", leaks, 0, 190));*/
+        if (Integer.parseInt(id) == -1)
+            return "login";
         Collection<Combo> c = this.comboDB.getAll();
         if (!c.isEmpty()) {
                 model.addAttribute("combos", c);
