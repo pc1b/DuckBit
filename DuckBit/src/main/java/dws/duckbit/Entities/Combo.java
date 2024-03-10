@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class Combo {
+
+public class Combo
+{
 	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 	private static final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
 
@@ -20,7 +22,10 @@ public class Combo {
 	private int price;
 	private HashSet<String> enterpriseArray;
 
-	public Combo(String name, ArrayList<Leak> leaks, int id, int price) throws IOException {
+// ---------- CONSTRUCTOR ---------- //
+
+	public Combo(String name, ArrayList<Leak> leaks, int id, int price) throws IOException
+	{
 		this.name = name;
 		this.leaks = leaks;
 		this.id = id;
@@ -33,23 +38,91 @@ public class Combo {
 		}
 	}
 
-	public void deleteLeak(Leak l){
-		if (this.leaks.remove(l)){
-			this.enterpriseArray.remove(l.getEnterprise());
-			try{
-				this.createCombo();
-			}catch (Exception e){
-				e.printStackTrace();
-			}
-		}
+// ---------- GET ---------- //
 
-
-	}
-	public int getId() {
+	public int getId()
+	{
 		return this.id;
 	}
 
-	public void editCombo(String name, int price, ArrayList<Leak> leaks) throws IOException{
+	public int getComboPrice()
+	{
+		return this.price;
+	}
+
+	public String getName()
+	{
+		return this.name;
+	}
+
+	public Collection<String> getEnterprises()
+	{
+		return this.enterpriseArray;
+	}
+
+// ---------- DELETE AND REMOVE ---------- //
+
+	public void deleteLeak(Leak l)
+	{
+		if (this.leaks.remove(l))
+		{
+			this.enterpriseArray.remove(l.getEnterprise());
+			try
+			{
+				this.createCombo();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+// ---------- ADD AND CREATE ---------- //
+
+	private void createCombo() throws IOException
+	{
+		Files.createDirectories(COMBOS_FOLDER);
+		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
+		try
+		{
+			Files.createFile(comboPath);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath()))
+		{
+			for (Leak l: this.leaks)
+			{
+				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
+				Path leakPath = LEAKS_FOLDER.resolve(l.getId() + ".txt");
+				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath()))
+				{
+					String line;
+					while ((line = reader.readLine()) != null)
+					{
+						writer.write(line);
+						writer.newLine();
+					}
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+// ---------- EDIT ---------- //
+
+	public void editCombo(String name, int price, ArrayList<Leak> leaks) throws IOException
+	{
 		this.name = name;
 		this.price = price;
 		this.leaks = leaks;
@@ -59,79 +132,55 @@ public class Combo {
 			this.enterpriseArray.add(l.getEnterprise());
 		}
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
-		//Files.createFile(comboPath);
-		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath())) {
-			for (Leak l : this.leaks){
+		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath()))
+		{
+			for (Leak l: this.leaks)
+			{
 				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
 				Path leakPath = LEAKS_FOLDER.resolve(l.getId() + ".txt");
-				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath())) {
+				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath()))
+				{
 					String line;
-					while ((line = reader.readLine()) != null) {
+					while ((line = reader.readLine()) != null)
+					{
 						writer.write(line);
 						writer.newLine();
 					}
-				}catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					e.printStackTrace();
 				}
 			}
-		}catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	private void createCombo() throws IOException {
-		Files.createDirectories(COMBOS_FOLDER);
-		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
-		try {
-			Files.createFile(comboPath);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath())) {
-			for (Leak l : this.leaks){
-				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
-				Path leakPath = LEAKS_FOLDER.resolve(l.getId() + ".txt");
-				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath())) {
-					String line;
-					while ((line = reader.readLine()) != null) {
-						writer.write(line);
-						writer.newLine();
-					}
-				}catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+// ---------- OHERS ---------- //
 
-	public String leakedInfo(){
+	public String leakedInfo()
+	{
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
-		try (BufferedReader reader = Files.newBufferedReader(comboPath.toAbsolutePath())) {
+		try (BufferedReader reader = Files.newBufferedReader(comboPath.toAbsolutePath()))
+		{
 			StringBuilder sb = new StringBuilder();
 			String line;
-			while ((line = reader.readLine()) != null) {
+			while ((line = reader.readLine()) != null)
+			{
 				sb.append(line);
 				sb.append("\n");
 			}
 			return sb.toString();
-		}catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 			return null;
 		}
 	}
-
-	public int getComboPrice()
-	{
-		return this.price;
-	}
-
-	public String getName(){
-		return this.name;
-	}
-
-	// ENTERPRISE
 
 	public boolean isEnterpriseInCombo(String enterprise)
 	{
@@ -144,13 +193,10 @@ public class Combo {
 		}
 		return false;
 	}
-	public Collection<String> getEnterprises(){
-		return this.enterpriseArray;
-	}
-
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "Combo{" +
 				"leaks=" + leaks +
 				", id=" + id +

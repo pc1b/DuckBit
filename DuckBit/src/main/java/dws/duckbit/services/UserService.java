@@ -110,7 +110,7 @@ public class UserService
         return (false);
     }
 
-// ---------- NOT YET IMPLEMENTED ! ---------- // Change user name and password
+// ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
 
     public void changeUserName(int ID, String name, String password)
     {
