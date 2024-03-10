@@ -48,7 +48,7 @@ public class WebController {
 		this.leakDB = leakDB;
 		this.comboDB = comboDB;
 	}
-	// INDEX
+// ---------- INDEX ---------- //
 
     @GetMapping("/")
     public String index()
@@ -56,9 +56,10 @@ public class WebController {
         return "index";
     }
 
-    // USERS TYPES
+// ---------- USERS TYPES ---------- //
 
-    @GetMapping("/admin")
+    // Admin default page
+    @GetMapping({"/admin", "/admin/"})
     public ModelAndView Admin(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
@@ -72,15 +73,18 @@ public class WebController {
             String email = this.userDB.getByID(idNum).getMail();
             model.addAttribute("username", name);
             List<Leak> leaks = new ArrayList<>();
-            if (this.leakDB.getNextId() > 0){
-                for(int i = 0; i < this.leakDB.getNextId(); i++) {
+            if (this.leakDB.getNextId() > 0)
+            {
+                for(int i = 0; i < this.leakDB.getNextId(); i++)
+                {
                     Leak leak = this.leakDB.getByID(i);
                     leaks.add(leak);
                 }
                 model.addAttribute("leak", leaks);
             }
             Collection<Combo> c = this.comboDB.getAll();
-            if (!c.isEmpty()) {
+            if (!c.isEmpty())
+            {
                 model.addAttribute("combos", c);
             }
             model.addAttribute("registredUsers", userDB.getSize());
@@ -96,7 +100,8 @@ public class WebController {
         return new ModelAndView("redirect:/login");
     }
 
-    @GetMapping("/user")
+    // Client default page
+    @GetMapping({"/user", "/user/"})
     public ModelAndView User(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         int idNum = Integer.parseInt(id);
@@ -123,8 +128,9 @@ public class WebController {
         return new ModelAndView("redirect:/login");
     }
 
-    // LOGIN AND REGISTER
+// ---------- LOGIN AND REGISTER ---------- //
 
+    // Login page
     @GetMapping({"/login", "/login/"})
     public ModelAndView Login(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
@@ -144,6 +150,7 @@ public class WebController {
         return new ModelAndView("login");
     }
 
+    // Register page
     @GetMapping({"/register", "/register/"})
     public ModelAndView Register(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
@@ -163,6 +170,7 @@ public class WebController {
         return new ModelAndView("register");
     }
 
+    // Form sended to login
     @PostMapping({"/login", "/login/"})
     public ModelAndView Login(@RequestParam String user, @RequestParam String pass, RedirectAttributes attributes, HttpServletResponse response)
     {
@@ -184,6 +192,7 @@ public class WebController {
         }
     }
 
+    // Form sended to register
     @PostMapping({"/register", "/register/"})
     public ModelAndView Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
     {
@@ -198,6 +207,7 @@ public class WebController {
         return new ModelAndView("redirect:/login");
     }
 
+    // Logout
     @GetMapping({"/logout", "/logout/"})
     public ModelAndView Logout(@CookieValue(value = "id", defaultValue = "-1") String id, HttpServletResponse response)
     {
@@ -206,15 +216,12 @@ public class WebController {
         return new ModelAndView("redirect:/login");
     }
 
-    // THE SHOP
+// ---------- SHOP ---------- //
 
+    // Default page for the shop
     @GetMapping({"/shop", "/shop/"})
-    public ModelAndView shop(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) throws IOException {
-        /*Calendar date = Calendar.getInstance();
-        ArrayList<Leak> leaks = new ArrayList<>();
-        leaks.add( new Leak("pepe",date, 0));
-        leaks.add( new Leak("ere",date, 1));
-        comboDB.addCombo(new Combo("Pepe", leaks, 0, 190));*/
+    public ModelAndView shop(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) throws IOException
+    {
         if (Integer.parseInt(id) == -1)
         {
             return new ModelAndView("redirect:/login");
@@ -231,10 +238,12 @@ public class WebController {
         return new ModelAndView("shop");
     }
 
+// ---------- IMAGES MANIPULATION ---------- //
 
-    //IMAGE MAPPING
+    // Upload a new user image
     @PostMapping({"/upload_image", "/upload_image/"})
-    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException {
+    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException
+    {
         Files.createDirectories(IMAGES_FOLDER);
         String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
@@ -247,13 +256,15 @@ public class WebController {
         return new ModelAndView("redirect:/user");
     }
 
+    // Download a user image
     @GetMapping({"/download_image", "/download_image/"})
-    public ResponseEntity<Object> downloadImage(@RequestParam String username, Model model)
-            throws MalformedURLException {
+    public ResponseEntity<Object> downloadImage(@RequestParam String username, Model model) throws MalformedURLException
+    {
         String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         Resource image = new UrlResource(imagePath.toUri());
-        if (image.exists()) {
+        if (image.exists())
+        {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
                     .body(image);
@@ -262,6 +273,7 @@ public class WebController {
                 .build();
     }
 
+    // Delete a user image
     @DeleteMapping({"/delete_image", "/delete_image/"})
     public ResponseEntity<Object> deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id) throws IOException
     {
@@ -273,22 +285,29 @@ public class WebController {
             String nameFile = user.getUser() + ".jpg";
             Path imagePath = IMAGES_FOLDER.resolve(nameFile);
             File img = imagePath.toFile();
-            if (img.exists()) {
-                try{
+            if (img.exists())
+            {
+                try
+                {
                     img.delete();
-                }catch (Exception e){
+                }
+                catch (Exception e)
+                {
                     e.printStackTrace();
                 }
             }
             return ResponseEntity.noContent().build();
 
-        } else {
+        }
+        else
+        {
             return ResponseEntity.notFound().build();
         }
     }
 
-    // LEAKS
+// ---------- LEAKS MANIPULATION ---------- //
 
+    // Upload a new leak
     @PostMapping({"/upload_leak", "/upload_leak/"})
     public ModelAndView UploadLeak(@RequestParam String leakName, @RequestParam String leakDate, @RequestParam MultipartFile leak) throws IOException
     {
@@ -300,19 +319,23 @@ public class WebController {
         return new ModelAndView("redirect:/admin");
     }
 
-    // COMBOS
+// ---------- COMBOS MANIPULATION ---------- //
 
+    // Create a new combo
     @PostMapping({"/create_combo", "/create_combo/"} )
 	public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String ... ids) throws IOException
     {
         ArrayList<Integer> idS = new ArrayList<Integer>();
         for (String i: ids)
+        {
             idS.add(Integer.parseInt(i));
+        }
         Combo c = comboDB.createCombo(comboName, idS, Integer.parseInt(price));
         comboDB.addCombo(c);
         return new ModelAndView("redirect:/admin");
     }
 
+    // Delete a combo
     @DeleteMapping({"/delete_combo/{id}", "/delete_combo/{comboID}"})
     public ResponseEntity<Object> deleteCombo(@CookieValue(value = "id", defaultValue = "-1") String id, @PathVariable int comboID) throws IOException
     {
@@ -328,10 +351,10 @@ public class WebController {
         }
     }
 
+    // Buy a combo
     @PostMapping({"/buy_combo", "/buy_combo/"})
     public ModelAndView BuyCombo(Model model, @RequestParam int combo, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
-        // We must check if a combo exists
         int userID = Integer.parseInt(id);
         int comboPrice = this.comboDB.getComboPrice(combo);
         if (this.userDB.hasEnoughCredits(comboPrice, userID))
@@ -345,16 +368,20 @@ public class WebController {
         return new ModelAndView("redirect:/user");
     }
 
+    // Download a combo
     @PostMapping({"/download_combo", "/download_combo/"})
     public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam String idCombo, @CookieValue(value = "id", defaultValue = "-1") String id)
             throws MalformedURLException, FileNotFoundException 
     {
-        for (Combo combo : userDB.getByID(Integer.parseInt(id)).getCombos()){
-            if (Integer.parseInt(idCombo) == combo.getId()){
+        for (Combo combo : userDB.getByID(Integer.parseInt(id)).getCombos())
+        {
+            if (Integer.parseInt(idCombo) == combo.getId())
+            {
                 String nameFile = idCombo + ".txt";
                 Path comboPath = COMBOS_FOLDER.resolve(nameFile);
                 Resource comboF = new UrlResource(comboPath.toUri());
-                if (comboF.exists()) {
+                if (comboF.exists())
+                {
                     File comboFile = comboPath.toFile();
                     FileInputStream fileInputStream = new FileInputStream(comboFile);
                     InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
@@ -368,26 +395,34 @@ public class WebController {
                 .build();
     }
 
+    // Edit a combo
     @PostMapping({"/edit_combo", "/edit_combo/"})
     public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String id, @RequestParam String ... ids) throws IOException
     {
         ArrayList<Integer> idS = new ArrayList<Integer>();
         for (String i: ids)
+        {
             idS.add(Integer.parseInt(i));
+        }
         Combo c = comboDB.getByID(Integer.parseInt(id));
         ArrayList<Leak> leaksEdit = new ArrayList<>();
-        if (c != null) {
-            if (this.leakDB.getNextId() > 0) {
-                for (int i : idS) {
+        if (c != null)
+        {
+            if (this.leakDB.getNextId() > 0)
+            {
+                for (int i : idS)
+                {
                     Leak leak = this.leakDB.getByID(i);
-                    if (leak != null) {
+                    if (leak != null)
+                    {
                         leaksEdit.add(leak);
                     }
                 }
                 String nameFile = id + ".txt";
                 Path comboPath = COMBOS_FOLDER.resolve(nameFile);
                 Resource comboF = new UrlResource(comboPath.toUri());
-                if (comboF.exists()) {
+                if (comboF.exists())
+                {
                     Files.delete(comboPath);
                 }
                 c.editCombo(comboName, Integer.parseInt(price), leaksEdit);
@@ -396,8 +431,11 @@ public class WebController {
         return new ModelAndView("redirect:/admin");
     }
 
+// ---------- CREDITS ---------- //
+
     @PostMapping({"/add_credits", "/add_credits/"})
-    public ModelAndView AddCredits(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) {
+    public ModelAndView AddCredits(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    {
         User user = this.userDB.getByID(Integer.parseInt(id));
         user.addCredits(500);
         return new ModelAndView("redirect:/user");
