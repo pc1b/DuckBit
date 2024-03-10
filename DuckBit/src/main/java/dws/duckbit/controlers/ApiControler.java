@@ -6,17 +6,13 @@ import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 
 import java.io.File;
@@ -37,33 +33,40 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 @RequestMapping("/api")
 public class ApiControler {
 
+	// ---------- DEFAULT PATHS ---------- //
 	private final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
 	private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 	private final Path COMBO_FOLDER = Paths.get("src/main/resources/static/combo");
 
+	// ---------- SERVICES ---------- //
 	private final UserService userDB;
 	private final ComboService comboDB;
 	private final LeakService leaksDB;
 
+	// ---------- BUILDER ---------- //
 	public ApiControler(UserService userDB, ComboService comboDB, LeakService leaksDB) {
 		this.userDB = userDB;
 		this.comboDB = comboDB;
 		this.leaksDB = leaksDB;
 	}
 
-
+	// ---------- INDEX ---------- //
 	@GetMapping({"/", ""})
-	public ResponseEntity<Object> home() {
-
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body("Welcome to Duckbit api");
-
+	public ResponseEntity<Object> home()
+	{
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain")
+				.body("Welcome to Duckbit api");
 	}
-
+	// ---------- USER ---------- //
+	//USER INFO
 	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
-	public ResponseEntity<Object> getUser(@PathVariable int id) {
+	public ResponseEntity<Object> getUser(@PathVariable int id)
+	{
 		User u = this.userDB.getByID(id);
-		if (u != null) {
-			if (id == 0){
+		if (u != null)
+		{
+			if (id == 0)
+			{
 				HashMap<String,Object> response = new HashMap<>();
 				response.put("User", this.userDB.getByID(id).getUser());
 				response.put("Mail", this.userDB.getByID(id).getMail());
@@ -75,139 +78,202 @@ public class ApiControler {
 				return ResponseEntity.ok(response);
 			}
 			return ResponseEntity.ok(u);
-		} else {
+		}
+		else
+		{
 			return status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
 
+	//USER BUY CREDITS
 	@GetMapping(value = {"/{id}/credits", "/{id}/credits/"})
-	public ResponseEntity<User> buyCredits(@PathVariable int id) {
+	public ResponseEntity<User> buyCredits(@PathVariable int id)
+	{
 		User u = this.userDB.getByID(id);
-		if (u != null) {
+		if (u != null)
+		{
 			this.userDB.addCreditsToUser(500, id);
 			return ResponseEntity.ok(u);
-		} else {
+		}
+		else
+		{
 			return status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
 
-	//LEAKS MAPPING
-	/*@GetMapping({"/leak/{id}/", "/leak/{id}"})
-	public ResponseEntity<Object> getLeak(@PathVariable int id) throws IOException {
-		Leak l = this.leaksDB.getByID(id);
-		if (l != null) {
-			return ResponseEntity.ok(l);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}*/
-
+	// ---------- LEAKS ---------- //
+	//GET ALL LEAKS
 	@GetMapping({"/leaks/", "/leaks"})
-	public ResponseEntity<Object> getLeaks() {
+	public ResponseEntity<Object> getLeaks()
+	{
 		return ResponseEntity.ok(this.leaksDB.getAll());
 	}
 
+	//CREATE A NEW LEAK
 	@PostMapping({"/leak/", "/leak"})
-	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date, @RequestParam MultipartFile leakInfo) throws IOException {
+	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date,
+	                                         @RequestParam MultipartFile leakInfo) throws IOException
+	{
 		Leak l = this.leaksDB.createLeak(enterprise, date);
-		if (l != null) {
+		if (l != null)
+		{
 			this.leaksDB.addLeak(l);
 			Files.createDirectories(LEAKS_FOLDER);
 			String nameFile = l.getId() + ".txt";
 			Path txtPath = LEAKS_FOLDER.resolve(nameFile);
 			leakInfo.transferTo(txtPath);
 			return status(HttpStatus.CREATED).body(l);
-		} else {
+		}
+		else
+		{
 			return ResponseEntity.notFound().build();
 		}
 	}
 
-	@DeleteMapping(value = {"/leak/{id}", "/leak/{id}/"})
-	public ResponseEntity<Object> deleteLeak(@PathVariable int id) throws IOException {
+	//DELETE A LEAK
+	@DeleteMapping({"/leak/{id}", "/leak/{id}/"})
+	public ResponseEntity<Object> deleteLeak(@PathVariable int id) throws IOException
+	{
 		Leak l = this.leaksDB.getByID(id);
-		if (l != null) {
+		if (l != null)
+		{
 			this.leaksDB.deleteLeak(l);
 			this.comboDB.deleteLeak(l);
 			Files.createDirectories(this.LEAKS_FOLDER);
 			String nameFile = l.getId() + ".txt";
 			Path leakPath = this.LEAKS_FOLDER.resolve(nameFile);
 			File leak = leakPath.toFile();
-			if (leak.exists()) {
-				try{
-					if (!leak.delete()){
+			if (leak.exists())
+			{
+				try
+				{
+					if (!leak.delete())
+					{
 						return ResponseEntity.internalServerError().build();
 					}
-				}catch (Exception e){
+				}
+				catch (Exception e)
+				{
 					e.printStackTrace();
 					return ResponseEntity.internalServerError().build();
 				}
 			}
 			return ResponseEntity.ok().build();
-		} else {
+		}
+		else
+		{
 			return ResponseEntity.notFound().build();
 		}
 	}
 
-	//COMBO MAPPING
-/*
-	@GetMapping(value = {"/api/combo/{id}", "/api/combo/{id}/"})
-	public ResponseEntity<Combo> getComboInfo(@PathVariable int id) {
+	// ---------- COMBOS ---------- //
+	//DOWNLOAD A COMBO
+	@GetMapping({"/combo/{id}", "/combo/{id}/"})
+	public ResponseEntity<String> getCombo(@PathVariable int id)
+	{
 		Combo c = this.comboDB.getByID(id);
-		if (c != null) {
-			return ResponseEntity.ok(c);
-		} else {
-			return ResponseEntity.notFound().build();
+		if (c != null)
+		{
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,
+					"text/plain").body(c.leakedInfo());
 		}
-	}*/
-
-	@GetMapping(value = {"/combo/{id}", "/combo/{id}/"})
-	public ResponseEntity<String> getCombo(@PathVariable int id) {
-		Combo c = this.comboDB.getByID(id);
-		if (c != null) {
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain").body(c.leakedInfo());
-		} else {
+		else
+		{
 			return ResponseEntity.notFound().build();
 		}
 	}
 
-	@PostMapping(value = {"/combo", "/combo/"})
-	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks, @RequestParam int price) throws IOException {
+	//CREATE NEW COMBO
+	@PostMapping({"/combo", "/combo/"})
+	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks,
+	                                          @RequestParam int price) throws IOException
+	{
 		Combo c = this.comboDB.createCombo(name, leaks, price);
-		if (c == null){
+		if (c == null)
+		{
 			return status(HttpStatus.BAD_REQUEST).build();
 		}
 		this.comboDB.addCombo(c);
 		return status(HttpStatus.CREATED).body(c);
 	}
 
-	@DeleteMapping(value = {"/combo/{id}", "/combo/{id}/"})
-	public ResponseEntity<Object> deleteCombo(@PathVariable int id) throws IOException {
+	//DELETE A COMBO
+	@DeleteMapping({"/combo/{id}", "/combo/{id}/"})
+	public ResponseEntity<Object> deleteCombo(@PathVariable int id) throws IOException
+	{
 		Combo c = this.comboDB.getByID(id);
-		if (c != null) {
+		if (c != null)
+		{
 			this.comboDB.deleteCombo(c);
 			Files.createDirectories(this.COMBO_FOLDER);
 			String nameFile = c.getId() + ".txt";
 			Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
 			File combo = comboPath.toFile();
-			if (combo.exists()) {
-				try{
-					if (!combo.delete()){
+			if (combo.exists())
+			{
+				try
+				{
+					if (!combo.delete())
+					{
 						return ResponseEntity.internalServerError().build();
 					}
-				}catch (Exception e){
+				}
+				catch (Exception e)
+				{
 					e.printStackTrace();
 					return ResponseEntity.internalServerError().build();
 				}
 			}
 			return ResponseEntity.ok().build();
-		} else {
+		}
+		else
+		{
 			return ResponseEntity.notFound().build();
 		}
 	}
 
-	//SESION MAPPING
-	@PostMapping(value = {"/login/", "/login"})
-	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password, HttpServletResponse response){
+	//EDIT COMBO
+	@PutMapping({"/combo/{id}", "/combo/{id}/"})
+	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam String price,
+	                        @PathVariable int id, @RequestParam ArrayList<Integer> leaks) throws IOException
+	{
+		Combo c = comboDB.getByID(id);
+		ArrayList<Leak> leaksEdit = new ArrayList<>();
+		if (c != null)
+		{
+			if (this.leaksDB.getNextId() > 0)
+			{
+				for (int i : leaks)
+				{
+					Leak leak = this.leaksDB.getByID(i);
+					if (leak != null)
+					{
+						leaksEdit.add(leak);
+					}
+					else
+					{
+						return status(HttpStatus.BAD_REQUEST).body("Leak " + i + " not found in the server");
+					}
+				}
+				String nameFile = id + ".txt";
+				Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
+				Resource comboF = new UrlResource(comboPath.toUri());
+				if (comboF.exists())
+				{
+					Files.delete(comboPath);
+				}
+				c.editCombo(name, Integer.parseInt(price), leaksEdit);
+			}
+			return status(HttpStatus.CREATED).body(c);
+		}
+		return status(HttpStatus.NOT_FOUND).build();
+	}
+
+	// ---------- LOGIN AND REGISTER ---------- //
+	//LOGIN
+	@PostMapping({"/login/", "/login"})
+	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password,
+	                                    HttpServletResponse response){
 		int userID = this.userDB.getIDUser(username, password);
 		Cookie cookie = new Cookie("id", String.valueOf(userID));
 		if (userID >= 0)
@@ -222,8 +288,10 @@ public class ApiControler {
 
 	}
 
-	@PostMapping(value = {"/register","/register/"})
-	public ResponseEntity<Object> Register(@RequestParam String username, @RequestParam String password, @RequestParam String mail)
+	//REGISTER
+	@PostMapping({"/register","/register/"})
+	public ResponseEntity<Object> Register(@RequestParam String username, @RequestParam String password,
+	                                       @RequestParam String mail)
 	{
 		if (this.userDB.userExists(username))
 		{
@@ -236,22 +304,28 @@ public class ApiControler {
 		return status(HttpStatus.CREATED).body(this.userDB.getByID(this.userDB.getIDUser(username, password)));
 	}
 
-	//SHOP MAPPING
-	@GetMapping(value = {"/shop", "/shop/"})
-	public ResponseEntity<Collection<Combo>> getComboDB() {
+	// ---------- SHOP ---------- //
+	//SHOP INDEX
+	@GetMapping({"/shop", "/shop/"})
+	public ResponseEntity<Collection<Combo>> getComboDB()
+	{
 		Collection<Combo> c = this.comboDB.getAll();
-		if (c != null) {
+		if (c != null)
+		{
 			return ResponseEntity.ok(c);
-		} else {
+		}
+		else
+		{
 			return ResponseEntity.notFound().build();
 		}
 	}
 
-	@PostMapping(value = {"/{id}/buy_combo", "/{id}/buy_combo/"})
-	public ResponseEntity<Object> BuyCombo(@RequestParam int combo, @PathVariable int id)
+	//BUY COMBO
+	@PostMapping({"/{id}/buy_combo", "/{id}/buy_combo/"})
+	public ResponseEntity<Object> buyCombo(@RequestParam int combo, @PathVariable int id)
 	{
-		// We must check if a combo exists
-		if (this.comboDB.getByID(combo) == null){
+		if (this.comboDB.getByID(combo) == null)
+		{
 			return ResponseEntity.notFound().build();
 		}
 		int comboPrice = this.comboDB.getComboPrice(combo);
@@ -264,32 +338,41 @@ public class ApiControler {
 			this.comboDB.updateSoldCombo();
 			return ResponseEntity.ok(comboBuyed);
 		}
-		else {
+		else
+		{
 			return status(HttpStatus.BAD_REQUEST).body("NOT ENOUGH CREDITS");
 		}
 	}
 
-
-
-	//IMAGE MAPPING
-	@GetMapping(value = {"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> downloadImage(@PathVariable int id) throws MalformedURLException {
-		Path imgPath = IMAGES_FOLDER.resolve(this.userDB.getByID(id).getUser() +".jpg");
-		Resource file = new UrlResource(imgPath.toUri());
-
-		if(!Files.exists(imgPath)) {
+	// ---------- IMAGES MANIPULATION ---------- //
+	//DOWNLOAD IMAGE
+	@GetMapping({"/{id}/image", "/{id}/image/"})
+	public ResponseEntity<Object> downloadImage(@PathVariable int id) throws MalformedURLException
+	{
+		User u = this.userDB.getByID(id);
+		if (u == null)
+		{
 			return ResponseEntity.notFound().build();
-		} else {
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg").body(file);
 		}
+		Path imgPath = IMAGES_FOLDER.resolve(u.getUser() +".jpg");
+		Resource file = new UrlResource(imgPath.toUri());
+		if(!Files.exists(imgPath))
+		{
+			imgPath = IMAGES_FOLDER.resolve( "../admin.jpg");
+			file = new UrlResource(imgPath.toUri());
+		}
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg").body(file);
+
 	}
 
-	@PostMapping(value = {"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> uploadImage(@PathVariable int id, @RequestParam MultipartFile image) throws IOException {
-
+	//POST AN IMAGE
+	@PostMapping({"/{id}/image", "/{id}/image/"})
+	public ResponseEntity<Object> uploadImage(@PathVariable int id, @RequestParam MultipartFile image)
+			throws IOException
+	{
 		User user = this.userDB.getByID(id);
-
-		if (user != null) {
+		if (user != null)
+		{
 			URI location = fromCurrentRequest().build().toUri();
 			Files.createDirectories(IMAGES_FOLDER);
 			String nameFile = user.getUser() + ".jpg";
@@ -297,35 +380,43 @@ public class ApiControler {
 			image.transferTo(imagePath);
 			return ResponseEntity.created(location).build();
 
-		} else {
+		}
+		else
+		{
 			return ResponseEntity.notFound().build();
 		}
 	}
 
+	//DELETE AN IMAGE
 	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> deleteImage(@PathVariable int id) throws IOException {
-
+	public ResponseEntity<Object> deleteImage(@PathVariable int id) throws IOException
+	{
 		User user = this.userDB.getByID(id);
-
-		if(user != null) {
-
+		if(user != null)
+		{
 			Files.createDirectories(IMAGES_FOLDER);
 			String nameFile = user.getUser() + ".jpg";
 			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
 			File img = imagePath.toFile();
-			if (img.exists()) {
-				try{
-					if (!img.delete()){
+			if (img.exists())
+			{
+				try
+				{
+					if (!img.delete())
+					{
 						status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 					}
-				}catch (Exception e){
+				}
+				catch (Exception e)
+				{
 					e.printStackTrace();
 					status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 				}
 			}
 			return ResponseEntity.noContent().build();
-
-		} else {
+		}
+		else
+		{
 			return ResponseEntity.notFound().build();
 		}
 	}
