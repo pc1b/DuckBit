@@ -1,8 +1,5 @@
 package dws.duckbit.controlers;
 
-import dws.duckbit.Entities.Combo;
-import dws.duckbit.Entities.Leak;
-import dws.duckbit.Entities.User;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,17 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import dws.duckbit.services.ComboService;
-import dws.duckbit.services.LeakService;
-import dws.duckbit.services.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.UrlResource;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,8 +25,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import dws.duckbit.services.ComboService;
+import dws.duckbit.services.LeakService;
+import dws.duckbit.services.UserService;
+import dws.duckbit.Entities.Combo;
+import dws.duckbit.Entities.Leak;
+import dws.duckbit.Entities.User;
+
+
 @Controller
-public class WebController {
+public class WebController
+{
     private final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
     private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
     private final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");

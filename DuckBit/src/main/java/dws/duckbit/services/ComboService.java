@@ -1,13 +1,15 @@
 package dws.duckbit.services;
 
-import dws.duckbit.Entities.Combo;
-import dws.duckbit.Entities.Leak;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+
+import dws.duckbit.Entities.Combo;
+import dws.duckbit.Entities.Leak;
+
 
 @Service
 public class ComboService
@@ -17,7 +19,10 @@ public class ComboService
 	public final LeakService leakService;
 	private int soldCombos = 0;
 
-	public ComboService(LeakService leakService) throws IOException{
+// ---------- CONSTRUCTOR ---------- //
+	
+	public ComboService(LeakService leakService) throws IOException
+	{
 		this.leakService = leakService;
 		this.leakService.addLeak(this.leakService.createLeak("Orange", "2024-10-8"));
 		this.leakService.addLeak(this.leakService.createLeak("URJC", "2024-10-8"));
@@ -32,18 +37,63 @@ public class ComboService
 
 	}
 
-	public void deleteCombo(Combo c){
-		this.combos.remove(c.getId());
-	}
-	public int getSoldCombos() {
+// ---------- GET ---------- //
+
+	public int getSoldCombos()
+	{
 		return this.soldCombos;
 	}
+	
+	public Combo getByID(int id)
+	{
+		return this.combos.get(id);
+	}
 
-	public void updateSoldCombo(){
+	public int getComboPrice(int comboID)
+	{
+		return (this.combos.get(comboID).getComboPrice());
+	}
+
+	public int getComboSize()
+	{
+		return this.combos.size();
+	}
+
+	public Collection<Combo> getAll()
+	{
+		return this.combos.values();
+	}
+
+	public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
+	{
+		ArrayList<Integer> list = new ArrayList<>();
+		Collection<Combo> listOfValues = this.combos.values();
+		int value = 0;
+		for (Combo c: listOfValues)
+		{
+			if (c.isEnterpriseInCombo(enterprise))
+			{
+				list.add(value);
+			}
+			value++;
+		}
+		return list;
+	}
+
+// ---------- ADD AND CREATE ---------- //
+
+	public void addCombo(Combo c)
+	{
+		this.combos.put(c.getId(), c);
+	}
+
+	public void updateSoldCombo()
+	{
 		this.soldCombos++;
 	}
 
-	public Combo createCombo(String name, ArrayList<Integer> leaksID, int price) throws IOException {
+	public Combo createCombo(String name, ArrayList<Integer> leaksID, int price) throws IOException
+	{
 		ArrayList<Leak> leaks = new ArrayList<>();
 		for (int lid : leaksID)
 		{
@@ -60,24 +110,16 @@ public class ComboService
 		return combo;
 	}
 
+// ---------- DELETE AND REMOVE ---------- //
+
+	public void deleteCombo(Combo c)
+	{
+		this.combos.remove(c.getId());
+	}
+
 	public void deleteCombo(int id)
 	{
 		this.combos.remove(id);
-	}
-
-	public void deleteLeak(Leak l){
-		for (Combo c : this.combos.values()){
-			c.deleteLeak(l);
-		}
-	}
-	public void addCombo(Combo c)
-	{
-		this.combos.put(c.getId(), c);
-	}
-	
-	public Combo getByID(int id)
-	{
-		return this.combos.get(id);
 	}
 
 	public void removeByID(int id)
@@ -85,34 +127,11 @@ public class ComboService
 		this.combos.remove(id);
 	}
 
-	public int getComboPrice(int comboID)
+	public void deleteLeak(Leak l)
 	{
-		return (this.combos.get(comboID).getComboPrice());
-	}
-
-	public int getComboSize(){
-		return this.combos.size();
-	}
-
-	public Collection<Combo> getAll(){
-		return this.combos.values();
-	}
-
-	// ENTERPRISES
-
-	public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
-	{
-		ArrayList<Integer> list = new ArrayList<>();
-		Collection<Combo> listOfValues = this.combos.values();
-		int value = 0;
-		for (Combo c: listOfValues)
+		for (Combo c : this.combos.values())
 		{
-			if (c.isEnterpriseInCombo(enterprise))
-			{
-				list.add(value);
-			}
-			value++;
+			c.deleteLeak(l);
 		}
-		return list;
 	}
 }
