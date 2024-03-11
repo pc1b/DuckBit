@@ -1,4 +1,4 @@
-package dws.duckbit.controlers;
+package dws.duckbit.controllers;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Controller;
@@ -28,9 +28,9 @@ import java.util.*;
 import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
-import dws.duckbit.Entities.Combo;
-import dws.duckbit.Entities.Leak;
-import dws.duckbit.Entities.User;
+import dws.duckbit.entities.Combo;
+import dws.duckbit.entities.Leak;
+import dws.duckbit.entities.User;
 
 
 @Controller

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import dws.duckbit.Entities.Combo;
-import dws.duckbit.Entities.Leak;
+import dws.duckbit.entities.Combo;
+import dws.duckbit.entities.Leak;
 
 
 @Service

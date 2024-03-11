@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 
-import dws.duckbit.Entities.Leak;
+import dws.duckbit.entities.Leak;
 
 
 @Service

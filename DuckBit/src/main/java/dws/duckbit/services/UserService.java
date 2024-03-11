@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import dws.duckbit.Entities.Combo;
-import dws.duckbit.Entities.User;
+import dws.duckbit.entities.Combo;
+import dws.duckbit.entities.User;
 
 
 @Service
