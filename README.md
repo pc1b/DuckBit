@@ -6,6 +6,7 @@ This is the main page of the cybercriminal group DuckBit. We sell leaks and comb
 
 ## Main pages
 /
+/login
 /register
 /login
 /admin
