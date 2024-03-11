@@ -9,4 +9,5 @@ This is the main page of the cybercriminal group DuckBit. We sell leaks and comb
 /login
 /register
 /user
+/admin
 /shop
