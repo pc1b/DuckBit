@@ -301,8 +301,18 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "combo",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
 				"url": {
-					"raw": "http://localhost:8080/api/1/buy_combo/?combo=1",
+					"raw": "http://localhost:8080/api/1/combo/",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -311,14 +321,8 @@
 					"path": [
 						"api",
 						"1",
-						"buy_combo",
+						"combo",
 						""
-					],
-					"query": [
-						{
-							"key": "combo",
-							"value": "1"
-						}
 					]
 				}
 			},
@@ -556,7 +560,7 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/combo/0",
+					"raw": "http://localhost:8080/api/combo/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -565,7 +569,7 @@
 					"path": [
 						"api",
 						"combo",
-						"0"
+						"1"
 					]
 				}
 			},

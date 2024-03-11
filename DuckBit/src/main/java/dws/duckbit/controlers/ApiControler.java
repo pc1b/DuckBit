@@ -321,7 +321,7 @@ public class ApiControler {
 	}
 
 	//BUY COMBO
-	@PostMapping({"/{id}/buy_combo", "/{id}/buy_combo/"})
+	@PostMapping({"/{id}/combo", "/{id}/combo/"})
 	public ResponseEntity<Object> buyCombo(@RequestParam int combo, @PathVariable int id)
 	{
 		if (this.comboDB.getByID(combo) == null)
