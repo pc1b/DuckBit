@@ -1,4 +1,4 @@
-package dws.duckbit.Entities;
+package dws.duckbit.entities;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

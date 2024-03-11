@@ -1,6 +1,6 @@
-package dws.duckbit.controlers;
+package dws.duckbit.controllers;
 
-import dws.duckbit.Entities.*;
+import dws.duckbit.entities.*;
 import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
@@ -31,7 +31,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 
 @RestController
 @RequestMapping("/api")
-public class ApiControler {
+public class ApiController {
 
 	// ---------- DEFAULT PATHS ---------- //
 	private final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
@@ -44,7 +44,7 @@ public class ApiControler {
 	private final LeakService leaksDB;
 
 	// ---------- BUILDER ---------- //
-	public ApiControler(UserService userDB, ComboService comboDB, LeakService leaksDB) {
+	public ApiController(UserService userDB, ComboService comboDB, LeakService leaksDB) {
 		this.userDB = userDB;
 		this.comboDB = comboDB;
 		this.leaksDB = leaksDB;
