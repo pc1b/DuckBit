@@ -2,7 +2,6 @@
 
 ## Paginas principales
 /
-/admin
 /login
 /register
 /shop
