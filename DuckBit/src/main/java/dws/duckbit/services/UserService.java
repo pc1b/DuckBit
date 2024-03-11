@@ -1,16 +1,20 @@
 package dws.duckbit.services;
 
-import dws.duckbit.Entities.Combo;
-import dws.duckbit.Entities.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+
+import dws.duckbit.Entities.Combo;
+import dws.duckbit.Entities.User;
+
 
 @Service
 public class UserService
 {
     private final ArrayList<User> userList;
     private int nextID;
+
+// ---------- CONSTRUCTOR ---------- //
 
     public UserService()
     {
@@ -21,12 +25,66 @@ public class UserService
         this.addUser("juan", "juan@duckbit.org", "juan");
     }
 
+// ---------- GET ---------- //
+
+    public int getSize()
+    {
+        return this.userList.size();
+    }
+
+    public int getIDUser(String user, String password)
+    {
+        for (User u: this.userList)
+        {
+            if (u.isUser(user, password))
+            {
+                return (u.getID());
+            }
+        }
+        return (-1);
+    }
+
+    public User getByID(int ID)
+    {
+        if (ID >= this.getSize() || ID < 0)
+        {
+            return null;
+        }
+        return (this.userList.get(ID));
+    }
+
+// ---------- ADD AND CREATE ---------- //
+
     public void addUser(String user, String mail, String password)
     {
         User newUser = new User(this.nextID, user, mail, password);
         this.userList.add(newUser);
         this.nextID++;
     }
+
+    public void addComboToUser(Combo combo, int ID)
+    {
+        this.userList.get(ID).addCombosToUser(combo);
+    }
+
+// ---------- CREDITS AND MONEY ---------- //
+
+    public boolean hasEnoughCredits(int price, int ID)
+    {
+        return (this.userList.get(ID).hasEnoughCredits(price));
+    }
+
+    public void addCreditsToUser(int plus, int ID)
+    {
+        this.userList.get(ID).addCredits(plus);
+    }
+
+    public void substractCreditsToUser(int minus, int ID)
+    {
+        this.userList.get(ID).substractCredits(minus);
+    }   
+
+// ---------- OTHERS ---------- //
 
     public boolean userExists (String user)
     {
@@ -52,33 +110,7 @@ public class UserService
         return (false);
     }
 
-    //If it returns 0, is the admin
-    //If it return a positive number, is a user
-    //If it returns a negative number, the user does not exists
-    public int getIDUser(String user, String password)
-    {
-        for (User u: this.userList)
-        {
-            if (u.isUser(user, password))
-            {
-                return (u.getID());
-            }
-        }
-        return (-1);
-    }
-
-    public int getSize(){
-        return this.userList.size();
-    }
-
-    //There is no error management. If the id is invalid, it will return an Exception, and the app will die
-    public User getByID(int ID) {
-        if (ID >= this.getSize())
-            return null;
-        return (this.userList.get(ID));
-    }
-
-    // CHANGE 
+// ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
 
     public void changeUserName(int ID, String name, String password)
     {
@@ -107,28 +139,4 @@ public class UserService
             }
         }
     }
-
-    // COMBOS
-
-    public void addComboToUser(Combo combo, int ID)
-    {
-        this.userList.get(ID).addCombosToUser(combo);
-    }
-
-    // $$$$$ CREDIT AND MONEY $$$$$
-
-    public boolean hasEnoughCredits(int price, int ID)
-    {
-        return (this.userList.get(ID).hasEnoughCredits(price));
-    }
-
-    public void addCreditsToUser(int plus, int ID)
-    {
-        this.userList.get(ID).addCredits(plus);
-    }
-
-    public void substractCreditsToUser(int minus, int ID)
-    {
-        this.userList.get(ID).substractCredits(minus);
-    }    
 }

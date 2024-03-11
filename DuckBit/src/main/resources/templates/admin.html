@@ -28,7 +28,7 @@
 
         </div>
         <div class="w3-col s8 w3-bar">
-            <span class="w3-white">Welcome, <strong>{{username}}</strong></span><br>
+            <span style="width: 400px" class="w3-white">Welcome, <strong>{{username}}</strong> at [{{email}}]</span><br>
             <!--<a href="#" class="w3-bar-item w3-button"><i class="fa fa-envelope"></i></a>
             <a href="#" class="w3-bar-item w3-button"><i class="fa fa-user"></i></a>
             <a href="#" class="w3-bar-item w3-button"><i class="fa fa-cog"></i></a>-->
@@ -115,21 +115,22 @@
                 <h5>Upload Leak</h5>
                 <form action="/upload_leak" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
                     <p>Name: </p>
-                    <input type='text' name='leakName' style="width: 400px"/>
+                    <input type='text' name='leakName' style="width: 400px" required/>
                     <p>Date: </p>
-                    <input type='date' name='leakDate' style="width: 400px"/>
-                    <p>File:</p><input type='file' name='leak' accept=".txt"/>
+                    <input type='date' name='leakDate' style="width: 400px" required/>
+                    <p>File:</p><input type='file' name='leak' accept=".txt" required/>
                     <br>
                     <input type='submit' value='Save Leak'/>
                 </form>
             </div>
             <div class="w3-third" style="height:auto">
-                <h5>Form Combo</h5>
-                <form action="/create_combo" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;">
+                <h5 class="editFormHeader">Form Combo</h5>
+                <form action="/create_combo" method="post" enctype="multipart/form-data" style="display: flex;justify-content: unset;align-items: center;flex-direction: column;" id="editForm">
                     <p>Name: </p>
-                    <input type='text' name='comboName' style="width: 400px"/>
+                    <input type='text' name='comboName' style="width: 400px" id="name" value="" required/>
                     <p>Price: </p>
-                    <input type='number' name='price' style="width: 400px"/>
+                    <input type='number' name='price' style="width: 400px" id="price" value="" required/>
+                    <input type='hidden' id="idH" name="id" value=""/>
                     <br>
                     <p>Leaks: </p>
                     <select name="ids" multiple>
@@ -148,6 +149,9 @@
                     <tr>
                         <td>{{name}}</td>
                         <td>{{price}} $</td>
+                        <td>{{id}}</td>
+                        <td><button class="w3-button w3-black" onclick='edition("{{id}}","{{name}}","{{price}}")'>Edit</button></td>
+                        <td><button class="w3-button w3-black" onclick='deleteCombo("{{id}}")'>Delete</button></td>
                     </tr>
                     {{/combos}}
                     {{^combos}}
@@ -219,6 +223,22 @@
 
     </div>
     <hr>
+    <style>
+        .button {
+          border: none;
+          color: white;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+          float: right;
+          background-color: #cf2727;
+        }
+        </style>
+        <button class="button" onclick="sendDeleteRequest()">Delete image</button>
     </div>
 
    <!-- <div class="w3-container">
@@ -326,6 +346,25 @@
     function w3_close() {
     mySidebar.style.display = "none";
     overlayBg.style.display = "none";
+    }
+    function edition(id, name, price){
+        document.querySelector('.editFormHeader').innerText = 'Edition of ' + name;
+        document.getElementById('name').setAttribute("value", name);
+        document.getElementById('price').setAttribute("value",price);
+        document.getElementById('idH').setAttribute("value",id);
+        document.getElementById('editForm').setAttribute("action", "/edit_combo");
+        console.log(id, name, price)
+    }
+
+    function deleteCombo(id)
+    {
+        fetch("/delete_combo/"+id, {method: "delete"});
+    }
+
+
+    function sendDeleteRequest()
+    {
+        fetch('/delete_image', {method: 'DELETE'});
     }
 </script>
 

@@ -16,6 +16,8 @@ public class User
     private ArrayList<Combo> combos;
     private int credits = 0;
 
+// ---------- CONSTRUCTOR ---------- //
+
     public User(int ID, String user, String mail, String password)
     {
         try
@@ -35,6 +37,8 @@ public class User
         }
     }
 
+// ---------- GET ---------- //
+
     public String getUser()
     {
         return (this.user);
@@ -53,6 +57,34 @@ public class User
     public ArrayList<Combo> getCombos(){
         return this.combos;
     }
+
+// ---------- ADD AND CREATE ---------- //
+
+    public void addCombosToUser(Combo combo)
+    {
+        this.combos.add(combo);
+    }
+
+// ---------- CREDITS AND MONEY ---------- //
+
+    public void addCredits(int plus)
+    {
+        this.credits = this.credits + plus;
+    }
+
+    public void substractCredits(int minus)
+    {
+        this.credits = this.credits - minus;
+    }
+
+    public boolean hasEnoughCredits(int price)
+    {
+        return (this.credits >= price);
+    }
+
+    public int getCredits(){return this.credits;}
+
+// ---------- OTHERS ---------- //
 
     public boolean isUser(String user, String password)
     {
@@ -75,12 +107,19 @@ public class User
         }
     }
 
-    public void addCombosToUser(Combo combo)
+    @Override
+    public String toString()
     {
-        this.combos.add(combo);
+        return "User{" +
+                "ID=" + ID +
+                ", user='" + user + '\'' +
+                ", mail='" + mail + '\'' +
+                ", combos=" + combos +
+                ", credits=" + credits +
+                '}';
     }
 
-    // CHANGE USER
+// ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
 
     public void changeUserName(String user)
     {
@@ -99,35 +138,5 @@ public class User
         {
             e.printStackTrace();
         }
-    }
-
-    // $$$$$ CREDIT AND MONEY $$$$$
-
-    public void addCredits(int plus)
-    {
-        this.credits = this.credits + plus;
-    }
-
-    public void substractCredits(int minus)
-    {
-        this.credits = this.credits - minus;
-    }
-
-    public boolean hasEnoughCredits(int price)
-    {
-        return (this.credits >= price);
-    }
-
-    public int getCredits(){return this.credits;}
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "ID=" + ID +
-                ", user='" + user + '\'' +
-                ", mail='" + mail + '\'' +
-                ", combos=" + combos +
-                ", credits=" + credits +
-                '}';
     }
 }
