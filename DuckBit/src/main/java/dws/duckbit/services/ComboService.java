@@ -1,11 +1,10 @@
 package dws.duckbit.services;
 
+import dws.duckbit.repositories.ComboRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
@@ -14,15 +13,17 @@ import dws.duckbit.entities.Leak;
 @Service
 public class ComboService
 {
-	private HashMap<Integer, Combo> combos = new HashMap<>();
+	private final ComboRepository comboRepository;
+	private HashMap<Long, Combo> combos = new HashMap<>();
 	public int id = 0;
 	public final LeakService leakService;
 	private int soldCombos = 0;
 
 // ---------- CONSTRUCTOR ---------- //
 	
-	public ComboService(LeakService leakService) throws IOException
+	public ComboService(ComboRepository comboRepository, LeakService leakService) throws IOException
 	{
+		this.comboRepository = comboRepository;
 		this.leakService = leakService;
 		this.leakService.addLeak(this.leakService.createLeak("Orange", "2024-10-8"));
 		this.leakService.addLeak(this.leakService.createLeak("URJC", "2024-10-8"));
@@ -30,12 +31,25 @@ public class ComboService
 		ArrayList<Integer> id = new ArrayList<>();
 		id.add(0);
 		id.add(2);
-		this.addCombo(this.createCombo("Combo1", id, 30));
+		this.save(this.createCombo("Combo1", id, 30));
 		id.remove(0);
 		id.add(1);
-		this.addCombo(this.createCombo("Combo2", id, 40));
+		this.save(this.createCombo("Combo2", id, 40));
 
 	}
+
+
+	public List<Combo> findByIds(List<Long> ids){
+		return this.comboRepository.findAllById(ids);
+	}
+
+	/*public boolean exist(long id) {
+		return shopRepository.existsById(id);
+	}*/
+
+
+
+
 
 // ---------- GET ---------- //
 
@@ -44,9 +58,9 @@ public class ComboService
 		return this.soldCombos;
 	}
 	
-	public Combo getByID(int id)
+	public Optional<Combo>  findById(int id)
 	{
-		return this.combos.get(id);
+		return this.comboRepository.findById((long)id);
 	}
 
 	public int getComboPrice(int comboID)
@@ -59,9 +73,9 @@ public class ComboService
 		return this.combos.size();
 	}
 
-	public Collection<Combo> getAll()
+	public Collection<Combo> findAll()
 	{
-		return this.combos.values();
+		return this.comboRepository.findAll();
 	}
 
 	public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
@@ -81,10 +95,9 @@ public class ComboService
 	}
 
 // ---------- ADD AND CREATE ---------- //
-
-	public void addCombo(Combo c)
+	public Combo save(Combo c)
 	{
-		this.combos.put(c.getId(), c);
+		return this.comboRepository.save(c);
 	}
 
 	public void updateSoldCombo()
@@ -105,21 +118,17 @@ public class ComboService
 				return  null;
 			}
 		}
-		Combo combo = new Combo(name, leaks, this.id, price);
+		Combo combo = new Combo(name, leaks, price);
 		this.id++;
 		return combo;
 	}
 
 // ---------- DELETE AND REMOVE ---------- //
 
-	public void deleteCombo(Combo c)
-	{
-		this.combos.remove(c.getId());
-	}
 
-	public void deleteCombo(int id)
+	public void delete(int id)
 	{
-		this.combos.remove(id);
+		this.comboRepository.deleteById((long)id);
 	}
 
 	public void removeByID(int id)

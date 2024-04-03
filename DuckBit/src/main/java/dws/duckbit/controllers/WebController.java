@@ -84,7 +84,7 @@ public class WebController
                 }
                 model.addAttribute("leak", leaks);
             }
-            Collection<Combo> c = this.comboDB.getAll();
+            Collection<Combo> c = this.comboDB.findAll();
             if (!c.isEmpty())
             {
                 model.addAttribute("combos", c);
@@ -228,7 +228,7 @@ public class WebController
         {
             return new ModelAndView("redirect:/login");
         }
-        Collection<Combo> c = this.comboDB.getAll();
+        Collection<Combo> c = this.comboDB.findAll();
         if (!c.isEmpty())
         {
                 model.addAttribute("combos", c);
@@ -333,7 +333,7 @@ public class WebController
             idS.add(Integer.parseInt(i));
         }
         Combo c = comboDB.createCombo(comboName, idS, Integer.parseInt(price));
-        comboDB.addCombo(c);
+        comboDB.save(c);
         return new ModelAndView("redirect:/admin");
     }
 
@@ -344,7 +344,7 @@ public class WebController
         int idN = Integer.parseInt(id);
         if(idN == 0)
         {
-            this.comboDB.deleteCombo(comboID);
+            this.comboDB.delete(comboID);
             return ResponseEntity.noContent().build();
         }
         else
@@ -362,9 +362,13 @@ public class WebController
         if (this.userDB.hasEnoughCredits(comboPrice, userID))
         {
             this.userDB.substractCreditsToUser(comboPrice, userID);
-            Combo comboBuyed = this.comboDB.getByID(combo);
-            this.comboDB.removeByID(combo);
-            this.userDB.addComboToUser(comboBuyed, userID);
+            Optional<Combo> c =   this.comboDB.findById(combo);
+            if (c.isPresent()){
+                Combo comboBought = c.get();
+                this.comboDB.removeByID(combo);
+                this.userDB.addComboToUser(comboBought, userID);
+            }
+
         }
         soldCombos++;
         return new ModelAndView("redirect:/user");
@@ -406,9 +410,9 @@ public class WebController
         {
             idS.add(Integer.parseInt(i));
         }
-        Combo c = comboDB.getByID(Integer.parseInt(id));
+        Optional<Combo> c = comboDB.findById(Integer.parseInt(id));
         ArrayList<Leak> leaksEdit = new ArrayList<>();
-        if (c != null)
+        if (c.isPresent())
         {
             if (this.leakDB.getNextId() > 0)
             {
@@ -427,7 +431,7 @@ public class WebController
                 {
                     Files.delete(comboPath);
                 }
-                c.editCombo(comboName, Integer.parseInt(price), leaksEdit);
+                c.get().editCombo(comboName, Integer.parseInt(price), leaksEdit);
             }
         }
         return new ModelAndView("redirect:/admin");

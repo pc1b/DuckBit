@@ -1,26 +1,33 @@
 package dws.duckbit.entities;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import java.util.Calendar;
 
-
-public class Leak
-{
+@Entity
+public class Leak {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id = null;
 	private String enterprise;
 	private Calendar date;
-	private int id;
+
 
 // ---------- CONSTRUCTOR ---------- //
 
-	public Leak(String enterprise, Calendar date, int id)
+	public Leak(){}
+	public Leak(String enterprise, Calendar date)
 	{
 		this.enterprise = enterprise;
 		this.date = date;
-		this.id = id;
 	}
 	
 // ---------- GET ---------- //
 
-	public int getId()
+	public long getId()
 	{
 		return this.id;
 	}

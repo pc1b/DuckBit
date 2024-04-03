@@ -15,7 +15,7 @@ import dws.duckbit.entities.Leak;
 @Service
 public class LeakService
 {
-	private final HashMap<Integer, Leak> leaks = new HashMap<>();
+	private final HashMap<Long, Leak> leaks = new HashMap<>();
 	private int id = 0;
 	public LeakService(){}
 
@@ -30,7 +30,7 @@ public class LeakService
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(fechaDate);
-			Leak l = new Leak(enterprise, calendar, this.id);
+			Leak l = new Leak(enterprise, calendar);
 			this.id++;
 			addLeak(l);
 			return l;

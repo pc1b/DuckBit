@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.status;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
@@ -74,7 +75,7 @@ public class ApiController {
 				response.put("Uploaded combos", this.comboDB.getComboSize());
 				response.put("Sold combos", this.comboDB.getSoldCombos());
 				response.put("Leaks", this.leaksDB.getAll());
-				response.put("Combos", this.comboDB.getAll());
+				response.put("Combos", this.comboDB.findAll());
 				return ResponseEntity.ok(response);
 			}
 			return ResponseEntity.ok(u);
@@ -171,11 +172,11 @@ public class ApiController {
 	@GetMapping({"/combo/{id}", "/combo/{id}/"})
 	public ResponseEntity<String> getCombo(@PathVariable int id)
 	{
-		Combo c = this.comboDB.getByID(id);
-		if (c != null)
+		Optional<Combo> c = this.comboDB.findById(id);
+		if (c.isPresent())
 		{
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,
-					"text/plain").body(c.leakedInfo());
+					"text/plain").body(c.get().leakedInfo());
 		}
 		else
 		{
@@ -193,7 +194,7 @@ public class ApiController {
 		{
 			return status(HttpStatus.BAD_REQUEST).build();
 		}
-		this.comboDB.addCombo(c);
+		this.comboDB.save(c);
 		return status(HttpStatus.CREATED).body(c);
 	}
 
@@ -201,12 +202,12 @@ public class ApiController {
 	@DeleteMapping({"/combo/{id}", "/combo/{id}/"})
 	public ResponseEntity<Object> deleteCombo(@PathVariable int id) throws IOException
 	{
-		Combo c = this.comboDB.getByID(id);
-		if (c != null)
+		Optional<Combo> c = this.comboDB.findById(id);
+		if (c.isPresent())
 		{
-			this.comboDB.deleteCombo(c);
+			this.comboDB.delete(c.get().getId());
 			Files.createDirectories(this.COMBO_FOLDER);
-			String nameFile = c.getId() + ".txt";
+			String nameFile = c.get().getId() + ".txt";
 			Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
 			File combo = comboPath.toFile();
 			if (combo.exists())
@@ -237,9 +238,9 @@ public class ApiController {
 	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam String price,
 	                        @PathVariable int id, @RequestParam ArrayList<Integer> leaks) throws IOException
 	{
-		Combo c = comboDB.getByID(id);
+		Optional<Combo> c = comboDB.findById(id);
 		ArrayList<Leak> leaksEdit = new ArrayList<>();
-		if (c != null)
+		if (c.isPresent())
 		{
 			if (this.leaksDB.getNextId() > 0)
 			{
@@ -262,7 +263,7 @@ public class ApiController {
 				{
 					Files.delete(comboPath);
 				}
-				c.editCombo(name, Integer.parseInt(price), leaksEdit);
+				c.get().editCombo(name, Integer.parseInt(price), leaksEdit);
 			}
 			return status(HttpStatus.CREATED).body(c);
 		}
@@ -309,7 +310,7 @@ public class ApiController {
 	@GetMapping({"/shop", "/shop/"})
 	public ResponseEntity<Collection<Combo>> getComboDB()
 	{
-		Collection<Combo> c = this.comboDB.getAll();
+		Collection<Combo> c = this.comboDB.findAll();
 		if (c != null)
 		{
 			return ResponseEntity.ok(c);
@@ -324,7 +325,8 @@ public class ApiController {
 	@PostMapping({"/{id}/combo", "/{id}/combo/"})
 	public ResponseEntity<Object> buyCombo(@RequestParam int combo, @PathVariable int id)
 	{
-		if (this.comboDB.getByID(combo) == null)
+		Optional<Combo> c = this.comboDB.findById(combo);
+		if (c.isEmpty())
 		{
 			return ResponseEntity.notFound().build();
 		}
@@ -332,11 +334,11 @@ public class ApiController {
 		if (this.userDB.hasEnoughCredits(comboPrice, id))
 		{
 			this.userDB.substractCreditsToUser(comboPrice, id);
-			Combo comboBuyed = this.comboDB.getByID(combo);
+			Combo comboBought = c.get();
 			this.comboDB.removeByID(combo);
-			this.userDB.addComboToUser(comboBuyed, id);
+			this.userDB.addComboToUser(comboBought, id);
 			this.comboDB.updateSoldCombo();
-			return ResponseEntity.ok(comboBuyed);
+			return ResponseEntity.ok(comboBought);
 		}
 		else
 		{

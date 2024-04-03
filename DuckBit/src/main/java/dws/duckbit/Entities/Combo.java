@@ -1,5 +1,7 @@
 package dws.duckbit.entities;
 
+import jakarta.persistence.*;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -9,38 +11,38 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
-
-public class Combo
-{
+@Entity
+public class Combo {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id = null;
 	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 	private static final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
 
+	@ManyToMany
 	private ArrayList<Leak> leaks;
-	private int id;
+
 	private String name;
 	private int price;
-	private HashSet<String> enterpriseArray;
+	//private HashSet<String> enterpriseArray;
 
 // ---------- CONSTRUCTOR ---------- //
 
-	public Combo(String name, ArrayList<Leak> leaks, int id, int price) throws IOException
+	public Combo(){}
+	public Combo(String name, ArrayList<Leak> leaks, int price) throws IOException
 	{
 		this.name = name;
 		this.leaks = leaks;
-		this.id = id;
 		this.price = price;
 		createCombo();
-		this.enterpriseArray = new HashSet<>();
-		for (Leak l: leaks)
-		{
-			this.enterpriseArray.add(l.getEnterprise());
-		}
+
 	}
 
 // ---------- GET ---------- //
 
-	public int getId()
+	public long getId()
 	{
 		return this.id;
 	}
@@ -55,10 +57,6 @@ public class Combo
 		return this.name;
 	}
 
-	public Collection<String> getEnterprises()
-	{
-		return this.enterpriseArray;
-	}
 
 // ---------- DELETE AND REMOVE ---------- //
 
@@ -66,7 +64,6 @@ public class Combo
 	{
 		if (this.leaks.remove(l))
 		{
-			this.enterpriseArray.remove(l.getEnterprise());
 			try
 			{
 				this.createCombo();
@@ -126,11 +123,6 @@ public class Combo
 		this.name = name;
 		this.price = price;
 		this.leaks = leaks;
-		this.enterpriseArray = new HashSet<String>();
-		for (Leak l: leaks)
-		{
-			this.enterpriseArray.add(l.getEnterprise());
-		}
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
 		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath()))
 		{
@@ -202,7 +194,6 @@ public class Combo
 				", id=" + id +
 				", name='" + name + '\'' +
 				", price=" + price +
-				", enterpriseArray=" + enterpriseArray +
 				'}';
 	}
 }
