@@ -79,7 +79,7 @@ public class WebController
             {
                 for(int i = 0; i < this.leakDB.getNextId(); i++)
                 {
-                    Leak leak = this.leakDB.getByID(i);
+                    Leak leak = this.leakDB.findByID(i);
                     leaks.add(leak);
                 }
                 model.addAttribute("leak", leaks);
@@ -365,7 +365,7 @@ public class WebController
             Optional<Combo> c =   this.comboDB.findById(combo);
             if (c.isPresent()){
                 Combo comboBought = c.get();
-                this.comboDB.removeByID(combo);
+                this.comboDB.delete(combo);
                 this.userDB.addComboToUser(comboBought, userID);
             }
 
@@ -418,7 +418,7 @@ public class WebController
             {
                 for (int i : idS)
                 {
-                    Leak leak = this.leakDB.getByID(i);
+                    Leak leak = this.leakDB.findByID(i);
                     if (leak != null)
                     {
                         leaksEdit.add(leak);

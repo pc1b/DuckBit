@@ -1,11 +1,9 @@
 package dws.duckbit.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Calendar;
+import java.util.List;
 
 @Entity
 public class Leak {
@@ -14,6 +12,8 @@ public class Leak {
 	private Long id = null;
 	private String enterprise;
 	private Calendar date;
+	@ManyToMany
+	private List<Combo> combos;
 
 
 // ---------- CONSTRUCTOR ---------- //
@@ -41,7 +41,16 @@ public class Leak {
 	{
 		return  this.date.get(Calendar.DAY_OF_MONTH) + "/" + (this.date.get(Calendar.MONTH) + 1) + "/" + this.date.get(Calendar.YEAR);
 	}
+	public List<Combo> getCombos() {
+		return this.combos;
+	}
 
+
+// ---------- SET ---------- //
+
+	public void setCombos(List<Combo> comobos) {
+	this.combos = comobos;
+}
 // ---------- OTHERS ---------- //
 
 	@Override

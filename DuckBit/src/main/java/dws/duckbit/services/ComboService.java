@@ -14,8 +14,6 @@ import dws.duckbit.entities.Leak;
 public class ComboService
 {
 	private final ComboRepository comboRepository;
-	private HashMap<Long, Combo> combos = new HashMap<>();
-	public int id = 0;
 	public final LeakService leakService;
 	private int soldCombos = 0;
 
@@ -25,23 +23,9 @@ public class ComboService
 	{
 		this.comboRepository = comboRepository;
 		this.leakService = leakService;
-		this.leakService.addLeak(this.leakService.createLeak("Orange", "2024-10-8"));
-		this.leakService.addLeak(this.leakService.createLeak("URJC", "2024-10-8"));
-		this.leakService.addLeak(this.leakService.createLeak("Amazon", "2024-10-8"));
-		ArrayList<Integer> id = new ArrayList<>();
-		id.add(0);
-		id.add(2);
-		this.save(this.createCombo("Combo1", id, 30,"<p>El mejor <strong>Combo </strong>que vas a ver en tu <strong><em>vida</em></strong>, asi es como te lo <em>digo</em>!!!!</p>" ));
-		id.remove(0);
-		id.add(1);
-		this.save(this.createCombo("Combo2", id, 40, "<p>El mejor <strong>Combo </strong>que vas a ver en tu <strong><em>vida</em></strong>, asi es como te lo <em>digo</em>!!!!</p>"));
-
 	}
 
 
-	public List<Combo> findByIds(List<Long> ids){
-		return this.comboRepository.findAllById(ids);
-	}
 
 	/*public boolean exist(long id) {
 		return shopRepository.existsById(id);
@@ -62,15 +46,23 @@ public class ComboService
 	{
 		return this.comboRepository.findById((long)id);
 	}
+	public List<Combo> findByIds(List<Long> ids){
+		return this.comboRepository.findAllById(ids);
+	}
+
 
 	public int getComboPrice(int comboID)
 	{
-		return (this.combos.get(comboID).getComboPrice());
+		Optional<Combo> c = this.findById(comboID);
+		if (c.isPresent())
+			return c.get().getComboPrice();
+		else
+			return 0;
 	}
 
-	public int getComboSize()
+	public long getComboSize()
 	{
-		return this.combos.size();
+		return this.comboRepository.count();
 	}
 
 	public Collection<Combo> findAll()
@@ -78,7 +70,8 @@ public class ComboService
 		return this.comboRepository.findAll();
 	}
 
-	public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
+	//NOT MADE
+	/*public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
 	{
 		ArrayList<Integer> list = new ArrayList<>();
 		Collection<Combo> listOfValues = this.combos.values();
@@ -92,11 +85,14 @@ public class ComboService
 			value++;
 		}
 		return list;
-	}
+	}*/
 
 	// ---------- ADD AND CREATE ---------- //
 	public Combo save(Combo c)
 	{
+		if (c == null){
+			return null;
+		}
 		return this.comboRepository.save(c);
 	}
 
@@ -110,7 +106,7 @@ public class ComboService
 		ArrayList<Leak> leaks = new ArrayList<>();
 		for (int lid : leaksID)
 		{
-			Leak l = this.leakService.getByID(lid);
+			Leak l = this.leakService.findByID(lid);
 			if (l != null){
 				leaks.add(l);
 			}
@@ -118,27 +114,21 @@ public class ComboService
 				return  null;
 			}
 		}
-		Combo combo = new Combo(name, leaks, price, description);
-		this.id++;
-		return combo;
+		return new Combo(name, leaks, price, description);
 	}
 
 // ---------- DELETE AND REMOVE ---------- //
 
 
-	public void delete(int id)
+	public void delete(long id)
 	{
-		this.comboRepository.deleteById((long)id);
+		this.comboRepository.deleteById(id);
 	}
 
-	public void removeByID(int id)
-	{
-		this.combos.remove(id);
-	}
 
 	public void deleteLeak(Leak l)
 	{
-		for (Combo c : this.combos.values())
+		for (Combo c : this.comboRepository.findAll())
 		{
 			c.deleteLeak(l);
 		}

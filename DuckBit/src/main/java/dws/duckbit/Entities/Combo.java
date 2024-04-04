@@ -22,7 +22,7 @@ public class Combo {
 	private static final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
 
 	@ManyToMany
-	private ArrayList<Leak> leaks;
+	private List<Leak> leaks;
 
 	private String description;
 	private String name;
@@ -79,9 +79,14 @@ public class Combo {
 
 // ---------- ADD AND CREATE ---------- //
 
-	private void createCombo() throws IOException
+	private void createCombo()
 	{
-		Files.createDirectories(COMBOS_FOLDER);
+		try {
+			Files.createDirectories(COMBOS_FOLDER);
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
 		try
 		{

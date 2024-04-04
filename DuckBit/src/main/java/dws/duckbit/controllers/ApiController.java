@@ -74,7 +74,7 @@ public class ApiController {
 				response.put("Registered users", this.userDB.getSize());
 				response.put("Uploaded combos", this.comboDB.getComboSize());
 				response.put("Sold combos", this.comboDB.getSoldCombos());
-				response.put("Leaks", this.leaksDB.getAll());
+				response.put("Leaks", this.leaksDB.findAll());
 				response.put("Combos", this.comboDB.findAll());
 				return ResponseEntity.ok(response);
 			}
@@ -107,7 +107,7 @@ public class ApiController {
 	@GetMapping({"/leaks/", "/leaks"})
 	public ResponseEntity<Object> getLeaks()
 	{
-		return ResponseEntity.ok(this.leaksDB.getAll());
+		return ResponseEntity.ok(this.leaksDB.findAll());
 	}
 
 	//CREATE A NEW LEAK
@@ -118,7 +118,7 @@ public class ApiController {
 		Leak l = this.leaksDB.createLeak(enterprise, date);
 		if (l != null)
 		{
-			this.leaksDB.addLeak(l);
+			this.leaksDB.save(l);
 			Files.createDirectories(LEAKS_FOLDER);
 			String nameFile = l.getId() + ".txt";
 			Path txtPath = LEAKS_FOLDER.resolve(nameFile);
@@ -135,10 +135,10 @@ public class ApiController {
 	@DeleteMapping({"/leak/{id}", "/leak/{id}/"})
 	public ResponseEntity<Object> deleteLeak(@PathVariable int id) throws IOException
 	{
-		Leak l = this.leaksDB.getByID(id);
+		Leak l = this.leaksDB.findByID(id);
 		if (l != null)
 		{
-			this.leaksDB.deleteLeak(l);
+			this.leaksDB.delete(l);
 			this.comboDB.deleteLeak(l);
 			Files.createDirectories(this.LEAKS_FOLDER);
 			String nameFile = l.getId() + ".txt";
@@ -202,7 +202,7 @@ public class ApiController {
 	@DeleteMapping({"/combo/{id}", "/combo/{id}/"})
 	public ResponseEntity<Object> deleteCombo(@PathVariable int id) throws IOException
 	{
-		//Optional<Combo> c = this.comboDB.findById(id);
+		Optional<Combo> c = this.comboDB.findById(id);
 		if (c.isPresent())
 		{
 			this.comboDB.delete(c.get().getId());
@@ -246,7 +246,7 @@ public class ApiController {
 			{
 				for (int i : leaks)
 				{
-					Leak leak = this.leaksDB.getByID(i);
+					Leak leak = this.leaksDB.findByID(i);
 					if (leak != null)
 					{
 						leaksEdit.add(leak);
@@ -335,7 +335,7 @@ public class ApiController {
 		{
 			this.userDB.substractCreditsToUser(comboPrice, id);
 			Combo comboBought = c.get();
-			this.comboDB.removeByID(combo);
+			this.comboDB.delete(combo);
 			this.userDB.addComboToUser(comboBought, id);
 			this.comboDB.updateSoldCombo();
 			return ResponseEntity.ok(comboBought);

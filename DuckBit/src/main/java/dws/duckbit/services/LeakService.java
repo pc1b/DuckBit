@@ -1,13 +1,11 @@
 package dws.duckbit.services;
 
+import dws.duckbit.repositories.LeaksRepository;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 import dws.duckbit.entities.Leak;
 
@@ -15,9 +13,13 @@ import dws.duckbit.entities.Leak;
 @Service
 public class LeakService
 {
+	private final LeaksRepository leaksRepository;
+	//private final ComboService comboService;
 	private final HashMap<Long, Leak> leaks = new HashMap<>();
 	private int id = 0;
-	public LeakService(){}
+	public LeakService(LeaksRepository leaksRepository){
+		this.leaksRepository = leaksRepository;
+	}
 
 // ---------- CONSTRUCTOR ---------- //
 
@@ -32,7 +34,7 @@ public class LeakService
 			calendar.setTime(fechaDate);
 			Leak l = new Leak(enterprise, calendar);
 			this.id++;
-			addLeak(l);
+			save(l);
 			return l;
 		}
 		catch (ParseException e)
@@ -49,36 +51,33 @@ public class LeakService
 		return this.id;
 	}
 
-	public int getSize()
+	public long getSize()
 	{
-		return this.leaks.size();
+		return this.leaksRepository.count();
 	}
 
-	public Leak getByID(int id)
+	public Leak findByID(long id)
 	{
-		if (id >= this.getSize())
-		{
-			return null;
-		}
-		return this.leaks.get(id);
+		Optional<Leak> leak = this.leaksRepository.findById(id);
+		return leak.orElse(null);
 	}
 
-	public Collection<Leak> getAll()
+	public Collection<Leak> findAll()
 	{
-		return this.leaks.values();
+		return this.leaksRepository.findAll();
 	}
 
 // ---------- ADD AND CREATE ---------- //
 
-	public void addLeak(Leak l)
+	public void save(Leak l)
 	{
-		this.leaks.put(l.getId(), l);
+		this.leaksRepository.save(l);
 	}
 
 // ---------- DELETE AND REMOVE ---------- //
 
-	public void deleteLeak(Leak l)
+	public void delete(Leak l)
 	{
-		this.leaks.remove(l.getId());
+		this.leaksRepository.delete(l);
 	}
 }
