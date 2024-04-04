@@ -45,11 +45,11 @@ public class WebController
 
     private int soldCombos = 0;
 
-	public WebController(UserService userDB, LeakService leakDB, ComboService comboDB) {
-		this.userDB = userDB;
-		this.leakDB = leakDB;
-		this.comboDB = comboDB;
-	}
+    public WebController(UserService userDB, LeakService leakDB, ComboService comboDB) {
+        this.userDB = userDB;
+        this.leakDB = leakDB;
+        this.comboDB = comboDB;
+    }
 // ---------- INDEX ---------- //
 
     @GetMapping("/")
@@ -205,7 +205,7 @@ public class WebController
         else
         {
             this.userDB.addUser(user, mail, pass);
-        }    
+        }
         return new ModelAndView("redirect:/login");
     }
 
@@ -231,7 +231,7 @@ public class WebController
         Collection<Combo> c = this.comboDB.findAll();
         if (!c.isEmpty())
         {
-                model.addAttribute("combos", c);
+            model.addAttribute("combos", c);
         }
         String name = this.userDB.getByID(Integer.parseInt(id)).getUser();
         int credits = this.userDB.getByID(Integer.parseInt(id)).getCredits();
@@ -325,14 +325,14 @@ public class WebController
 
     // Create a new combo
     @PostMapping({"/create_combo", "/create_combo/"} )
-	public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String ... ids) throws IOException
+    public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String description, @RequestParam String ... ids) throws IOException
     {
         ArrayList<Integer> idS = new ArrayList<Integer>();
         for (String i: ids)
         {
             idS.add(Integer.parseInt(i));
         }
-        Combo c = comboDB.createCombo(comboName, idS, Integer.parseInt(price));
+        Combo c = comboDB.createCombo(comboName, idS, Integer.parseInt(price), description);
         comboDB.save(c);
         return new ModelAndView("redirect:/admin");
     }
@@ -377,7 +377,7 @@ public class WebController
     // Download a combo
     @PostMapping({"/download_combo", "/download_combo/"})
     public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam String idCombo, @CookieValue(value = "id", defaultValue = "-1") String id)
-            throws MalformedURLException, FileNotFoundException 
+            throws MalformedURLException, FileNotFoundException
     {
         for (Combo combo : userDB.getByID(Integer.parseInt(id)).getCombos())
         {
@@ -403,7 +403,7 @@ public class WebController
 
     // Edit a combo
     @PostMapping({"/edit_combo", "/edit_combo/"})
-    public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String id, @RequestParam String ... ids) throws IOException
+    public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String id, @RequestParam String description, @RequestParam String ... ids) throws IOException
     {
         ArrayList<Integer> idS = new ArrayList<Integer>();
         for (String i: ids)
@@ -431,7 +431,7 @@ public class WebController
                 {
                     Files.delete(comboPath);
                 }
-                c.get().editCombo(comboName, Integer.parseInt(price), leaksEdit);
+                c.get().editCombo(comboName, Integer.parseInt(price), leaksEdit, description);
             }
         }
         return new ModelAndView("redirect:/admin");

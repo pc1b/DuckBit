@@ -113,7 +113,7 @@ public class ApiController {
 	//CREATE A NEW LEAK
 	@PostMapping({"/leak/", "/leak"})
 	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date,
-	                                         @RequestParam MultipartFile leakInfo) throws IOException
+											 @RequestParam MultipartFile leakInfo) throws IOException
 	{
 		Leak l = this.leaksDB.createLeak(enterprise, date);
 		if (l != null)
@@ -187,9 +187,9 @@ public class ApiController {
 	//CREATE NEW COMBO
 	@PostMapping({"/combo", "/combo/"})
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks,
-	                                          @RequestParam int price) throws IOException
+											  @RequestParam int price, @RequestParam String description) throws IOException
 	{
-		Combo c = this.comboDB.createCombo(name, leaks, price);
+		Combo c = this.comboDB.createCombo(name, leaks, price, description);
 		if (c == null)
 		{
 			return status(HttpStatus.BAD_REQUEST).build();
@@ -202,7 +202,7 @@ public class ApiController {
 	@DeleteMapping({"/combo/{id}", "/combo/{id}/"})
 	public ResponseEntity<Object> deleteCombo(@PathVariable int id) throws IOException
 	{
-		Optional<Combo> c = this.comboDB.findById(id);
+		//Optional<Combo> c = this.comboDB.findById(id);
 		if (c.isPresent())
 		{
 			this.comboDB.delete(c.get().getId());
@@ -236,7 +236,7 @@ public class ApiController {
 	//EDIT COMBO
 	@PutMapping({"/combo/{id}", "/combo/{id}/"})
 	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam String price,
-	                        @PathVariable int id, @RequestParam ArrayList<Integer> leaks) throws IOException
+											@PathVariable int id, @RequestParam ArrayList<Integer> leaks, @RequestParam String description) throws IOException
 	{
 		Optional<Combo> c = comboDB.findById(id);
 		ArrayList<Leak> leaksEdit = new ArrayList<>();
@@ -263,7 +263,7 @@ public class ApiController {
 				{
 					Files.delete(comboPath);
 				}
-				c.get().editCombo(name, Integer.parseInt(price), leaksEdit);
+				c.get().editCombo(name, Integer.parseInt(price), leaksEdit, description);
 			}
 			return status(HttpStatus.CREATED).body(c);
 		}
@@ -274,7 +274,7 @@ public class ApiController {
 	//LOGIN
 	@PostMapping({"/login/", "/login"})
 	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password,
-	                                    HttpServletResponse response){
+										HttpServletResponse response){
 		int userID = this.userDB.getIDUser(username, password);
 		Cookie cookie = new Cookie("id", String.valueOf(userID));
 		if (userID >= 0)
@@ -292,7 +292,7 @@ public class ApiController {
 	//REGISTER
 	@PostMapping({"/register","/register/"})
 	public ResponseEntity<Object> Register(@RequestParam String username, @RequestParam String password,
-	                                       @RequestParam String mail)
+										   @RequestParam String mail)
 	{
 		if (this.userDB.userExists(username))
 		{

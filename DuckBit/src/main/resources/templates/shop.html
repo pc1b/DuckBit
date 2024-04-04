@@ -85,13 +85,15 @@
                 <div class="w3-row-padding w3-margin-bottom">
                     {{#combos}}
                     <div class="w3-third">
-                        <div style="display: flex;align-items: center;justify-content: center;margin-top: 20px;flex-wrap: wrap;" class="w3-container w3-black">
-                            <div style="margin-right: 20px" class="w3-left"><h4>{{name}}</h4></div>
-                            <div class="w3-right"><h4>{{price}} $</h4></div>
+                        <div style="display: flex;align-items: center;justify-content: center;margin-top: 20px;flex-direction: column;border-radius: 10px;background-color: #050E1E;color: white" class="w3-container">
+                            <div class="w3-left"><h4>{{name}}: {{price}} $</h4></div>
+                            <hr style="width:50%;text-align:left;margin-left:0;margin-top: -6px;margin-bottom: -8px">
+                            <div class="w3-right"><h4>{{{description}}}</h4></div>
                             <form action="/buy_combo" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="combo" value="{{{id}}}">
-                                <div class="w3-center"><input style="width: 100px;margin-left: 15px" class="w3-button w3-teal" type='submit' value="Buy"/></div>
+                                <div class="w3-center"><input style="width: 200px;border-radius: 10px;margin-left: 15px" class="w3-button w3-teal" type='submit' value="Buy"/></div>
                             </form>
+                            <br>
                         </div>
                     </div>
                     {{/combos}}

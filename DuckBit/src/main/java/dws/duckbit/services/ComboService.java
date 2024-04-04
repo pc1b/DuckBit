@@ -20,7 +20,7 @@ public class ComboService
 	private int soldCombos = 0;
 
 // ---------- CONSTRUCTOR ---------- //
-	
+
 	public ComboService(ComboRepository comboRepository, LeakService leakService) throws IOException
 	{
 		this.comboRepository = comboRepository;
@@ -31,10 +31,10 @@ public class ComboService
 		ArrayList<Integer> id = new ArrayList<>();
 		id.add(0);
 		id.add(2);
-		this.save(this.createCombo("Combo1", id, 30));
+		this.save(this.createCombo("Combo1", id, 30,"<p>El mejor <strong>Combo </strong>que vas a ver en tu <strong><em>vida</em></strong>, asi es como te lo <em>digo</em>!!!!</p>" ));
 		id.remove(0);
 		id.add(1);
-		this.save(this.createCombo("Combo2", id, 40));
+		this.save(this.createCombo("Combo2", id, 40, "<p>El mejor <strong>Combo </strong>que vas a ver en tu <strong><em>vida</em></strong>, asi es como te lo <em>digo</em>!!!!</p>"));
 
 	}
 
@@ -57,7 +57,7 @@ public class ComboService
 	{
 		return this.soldCombos;
 	}
-	
+
 	public Optional<Combo>  findById(int id)
 	{
 		return this.comboRepository.findById((long)id);
@@ -94,7 +94,7 @@ public class ComboService
 		return list;
 	}
 
-// ---------- ADD AND CREATE ---------- //
+	// ---------- ADD AND CREATE ---------- //
 	public Combo save(Combo c)
 	{
 		return this.comboRepository.save(c);
@@ -105,7 +105,7 @@ public class ComboService
 		this.soldCombos++;
 	}
 
-	public Combo createCombo(String name, ArrayList<Integer> leaksID, int price) throws IOException
+	public Combo createCombo(String name, ArrayList<Integer> leaksID, int price, String description) throws IOException
 	{
 		ArrayList<Leak> leaks = new ArrayList<>();
 		for (int lid : leaksID)
@@ -118,7 +118,7 @@ public class ComboService
 				return  null;
 			}
 		}
-		Combo combo = new Combo(name, leaks, price);
+		Combo combo = new Combo(name, leaks, price, description);
 		this.id++;
 		return combo;
 	}

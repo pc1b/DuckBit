@@ -24,6 +24,7 @@ public class Combo {
 	@ManyToMany
 	private ArrayList<Leak> leaks;
 
+	private String description;
 	private String name;
 	private int price;
 	//private HashSet<String> enterpriseArray;
@@ -31,9 +32,10 @@ public class Combo {
 // ---------- CONSTRUCTOR ---------- //
 
 	public Combo(){}
-	public Combo(String name, ArrayList<Leak> leaks, int price) throws IOException
+	public Combo(String name, ArrayList<Leak> leaks, int price, String description) throws IOException
 	{
 		this.name = name;
+		this.description = description;
 		this.leaks = leaks;
 		this.price = price;
 		createCombo();
@@ -118,11 +120,12 @@ public class Combo {
 
 // ---------- EDIT ---------- //
 
-	public void editCombo(String name, int price, ArrayList<Leak> leaks) throws IOException
+	public void editCombo(String name, int price, ArrayList<Leak> leaks, String description) throws IOException
 	{
 		this.name = name;
 		this.price = price;
 		this.leaks = leaks;
+		this.description = description;
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
 		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath()))
 		{
