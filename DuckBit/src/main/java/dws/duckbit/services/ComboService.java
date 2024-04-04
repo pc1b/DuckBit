@@ -42,7 +42,7 @@ public class ComboService
 		return this.soldCombos;
 	}
 
-	public Optional<Combo>  findById(int id)
+	public Optional<Combo> findById(int id)
 	{
 		return this.comboRepository.findById((long)id);
 	}
@@ -93,7 +93,9 @@ public class ComboService
 		if (c == null){
 			return null;
 		}
-		return this.comboRepository.save(c);
+		Combo r = this.comboRepository.save(c);
+		r.createFile();
+		return r;
 	}
 
 	public void updateSoldCombo()

@@ -15,7 +15,6 @@ public class LeakService
 {
 	private final LeaksRepository leaksRepository;
 	//private final ComboService comboService;
-	private final HashMap<Long, Leak> leaks = new HashMap<>();
 	private int id = 0;
 	public LeakService(LeaksRepository leaksRepository){
 		this.leaksRepository = leaksRepository;
