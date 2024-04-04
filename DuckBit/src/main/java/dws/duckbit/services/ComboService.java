@@ -1,6 +1,8 @@
 package dws.duckbit.services;
 
 import dws.duckbit.repositories.ComboRepository;
+
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -69,6 +71,10 @@ public class ComboService
 	{
 		return this.comboRepository.findAll();
 	}
+
+	// TO-DO: Needs fix. It must takes data from 3 tables
+	@Query("SELECT * FROM COMBOS WHERE enterprise = :enterprise AND price < :price AND lea")
+	public Collection<Combo> findAll(String enterprise, int price, int leaksNumber);
 
 	//NOT MADE
 	/*public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
