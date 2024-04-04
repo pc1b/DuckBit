@@ -72,8 +72,19 @@
             </div>
         </div>
         <div style="margin-top: 10px" class="w3-right">
-            <a href="/user"><img style="width: 50px; margin-right: 5px" src="../images/profile.svg"></a>
-            <a href="/logout"><img style="width: 50px; margin-right: 5px" src="../images/logout.svg"></a>
+            <div style="margin-top: 17px;margin-right: 5px" class="w3-left">
+                <form id="queryForm" action="/query" method="get" enctype="multipart/form-data" style="visibility: hidden">
+                    <input type="text" name="enterprise" placeholder="Enterprise:">
+                    <input type="number" name="price" placeholder="Price:">
+                    <input type="number" name="leaksNumber" placeholder="Number of leaks:">
+                    <input type="submit" value="Search">
+                </form>
+            </div>
+            <div style="margin-top: 10px" class="w3-right">
+                <button style="background-color: transparent; border: none; cursor: pointer" id="btn"><img style="width: 45px; margin-right: 5px;" src="../images/filter.svg"></button>
+                <a href="/user"><img style="width: 50px; margin-right: 5px" src="../images/profile.svg"></a>
+                <a href="/logout"><img style="width: 50px; margin-right: 5px" src="../images/logout.svg"></a>
+            </div>
         </div>
     </div>
 
@@ -186,6 +197,17 @@
         <!-- End page content -->
 
     <script>
+        const btn = document.getElementById('btn');
+
+        btn.addEventListener('click', () => {
+            const form = document.getElementById('queryForm');
+
+            if (form.style.visibility === 'hidden') {
+                form.style.visibility = 'visible';
+            } else {
+                form.style.visibility = 'hidden';
+            }
+        });
         // Get the Sidebar
         var mySidebar = document.getElementById("mySidebar");
 
