@@ -27,11 +27,15 @@ public class Leak {
 	
 // ---------- GET ---------- //
 
-	public long getId()
+	public Long getId()
 	{
 		return this.id;
 	}
-	
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public String getEnterprise()
 	{
 		return this.enterprise;
@@ -47,6 +51,10 @@ public class Leak {
 
 
 // ---------- SET ---------- //
+
+	public void setEnterprise(String enterprise) {
+		this.enterprise = enterprise;
+	}
 
 	public void setCombos(List<Combo> comobos) {
 	this.combos = comobos;

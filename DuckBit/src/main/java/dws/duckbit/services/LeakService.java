@@ -62,7 +62,7 @@ public class LeakService
 		return leak.orElse(null);
 	}
 
-	public Collection<Leak> findAll()
+	public List<Leak> findAll()
 	{
 		return this.leaksRepository.findAll();
 	}

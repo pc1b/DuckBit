@@ -77,11 +77,7 @@ public class WebController
             List<Leak> leaks = new ArrayList<>();
             if (this.leakDB.getNextId() > 0)
             {
-                for(int i = 0; i < this.leakDB.getNextId(); i++)
-                {
-                    Leak leak = this.leakDB.findByID(i);
-                    leaks.add(leak);
-                }
+                leaks = this.leakDB.findAll();
                 model.addAttribute("leak", leaks);
             }
             Collection<Combo> c = this.comboDB.findAll();
