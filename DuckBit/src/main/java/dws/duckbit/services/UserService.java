@@ -1,8 +1,10 @@
 package dws.duckbit.services;
 
+import dws.duckbit.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.User;
@@ -11,107 +13,86 @@ import dws.duckbit.entities.User;
 @Service
 public class UserService
 {
-    private final ArrayList<User> userList;
-    private int nextID;
+    private final UserRepository userRepository;
 
 // ---------- CONSTRUCTOR ---------- //
 
-    public UserService()
+    public UserService(UserRepository userRepository)
     {
-        this.nextID = 0;
-        this.userList = new ArrayList<>();
-        this.addUser("admin", "admin@duckbit.org", "admin");
-        this.addUser("paco", "paco@duckbit.org", "paco");
-        this.addUser("juan", "juan@duckbit.org", "juan");
+	    this.userRepository = userRepository;
     }
 
 // ---------- GET ---------- //
 
-    public int getSize()
+    public long getSize()
     {
-        return this.userList.size();
+        return this.userRepository.count();
     }
 
-    public int getIDUser(String user, String password)
+    public Long getIDUser(String user, String password)
     {
-        for (User u: this.userList)
+        for (User u: this.userRepository.findAll())
         {
             if (u.isUser(user, password))
             {
                 return (u.getID());
             }
         }
-        return (-1);
+        return (-1L);
     }
 
-    public User getByID(int ID)
+    public User findByID(Long ID)
     {
-        if (ID >= this.getSize() || ID < 0)
-        {
-            return null;
-        }
-        return (this.userList.get(ID));
+        Optional<User> u = this.userRepository.findById(ID);
+	    return u.orElse((null));
     }
 
 // ---------- ADD AND CREATE ---------- //
 
     public void addUser(String user, String mail, String password)
     {
-        User newUser = new User(this.nextID, user, mail, password);
-        this.userList.add(newUser);
-        this.nextID++;
+        User newUser = new User(user, mail, password);
+        this.userRepository.save(newUser);
     }
 
-    public void addComboToUser(Combo combo, int ID)
+    public void addComboToUser(Combo combo, Long ID)
     {
-        this.userList.get(ID).addCombosToUser(combo);
+        this.userRepository.findById(ID).orElseThrow().addCombosToUser(combo);
     }
 
 // ---------- CREDITS AND MONEY ---------- //
 
-    public boolean hasEnoughCredits(int price, int ID)
+    public boolean hasEnoughCredits(int price, Long ID)
     {
-        return (this.userList.get(ID).hasEnoughCredits(price));
+        return (this.userRepository.findById(ID).orElseThrow().hasEnoughCredits(price));
     }
 
-    public void addCreditsToUser(int plus, int ID)
+    public void addCreditsToUser(int plus, Long ID)
     {
-        this.userList.get(ID).addCredits(plus);
+        this.userRepository.findById(ID).orElseThrow().addCredits(plus);
     }
 
-    public void substractCreditsToUser(int minus, int ID)
+    public void substractCreditsToUser(int minus, Long ID)
     {
-        this.userList.get(ID).substractCredits(minus);
+        this.userRepository.findById(ID).orElseThrow().substractCredits(minus);
     }   
 
 // ---------- OTHERS ---------- //
 
     public boolean userExists (String user)
     {
-        for (User u: this.userList)
-        {
-            if (u.getUser().equals(user))
-            {
-                return (true);
-            }
-        }
-        return (false);
+        Optional<User> u = this.userRepository.findByUser(user);
+	    return u.isPresent();
     }
 
-    public boolean IDExists(int ID)
+    public boolean IDExists(Long ID)
     {
-        for (User u: this.userList)
-        {
-            if (u.getID() == ID)
-            {
-                return (true);
-            }
-        }
-        return (false);
+        return this.userRepository.findById(ID).isPresent();
+
     }
 
 // ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
-
+/*
     public void changeUserName(int ID, String name, String password)
     {
         for (User u: this.userList)
@@ -138,5 +119,5 @@ public class UserService
                 }
             }
         }
-    }
+    }*/
 }

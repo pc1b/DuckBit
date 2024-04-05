@@ -61,16 +61,16 @@ public class ApiController {
 	// ---------- USER ---------- //
 	//USER INFO
 	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
-	public ResponseEntity<Object> getUser(@PathVariable int id)
+	public ResponseEntity<Object> getUser(@PathVariable Long id)
 	{
-		User u = this.userDB.getByID(id);
+		User u = this.userDB.findByID(id);
 		if (u != null)
 		{
 			if (id == 0)
 			{
 				HashMap<String,Object> response = new HashMap<>();
-				response.put("User", this.userDB.getByID(id).getUser());
-				response.put("Mail", this.userDB.getByID(id).getMail());
+				response.put("User", this.userDB.findByID(id).getUser());
+				response.put("Mail", this.userDB.findByID(id).getMail());
 				response.put("Registered users", this.userDB.getSize());
 				response.put("Uploaded combos", this.comboDB.getComboSize());
 				response.put("Sold combos", this.comboDB.getSoldCombos());
@@ -88,9 +88,9 @@ public class ApiController {
 
 	//USER BUY CREDITS
 	@GetMapping(value = {"/{id}/credits", "/{id}/credits/"})
-	public ResponseEntity<User> buyCredits(@PathVariable int id)
+	public ResponseEntity<User> buyCredits(@PathVariable Long id)
 	{
-		User u = this.userDB.getByID(id);
+		User u = this.userDB.findByID(id);
 		if (u != null)
 		{
 			this.userDB.addCreditsToUser(500, id);
@@ -186,7 +186,7 @@ public class ApiController {
 
 	//CREATE NEW COMBO
 	@PostMapping({"/combo", "/combo/"})
-	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Integer> leaks,
+	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Long> leaks,
 											  @RequestParam int price, @RequestParam String description) throws IOException
 	{
 		Combo c = this.comboDB.createCombo(name, leaks, price, description);
@@ -275,7 +275,7 @@ public class ApiController {
 	@PostMapping({"/login/", "/login"})
 	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password,
 										HttpServletResponse response){
-		int userID = this.userDB.getIDUser(username, password);
+		Long userID = this.userDB.getIDUser(username, password);
 		Cookie cookie = new Cookie("id", String.valueOf(userID));
 		if (userID >= 0)
 		{
@@ -302,7 +302,7 @@ public class ApiController {
 		{
 			this.userDB.addUser(username, mail, password);
 		}
-		return status(HttpStatus.CREATED).body(this.userDB.getByID(this.userDB.getIDUser(username, password)));
+		return status(HttpStatus.CREATED).body(this.userDB.findByID(this.userDB.getIDUser(username, password)));
 	}
 
 	// ---------- SHOP ---------- //
@@ -323,7 +323,7 @@ public class ApiController {
 
 	//BUY COMBO
 	@PostMapping({"/{id}/combo", "/{id}/combo/"})
-	public ResponseEntity<Object> buyCombo(@RequestParam int combo, @PathVariable int id)
+	public ResponseEntity<Object> buyCombo(@RequestParam int combo, @PathVariable Long id)
 	{
 		Optional<Combo> c = this.comboDB.findById(combo);
 		if (c.isEmpty())
@@ -349,9 +349,9 @@ public class ApiController {
 	// ---------- IMAGES MANIPULATION ---------- //
 	//DOWNLOAD IMAGE
 	@GetMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> downloadImage(@PathVariable int id) throws MalformedURLException
+	public ResponseEntity<Object> downloadImage(@PathVariable Long id) throws MalformedURLException
 	{
-		User u = this.userDB.getByID(id);
+		User u = this.userDB.findByID(id);
 		if (u == null)
 		{
 			return ResponseEntity.notFound().build();
@@ -369,10 +369,10 @@ public class ApiController {
 
 	//POST AN IMAGE
 	@PostMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> uploadImage(@PathVariable int id, @RequestParam MultipartFile image)
+	public ResponseEntity<Object> uploadImage(@PathVariable Long id, @RequestParam MultipartFile image)
 			throws IOException
 	{
-		User user = this.userDB.getByID(id);
+		User user = this.userDB.findByID(id);
 		if (user != null)
 		{
 			URI location = fromCurrentRequest().build().toUri();
@@ -391,9 +391,9 @@ public class ApiController {
 
 	//DELETE AN IMAGE
 	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> deleteImage(@PathVariable int id) throws IOException
+	public ResponseEntity<Object> deleteImage(@PathVariable Long id) throws IOException
 	{
-		User user = this.userDB.getByID(id);
+		User user = this.userDB.findByID(id);
 		if(user != null)
 		{
 			Files.createDirectories(IMAGES_FOLDER);

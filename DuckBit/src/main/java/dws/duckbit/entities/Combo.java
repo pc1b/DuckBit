@@ -1,5 +1,7 @@
 package dws.duckbit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import dws.duckbit.services.UserService;
 import jakarta.persistence.*;
 
 import java.io.BufferedReader;
@@ -25,6 +27,9 @@ public class Combo {
 	private String description;
 	private String name;
 	private int price;
+	@JsonIgnore
+	@ManyToOne
+	private User user;
 	//private HashSet<String> enterpriseArray;
 
 // ---------- CONSTRUCTOR ---------- //
@@ -32,6 +37,7 @@ public class Combo {
 	public Combo(){}
 	public Combo(String name, ArrayList<Leak> leaks, int price, String description) throws IOException
 	{
+		super();
 		this.name = name;
 		this.description = description;
 		this.leaks = leaks;
@@ -49,6 +55,17 @@ public class Combo {
 		this.id = id;
 	}
 
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public String getDescription(){
+		return this.description;
+	}
 	public void setDescription(String description)
 	{
 		this.description = description;

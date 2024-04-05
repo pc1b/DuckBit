@@ -21,17 +21,16 @@ public class ComboService
 {
 	private final ComboRepository comboRepository;
 	public final LeakService leakService;
-
-	@Autowired
-	private JdbcTemplate jdbcTemp;
+	private final JdbcTemplate jdbcTemp;
 	private int soldCombos = 0;
 
 // ---------- CONSTRUCTOR ---------- //
 
-	public ComboService(ComboRepository comboRepository, LeakService leakService) throws IOException
+	public ComboService(ComboRepository comboRepository, LeakService leakService, JdbcTemplate jdbcTemp) throws IOException
 	{
 		this.comboRepository = comboRepository;
 		this.leakService = leakService;
+		this.jdbcTemp = jdbcTemp;
 	}
 
 // ---------- GET ---------- //
@@ -104,7 +103,7 @@ public class ComboService
 					preparedStatement.setInt(2, price);
 				}
 			}
-		}, new ComboMapper()); 
+		}, new ComboMapper());
 		return details; 
 	}
 
@@ -125,10 +124,10 @@ public class ComboService
 		this.soldCombos++;
 	}
 
-	public Combo createCombo(String name, ArrayList<Integer> leaksID, int price, String description) throws IOException
+	public Combo createCombo(String name, ArrayList<Long> leaksID, int price, String description) throws IOException
 	{
 		ArrayList<Leak> leaks = new ArrayList<>();
-		for (int lid : leaksID)
+		for (Long lid : leaksID)
 		{
 			Leak l = this.leakService.findByID(lid);
 			if (l != null){

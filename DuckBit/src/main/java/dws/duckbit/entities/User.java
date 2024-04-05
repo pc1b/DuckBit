@@ -1,40 +1,46 @@
 package dws.duckbit.entities;
 
+import jakarta.persistence.*;
+
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
+@Entity
 public class User
 {
-    private int ID;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id = null;
     private String user;
     private String mail;
     private byte[] password;
-    private MessageDigest md;
+    @OneToMany(mappedBy = "user", cascade=CascadeType.ALL, orphanRemoval=true)
     private ArrayList<Combo> combos;
     private int credits = 0;
 
 // ---------- CONSTRUCTOR ---------- //
 
-    public User(int ID, String user, String mail, String password)
+    public User( String user, String mail, String password)
     {
         try
         {
-            this.ID = ID;
             this.user = user;
             this.mail = mail;
-            byte[] userPassword = password.getBytes("UTF-8");
-            this.md = MessageDigest.getInstance("MD5");
-            this.password = md.digest(userPassword);
+            byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
+            this.password = MessageDigest.getInstance("MD5").digest(userPassword);
             this.combos = new ArrayList<>();
-            
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+    protected User() {
+
     }
 
 // ---------- GET ---------- //
@@ -49,10 +55,14 @@ public class User
         return (this.mail);
     }
 
-    public int getID()
+    public Long getID()
     {
-        return (this.ID);
+        return (this.id);
     }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 
     public ArrayList<Combo> getCombos(){
         return this.combos;
@@ -97,10 +107,10 @@ public class User
         try
         {
             inputPassword = password.getBytes("UTF-8");
-            byte[] MD5HashedPassword = this.md.digest(inputPassword);
+            byte[] MD5HashedPassword = MessageDigest.getInstance("MD5").digest(inputPassword);
             return (Arrays.equals(MD5HashedPassword, this.password));
         }
-        catch (UnsupportedEncodingException e)
+        catch (Exception e)
         {
             e.printStackTrace();
             return (false);
@@ -111,7 +121,7 @@ public class User
     public String toString()
     {
         return "User{" +
-                "ID=" + ID +
+                "ID=" + id +
                 ", user='" + user + '\'' +
                 ", mail='" + mail + '\'' +
                 ", combos=" + combos +
@@ -120,7 +130,7 @@ public class User
     }
 
 // ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
-
+/*
     public void changeUserName(String user)
     {
         this.user = user;
@@ -138,5 +148,5 @@ public class User
         {
             e.printStackTrace();
         }
-    }
+    }*/
 }
