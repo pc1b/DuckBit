@@ -128,6 +128,7 @@ public class Combo {
 
 	public void editCombo(String name, int price, ArrayList<Leak> leaks, String description) throws IOException
 	{
+		System.out.println("traceeeeeeeeeeeeeeeeeeeeeeeee");
 		this.name = name;
 		this.price = price;
 		this.leaks = leaks;

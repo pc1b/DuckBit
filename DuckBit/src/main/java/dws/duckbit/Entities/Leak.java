@@ -10,6 +10,7 @@ public class Leak {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id = null;
+	@Lob
 	private String enterprise;
 	private Calendar date;
 	@ManyToMany

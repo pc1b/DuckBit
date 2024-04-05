@@ -428,6 +428,7 @@ public class WebController
                     Files.delete(comboPath);
                 }
                 c.get().editCombo(comboName, Integer.parseInt(price), leaksEdit, description);
+                this.comboDB.save(c.get());
             }
         }
         return new ModelAndView("redirect:/admin");
