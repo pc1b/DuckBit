@@ -72,14 +72,28 @@ public class ComboService
 	@SuppressWarnings("null")
 	public Collection<Combo> findAll(String enterprise, int price, int leaksNumber)
 	{
-		final String SQL = "SELECT * FROM COMBO where price < ?"; 
-		Collection<Combo> details = jdbcTemp.query(SQL, new PreparedStatementSetter()
+		PreparedStatementSetter pss = new PreparedStatementSetter(){public void setValues(PreparedStatement preparedStatement) throws SQLException {preparedStatement.setInt(1, leaksNumber);}};
+		;
+		String SQL = "SELECT * FROM COMBO where";
+		if (leaksNumber > 0)
 		{
-			public void setValues(PreparedStatement preparedStatement) throws SQLException 
+			SQL += " ID = ?";
+			pss = new PreparedStatementSetter(){public void setValues(PreparedStatement preparedStatement) throws SQLException {preparedStatement.setInt(1, leaksNumber);}};
+		} 
+		if (price >= 0)
+		{
+			if (leaksNumber > 0)
 			{
-				preparedStatement.setInt(1, price); 
+				SQL += " AND PRICE < ?";
+				pss = new PreparedStatementSetter(){public void setValues(PreparedStatement preparedStatement) throws SQLException {preparedStatement.setInt(1, leaksNumber);preparedStatement.setInt(2, price);}};
 			}
-		}, new ComboMapper()); 
+			else
+			{
+				SQL += " PRICE < ?";
+				pss = new PreparedStatementSetter(){public void setValues(PreparedStatement preparedStatement) throws SQLException {preparedStatement.setInt(1, price);}};
+			}
+		}
+		Collection<Combo> details = jdbcTemp.query(SQL, pss, new ComboMapper()); 
 		return details; 
 	}
 
