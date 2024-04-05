@@ -237,15 +237,11 @@ public class WebController
     }
 
     @GetMapping({"/query", "/query/"})
-    public ModelAndView getMethodName(Model model, @CookieValue(value = "id", defaultValue = "-1") String id, @RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price, @RequestParam(defaultValue = "0") Integer leaksNumber)
+    public ModelAndView query(Model model, @CookieValue(value = "id", defaultValue = "-1") String id, @RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price, @RequestParam(defaultValue = "-1") Integer leaksNumber)
     {
         if (Integer.parseInt(id) == -1)
         {
             return new ModelAndView("redirect:/login");
-        }
-        if (enterprise == "" && price <= 0 && leaksNumber <= 0)
-        {
-            return new ModelAndView("redirect:/shop");
         }
         Collection<Combo> c = this.comboDB.findAll(enterprise, price, leaksNumber);
         if (!c.isEmpty())

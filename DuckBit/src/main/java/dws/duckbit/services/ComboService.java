@@ -2,21 +2,28 @@ package dws.duckbit.services;
 
 import dws.duckbit.repositories.ComboRepository;
 
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
 
+import org.springframework.jdbc.core.JdbcTemplate; 
 
 @Service
 public class ComboService
 {
 	private final ComboRepository comboRepository;
 	public final LeakService leakService;
+
+	@Autowired
+	private JdbcTemplate jdbcTemp;
 	private int soldCombos = 0;
 
 // ---------- CONSTRUCTOR ---------- //
@@ -26,16 +33,6 @@ public class ComboService
 		this.comboRepository = comboRepository;
 		this.leakService = leakService;
 	}
-
-
-
-	/*public boolean exist(long id) {
-		return shopRepository.existsById(id);
-	}*/
-
-
-
-
 
 // ---------- GET ---------- //
 
@@ -72,28 +69,22 @@ public class ComboService
 		return this.comboRepository.findAll();
 	}
 
-	// TO-DO: Needs fix. It must takes data from 3 tables
-	@Query("SELECT * FROM COMBOS WHERE enterprise = :enterprise AND price < :price AND lea")
-	public Collection<Combo> findAll(String enterprise, int price, int leaksNumber);
-
-	//NOT MADE
-	/*public ArrayList<Integer> getCombosIDsForEnterprise(String enterprise)
+	@SuppressWarnings("null")
+	public Collection<Combo> findAll(String enterprise, int price, int leaksNumber)
 	{
-		ArrayList<Integer> list = new ArrayList<>();
-		Collection<Combo> listOfValues = this.combos.values();
-		int value = 0;
-		for (Combo c: listOfValues)
+		final String SQL = "SELECT * FROM COMBO where price < ?"; 
+		Collection<Combo> details = jdbcTemp.query(SQL, new PreparedStatementSetter()
 		{
-			if (c.isEnterpriseInCombo(enterprise))
+			public void setValues(PreparedStatement preparedStatement) throws SQLException 
 			{
-				list.add(value);
+				preparedStatement.setInt(1, price); 
 			}
-			value++;
-		}
-		return list;
-	}*/
+		}, new ComboMapper()); 
+		return details; 
+	}
 
 	// ---------- ADD AND CREATE ---------- //
+	
 	public Combo save(Combo c)
 	{
 		if (c == null){

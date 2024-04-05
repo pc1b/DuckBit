@@ -49,6 +49,21 @@ public class Combo {
 		this.id = id;
 	}
 
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public void setPrice(int price)
+	{
+		this.price = price;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
 	public int getComboPrice()
 	{
 		return this.price;
