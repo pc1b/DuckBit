@@ -72,28 +72,39 @@ public class ComboService
 	@SuppressWarnings("null")
 	public Collection<Combo> findAll(String enterprise, int price, int leaksNumber)
 	{
-		PreparedStatementSetter pss = new PreparedStatementSetter(){public void setValues(PreparedStatement preparedStatement) throws SQLException {preparedStatement.setInt(1, leaksNumber);}};
-		;
-		String SQL = "SELECT * FROM COMBO where";
-		if (leaksNumber > 0)
+		String enterprise_column = "l.enterprise";
+		String price_column = "c.price";
+		if (enterprise.equals(""))
 		{
-			SQL += " ID = ?";
-			pss = new PreparedStatementSetter(){public void setValues(PreparedStatement preparedStatement) throws SQLException {preparedStatement.setInt(1, leaksNumber);}};
-		} 
-		if (price >= 0)
-		{
-			if (leaksNumber > 0)
-			{
-				SQL += " AND PRICE < ?";
-				pss = new PreparedStatementSetter(){public void setValues(PreparedStatement preparedStatement) throws SQLException {preparedStatement.setInt(1, leaksNumber);preparedStatement.setInt(2, price);}};
-			}
-			else
-			{
-				SQL += " PRICE < ?";
-				pss = new PreparedStatementSetter(){public void setValues(PreparedStatement preparedStatement) throws SQLException {preparedStatement.setInt(1, price);}};
-			}
+			enterprise_column = "'1'";
 		}
-		Collection<Combo> details = jdbcTemp.query(SQL, pss, new ComboMapper()); 
+		if (price <= 0)
+		{
+			price_column = "'1'";
+		}
+		String SQL = "SELECT DISTINCT c.price, c.id, c.description, c.name FROM  combo_leaks cl, leak l, combo c WHERE c.id = cl.combo_id AND cl.leaks_id = l.id AND "+enterprise_column+" = ? AND "+price_column+" < ?";
+		Collection<Combo> details = jdbcTemp.query(SQL, new PreparedStatementSetter()
+		{
+			public void setValues(PreparedStatement preparedStatement) throws SQLException 
+			{
+				if (enterprise.equals(""))
+				{
+					preparedStatement.setString(1, "1");
+				}
+				else
+				{
+					preparedStatement.setString(1, enterprise);
+				}
+				if (price <= 0)
+				{
+					preparedStatement.setString(2, "2");
+				}
+				else
+				{
+					preparedStatement.setInt(2, price);
+				}
+			}
+		}, new ComboMapper()); 
 		return details; 
 	}
 
