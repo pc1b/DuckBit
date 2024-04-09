@@ -90,6 +90,10 @@ public class Combo {
 		return this.name;
 	}
 
+	public List<Leak> getLeaks()
+	{
+		return this.leaks;
+	}
 
 // ---------- DELETE AND REMOVE ---------- //
 

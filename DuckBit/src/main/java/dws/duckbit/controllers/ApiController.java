@@ -52,13 +52,16 @@ public class ApiController {
 	}
 
 	// ---------- INDEX ---------- //
+
 	@GetMapping({"/", ""})
 	public ResponseEntity<Object> home()
 	{
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "text/plain")
 				.body("Welcome to Duckbit api");
 	}
+
 	// ---------- USER ---------- //
+
 	//USER INFO
 	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
 	public ResponseEntity<Object> getUser(@PathVariable Long id)
@@ -103,11 +106,32 @@ public class ApiController {
 	}
 
 	// ---------- LEAKS ---------- //
+
 	//GET ALL LEAKS
 	@GetMapping({"/leaks/", "/leaks"})
 	public ResponseEntity<Object> getLeaks()
 	{
 		return ResponseEntity.ok(this.leaksDB.findAll());
+	}
+
+	//GET A LEAK
+	@GetMapping({"/leak/{id}/", "/leak/{id}"})
+	public ResponseEntity<Object> getLeak(@PathVariable int id)
+	{
+		Leak l = this.leaksDB.findByID(id);
+		if (true)																	// CHANGE TO IS_OPTIONAL
+		{
+			HashMap<String,Object> response = new HashMap<>();
+			response.put("ID", this.leaksDB.findByID(id).getId());
+			response.put("Enterprise", this.leaksDB.findByID(id).getEnterprise());
+			response.put("Date", this.leaksDB.findByID(id).getDate());
+			response.put("Combos", this.leaksDB.findByID(id).getCombos());
+			return ResponseEntity.ok(response);
+		}
+		else
+		{
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	//CREATE A NEW LEAK
@@ -168,15 +192,36 @@ public class ApiController {
 	}
 
 	// ---------- COMBOS ---------- //
+
 	//DOWNLOAD A COMBO
-	@GetMapping({"/combo/{id}", "/combo/{id}/"})
-	public ResponseEntity<String> getCombo(@PathVariable int id)
+	@GetMapping({"/combo/{id}/file/", "/combo/{id}/file"})
+	public ResponseEntity<String> getComboDownload(@PathVariable int id)
 	{
 		Optional<Combo> c = this.comboDB.findById(id);
 		if (c.isPresent())
 		{
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,
 					"text/plain").body(c.get().leakedInfo());
+		}
+		else
+		{
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	//GET A COMBO
+	@GetMapping({"/combo/{id}/", "/combo/{id}"})
+	public ResponseEntity<Object> getCombo(@PathVariable int id)
+	{
+		Optional<Combo> c = this.comboDB.findById(id);
+		if (c.isPresent())
+		{
+			HashMap<String,Object> response = new HashMap<>();
+			response.put("Name", this.comboDB.findById(id).get().getUser());
+			response.put("Description", this.comboDB.findById(id).get().getDescription());
+			response.put("Price", this.comboDB.findById(id).get().getComboPrice());
+			response.put("Leaks", this.comboDB.findById(id).get().getLeaks());
+			return ResponseEntity.ok(response);
 		}
 		else
 		{
