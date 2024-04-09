@@ -15,15 +15,17 @@ public class Leak {
 	private Calendar date;
 	@ManyToMany
 	private List<Combo> combos;
+	private String filename;
 
 
 // ---------- CONSTRUCTOR ---------- //
 
 	public Leak(){}
-	public Leak(String enterprise, Calendar date)
+	public Leak(String enterprise, Calendar date, String filename)
 	{
 		this.enterprise = enterprise;
 		this.date = date;
+		this.filename = filename;
 	}
 	
 // ---------- GET ---------- //
@@ -50,6 +52,10 @@ public class Leak {
 		return this.combos;
 	}
 
+	public String getFilename()
+	{
+		return this.filename;
+	}
 
 // ---------- SET ---------- //
 

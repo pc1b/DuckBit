@@ -334,11 +334,19 @@ public class WebController
     @PostMapping({"/upload_leak", "/upload_leak/"})
     public ModelAndView UploadLeak(@RequestParam String leakName, @RequestParam String leakDate, @RequestParam MultipartFile leak) throws IOException
     {
-        Files.createDirectories(LEAKS_FOLDER);
-        String nameFile = String.valueOf(this.leakDB.getNextId()) + ".txt";
-        Path leakPath = LEAKS_FOLDER.resolve(nameFile);
-        leak.transferTo(leakPath);
-        this.leakDB.createLeak(leakName, leakDate);
+        String REGEX_PATTERN = "^[A-Za-z0-9.]{1,255}$";
+        String filename = leak.getOriginalFilename();
+        if (filename == null || !(filename.matches(REGEX_PATTERN)))
+        {
+            filename = String.valueOf(this.leakDB.getNextId()) + ".txt";
+        }
+		Leak l = this.leakDB.createLeak(leakName, leakDate, filename);
+		if (l != null)
+		{
+			Files.createDirectories(LEAKS_FOLDER);
+			Path txtPath = LEAKS_FOLDER.resolve(filename);
+			leak.transferTo(txtPath);
+		}
         return new ModelAndView("redirect:/admin");
     }
 

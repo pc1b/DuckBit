@@ -22,7 +22,7 @@ public class LeakService
 
 // ---------- CONSTRUCTOR ---------- //
 
-	public Leak createLeak(String enterprise, String date)
+	public Leak createLeak(String enterprise, String date, String filename)
 	{
 		try
 		{
@@ -31,7 +31,7 @@ public class LeakService
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(fechaDate);
-			Leak l = new Leak(enterprise, calendar);
+			Leak l = new Leak(enterprise, calendar, filename);
 			this.id++;
 			save(l);
 			return l;

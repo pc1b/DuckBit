@@ -21,9 +21,9 @@ public class DatabaseInitializer {
 	@PostConstruct
 	public void init() throws IOException {
 
-		this.leakService.save(this.leakService.createLeak("Orange", "2024-10-8"));
-		this.leakService.save(this.leakService.createLeak("URJC", "2024-10-8"));
-		this.leakService.save(this.leakService.createLeak("Amazon", "2024-10-8"));
+		this.leakService.save(this.leakService.createLeak("Orange", "2024-10-8", "1.txt"));
+		this.leakService.save(this.leakService.createLeak("URJC", "2024-10-8", "2.txt"));
+		this.leakService.save(this.leakService.createLeak("Amazon", "2024-10-8", "3.txt"));
 
 		ArrayList<Long> id = new ArrayList<>();
 		id.add(3L);

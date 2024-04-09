@@ -138,13 +138,17 @@ public class ApiController {
 	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date,
 											 @RequestParam MultipartFile leakInfo) throws IOException
 	{
-		Leak l = this.leaksDB.createLeak(enterprise, date);
+        String REGEX_PATTERN = "^[A-Za-z0-9.]{1,255}$";
+        String filename = leakInfo.getOriginalFilename();
+        if (filename == null || !(filename.matches(REGEX_PATTERN)))
+        {
+            filename = String.valueOf(this.leaksDB.getNextId()) + ".txt";
+        }
+		Leak l = this.leaksDB.createLeak(enterprise, date, filename);
 		if (l != null)
 		{
-			this.leaksDB.save(l);
 			Files.createDirectories(LEAKS_FOLDER);
-			String nameFile = l.getId() + ".txt";
-			Path txtPath = LEAKS_FOLDER.resolve(nameFile);
+			Path txtPath = LEAKS_FOLDER.resolve(filename);
 			leakInfo.transferTo(txtPath);
 			return status(HttpStatus.CREATED).body(l);
 		}

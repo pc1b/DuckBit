@@ -137,7 +137,7 @@ public class Combo {
 			for (Leak l: this.leaks)
 			{
 				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
-				Path leakPath = LEAKS_FOLDER.resolve(l.getId() + ".txt");
+				Path leakPath = LEAKS_FOLDER.resolve(l.getFilename());
 				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath()))
 				{
 					String line;
@@ -174,7 +174,7 @@ public class Combo {
 			for (Leak l: this.leaks)
 			{
 				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
-				Path leakPath = LEAKS_FOLDER.resolve(l.getId() + ".txt");
+				Path leakPath = LEAKS_FOLDER.resolve(l.getFilename());
 				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath()))
 				{
 					String line;
