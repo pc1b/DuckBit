@@ -6,6 +6,8 @@ import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.hibernate.engine.jdbc.BlobProxy;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +24,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -399,7 +402,22 @@ public class ApiController {
 	//DOWNLOAD IMAGE
 
 	@GetMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> downloadImage(@PathVariable Long id) throws MalformedURLException
+	public ResponseEntity<Object> downloadImage(@PathVariable long id) throws SQLException {
+
+		UserD u = this.userDB.findByID(id).orElseThrow();
+
+		if (u.getImageFile() != null) {
+
+			Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
+
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
+					.contentLength(u.getImageFile().length()).body(file);
+
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+	/*public ResponseEntity<Object> downloadImage(@PathVariable Long id) throws MalformedURLException
 	{
 		Optional<UserD> u = this.userDB.findByID(id);
 		if (u.isEmpty())
@@ -415,24 +433,23 @@ public class ApiController {
 		}
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg").body(file);
 
-	}
+	}*/
 
 	//POST AN IMAGE
 	@PostMapping({"/{id}/image", "/{id}/image/"})
-	/*public ResponseEntity<Object> uploadImage(@PathVariable long id, @RequestParam MultipartFile imageFile)
+	public ResponseEntity<Object> uploadImage(@PathVariable long id, @RequestParam MultipartFile imageFile)
 			throws IOException {
 
 		UserD user = this.userDB.findByID(id).orElseThrow();
 
 		URI location = fromCurrentRequest().build().toUri();
 
-		post.setImage(location.toString());
-		post.setImageFile(BlobProxy.generateProxy(imageFile.getInputStream(), imageFile.getSize()));
-		posts.save(post);
+		user.setImageFile(BlobProxy.generateProxy(imageFile.getInputStream(), imageFile.getSize()));
+		this.userDB.save(user);
 
 		return ResponseEntity.created(location).build();
-	}*/
-	public ResponseEntity<Object> uploadImage(@PathVariable Long id, @RequestParam MultipartFile image)
+	}
+	/*public ResponseEntity<Object> uploadImage(@PathVariable Long id, @RequestParam MultipartFile image)
 			throws IOException
 	{
 		Optional<UserD> userD = this.userDB.findByID(id);
@@ -450,11 +467,21 @@ public class ApiController {
 		{
 			return ResponseEntity.notFound().build();
 		}
-	}
+	}*/
 
 	//DELETE AN IMAGE
 	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> deleteImage(@PathVariable Long id) throws IOException
+	public ResponseEntity<Object> deleteImage(@PathVariable long id) throws IOException {
+
+		UserD u = this.userDB.findByID(id).orElseThrow();
+
+		u.setImageFile(null);
+
+		this.userDB.save(u);
+
+		return ResponseEntity.noContent().build();
+	}
+	/*public ResponseEntity<Object> deleteImage(@PathVariable Long id) throws IOException
 	{
 		Optional<UserD> userD = this.userDB.findByID(id);
 		if(userD.isPresent())
@@ -484,5 +511,5 @@ public class ApiController {
 		{
 			return ResponseEntity.notFound().build();
 		}
-	}
+	}*/
 }
