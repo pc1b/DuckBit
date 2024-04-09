@@ -1,7 +1,6 @@
 package dws.duckbit.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import dws.duckbit.services.UserService;
 import jakarta.persistence.*;
 
 import java.io.BufferedReader;
@@ -29,7 +28,7 @@ public class Combo {
 	private int price;
 	@JsonIgnore
 	@ManyToOne
-	private User user;
+	private UserD userD;
 	//private HashSet<String> enterpriseArray;
 
 // ---------- CONSTRUCTOR ---------- //
@@ -55,12 +54,12 @@ public class Combo {
 		this.id = id;
 	}
 
-	public User getUser() {
-		return user;
+	public UserD getUser() {
+		return userD;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUser(UserD userD) {
+		this.userD = userD;
 	}
 
 	public String getDescription(){

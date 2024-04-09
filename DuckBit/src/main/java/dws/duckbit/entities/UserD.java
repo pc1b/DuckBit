@@ -2,36 +2,35 @@ package dws.duckbit.entities;
 
 import jakarta.persistence.*;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Entity
-public class User
+public class UserD
 {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id = null;
-    private String user;
+    private String userd;
     private String mail;
     private byte[] password;
-    @OneToMany(mappedBy = "user", cascade=CascadeType.ALL, orphanRemoval=true)
-    private ArrayList<Combo> combos;
+    @OneToMany
+    private List<Combo> combos = new ArrayList<>();
     private int credits = 0;
 
 // ---------- CONSTRUCTOR ---------- //
 
-    public User( String user, String mail, String password)
+    public UserD(String userd, String mail, String password)
     {
         try
         {
-            this.user = user;
+            this.userd = userd;
             this.mail = mail;
             byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
             this.password = MessageDigest.getInstance("MD5").digest(userPassword);
-            this.combos = new ArrayList<>();
         }
         catch (Exception e)
         {
@@ -39,15 +38,15 @@ public class User
         }
     }
 
-    protected User() {
+    protected UserD() {
 
     }
 
 // ---------- GET ---------- //
 
-    public String getUser()
+    public String getUserd()
     {
-        return (this.user);
+        return (this.userd);
     }
 
     public String getMail()
@@ -63,8 +62,11 @@ public class User
         this.id = id;
     }
 
+    public void setCombos(ArrayList<Combo> combos) {
+        this.combos = combos;
+    }
 
-    public ArrayList<Combo> getCombos(){
+    public List<Combo> getCombos(){
         return this.combos;
     }
 
@@ -98,7 +100,7 @@ public class User
 
     public boolean isUser(String user, String password)
     {
-        return(user.equals(this.user) && this.comparePassword(password));
+        return(user.equals(this.userd) && this.comparePassword(password));
     }
 
     public boolean comparePassword(String password)
@@ -122,7 +124,7 @@ public class User
     {
         return "User{" +
                 "ID=" + id +
-                ", user='" + user + '\'' +
+                ", user='" + userd + '\'' +
                 ", mail='" + mail + '\'' +
                 ", combos=" + combos +
                 ", credits=" + credits +

@@ -1,13 +1,12 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import dws.duckbit.entities.Combo;
-import dws.duckbit.entities.User;
 
 
 @Service
@@ -31,7 +30,7 @@ public class UserService
 
     public Long getIDUser(String user, String password)
     {
-        for (User u: this.userRepository.findAll())
+        for (UserD u: this.userRepository.findAll())
         {
             if (u.isUser(user, password))
             {
@@ -41,9 +40,9 @@ public class UserService
         return (-1L);
     }
 
-    public User findByID(Long ID)
+    public UserD findByID(Long ID)
     {
-        Optional<User> u = this.userRepository.findById(ID);
+        Optional<UserD> u = this.userRepository.findById(ID);
 	    return u.orElse((null));
     }
 
@@ -51,8 +50,8 @@ public class UserService
 
     public void addUser(String user, String mail, String password)
     {
-        User newUser = new User(user, mail, password);
-        this.userRepository.save(newUser);
+        UserD newUserD = new UserD(user, mail, password);
+        this.userRepository.save(newUserD);
     }
 
     public void addComboToUser(Combo combo, Long ID)
@@ -69,19 +68,24 @@ public class UserService
 
     public void addCreditsToUser(int plus, Long ID)
     {
-        this.userRepository.findById(ID).orElseThrow().addCredits(plus);
+        Optional<UserD> u = this.userRepository.findById(ID);
+        u.orElseThrow().addCredits(plus);
+        this.userRepository.save(u.get());
     }
 
     public void substractCreditsToUser(int minus, Long ID)
     {
-        this.userRepository.findById(ID).orElseThrow().substractCredits(minus);
+        Optional<UserD> u = this.userRepository.findById(ID);
+        u.orElseThrow().substractCredits(minus);
+        this.userRepository.save(u.get());
+
     }   
 
 // ---------- OTHERS ---------- //
 
     public boolean userExists (String user)
     {
-        Optional<User> u = this.userRepository.findByUser(user);
+        Optional<UserD> u = this.userRepository.findByUserd(user);
 	    return u.isPresent();
     }
 

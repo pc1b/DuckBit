@@ -1,5 +1,6 @@
 package dws.duckbit.controllers;
 
+import dws.duckbit.entities.UserD;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,7 +31,6 @@ import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
-import dws.duckbit.entities.User;
 
 
 @Controller
@@ -71,7 +71,7 @@ public class WebController
         }
         if (idNum == 1)
         {
-            String name = this.userDB.findByID(idNum).getUser();
+            String name = this.userDB.findByID(idNum).getUserd();
             String email = this.userDB.findByID(idNum).getMail();
             model.addAttribute("username", name);
             List<Leak> leaks = new ArrayList<>();
@@ -113,10 +113,10 @@ public class WebController
         }
         else if (idNum > 1)
         {
-            String name = this.userDB.findByID(idNum).getUser();
+            String name = this.userDB.findByID(idNum).getUserd();
             int credits = this.userDB.findByID(idNum).getCredits();
             String email = this.userDB.findByID(idNum).getMail();
-            ArrayList<Combo> combos = this.userDB.findByID(idNum).getCombos();
+            List<Combo> combos = this.userDB.findByID(idNum).getCombos();
             model.addAttribute("credits", credits);
             model.addAttribute("username", name);
             model.addAttribute("combos", combos);
@@ -229,7 +229,7 @@ public class WebController
         {
             model.addAttribute("combos", c);
         }
-        String name = this.userDB.findByID(Long.parseLong(id)).getUser();
+        String name = this.userDB.findByID(Long.parseLong(id)).getUserd();
         int credits = this.userDB.findByID(Long.parseLong(id)).getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
@@ -252,7 +252,7 @@ public class WebController
         {
             model.addAttribute("combos", c);
         }
-        String name = this.userDB.findByID(Long.parseLong(id)).getUser();
+        String name = this.userDB.findByID(Long.parseLong(id)).getUserd();
         int credits = this.userDB.findByID(Long.parseLong(id)).getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
@@ -269,7 +269,7 @@ public class WebController
         String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
         image.transferTo(imagePath);
-        if (this.userDB.findByID(1L).getUser().equals(username))
+        if (this.userDB.findByID(1L).getUserd().equals(username))
         {
             return new ModelAndView("redirect:/admin");
         }
@@ -301,9 +301,9 @@ public class WebController
         Long idN = Long.parseLong(id);
         if(idN >= 1)
         {
-            User user = userDB.findByID(idN);
+            UserD userD = userDB.findByID(idN);
             Files.createDirectories(IMAGES_FOLDER);
-            String nameFile = user.getUser() + ".jpg";
+            String nameFile = userD.getUserd() + ".jpg";
             Path imagePath = IMAGES_FOLDER.resolve(nameFile);
             File img = imagePath.toFile();
             if (img.exists())
@@ -462,8 +462,8 @@ public class WebController
     @PostMapping({"/add_credits", "/add_credits/"})
     public ModelAndView AddCredits(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
-        User user = this.userDB.findByID(Long.parseLong(id));
-        user.addCredits(500);
+        UserD userD = this.userDB.findByID(Long.parseLong(id));
+        userD.addCredits(500);
         return new ModelAndView("redirect:/user");
     }
 }

@@ -63,13 +63,13 @@ public class ApiController {
 	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
 	public ResponseEntity<Object> getUser(@PathVariable Long id)
 	{
-		User u = this.userDB.findByID(id);
+		UserD u = this.userDB.findByID(id);
 		if (u != null)
 		{
 			if (id == 0)
 			{
 				HashMap<String,Object> response = new HashMap<>();
-				response.put("User", this.userDB.findByID(id).getUser());
+				response.put("User", this.userDB.findByID(id).getUserd());
 				response.put("Mail", this.userDB.findByID(id).getMail());
 				response.put("Registered users", this.userDB.getSize());
 				response.put("Uploaded combos", this.comboDB.getComboSize());
@@ -88,9 +88,9 @@ public class ApiController {
 
 	//USER BUY CREDITS
 	@GetMapping(value = {"/{id}/credits", "/{id}/credits/"})
-	public ResponseEntity<User> buyCredits(@PathVariable Long id)
+	public ResponseEntity<UserD> buyCredits(@PathVariable Long id)
 	{
-		User u = this.userDB.findByID(id);
+		UserD u = this.userDB.findByID(id);
 		if (u != null)
 		{
 			this.userDB.addCreditsToUser(500, id);
@@ -351,12 +351,12 @@ public class ApiController {
 	@GetMapping({"/{id}/image", "/{id}/image/"})
 	public ResponseEntity<Object> downloadImage(@PathVariable Long id) throws MalformedURLException
 	{
-		User u = this.userDB.findByID(id);
+		UserD u = this.userDB.findByID(id);
 		if (u == null)
 		{
 			return ResponseEntity.notFound().build();
 		}
-		Path imgPath = IMAGES_FOLDER.resolve(u.getUser() +".jpg");
+		Path imgPath = IMAGES_FOLDER.resolve(u.getUserd() +".jpg");
 		Resource file = new UrlResource(imgPath.toUri());
 		if(!Files.exists(imgPath))
 		{
@@ -372,12 +372,12 @@ public class ApiController {
 	public ResponseEntity<Object> uploadImage(@PathVariable Long id, @RequestParam MultipartFile image)
 			throws IOException
 	{
-		User user = this.userDB.findByID(id);
-		if (user != null)
+		UserD userD = this.userDB.findByID(id);
+		if (userD != null)
 		{
 			URI location = fromCurrentRequest().build().toUri();
 			Files.createDirectories(IMAGES_FOLDER);
-			String nameFile = user.getUser() + ".jpg";
+			String nameFile = userD.getUserd() + ".jpg";
 			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
 			image.transferTo(imagePath);
 			return ResponseEntity.created(location).build();
@@ -393,11 +393,11 @@ public class ApiController {
 	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
 	public ResponseEntity<Object> deleteImage(@PathVariable Long id) throws IOException
 	{
-		User user = this.userDB.findByID(id);
-		if(user != null)
+		UserD userD = this.userDB.findByID(id);
+		if(userD != null)
 		{
 			Files.createDirectories(IMAGES_FOLDER);
-			String nameFile = user.getUser() + ".jpg";
+			String nameFile = userD.getUserd() + ".jpg";
 			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
 			File img = imagePath.toFile();
 			if (img.exists())
