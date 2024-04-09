@@ -125,7 +125,6 @@ public class ApiController {
 			response.put("ID", this.leaksDB.findByID(id).getId());
 			response.put("Enterprise", this.leaksDB.findByID(id).getEnterprise());
 			response.put("Date", this.leaksDB.findByID(id).getDate());
-			response.put("Combos", this.leaksDB.findByID(id).getCombos());
 			return ResponseEntity.ok(response);
 		}
 		else

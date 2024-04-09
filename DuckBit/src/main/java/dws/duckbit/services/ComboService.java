@@ -2,7 +2,6 @@ package dws.duckbit.services;
 
 import dws.duckbit.repositories.ComboRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Service;
 
