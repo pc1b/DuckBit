@@ -69,7 +69,7 @@ public class ComboService
 	}
 
 	@SuppressWarnings("null")
-	public Collection<Combo> findAll(String enterprise, int price, int leaksNumber)
+	public Collection<Combo> findAll(String enterprise, int price)
 	{
 		String enterprise_column = "l.enterprise";
 		String price_column = "c.price";
