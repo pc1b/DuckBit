@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,7 +37,6 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 public class ApiController {
 
 	// ---------- DEFAULT PATHS ---------- //
-	private final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
 	private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 	private final Path COMBO_FOLDER = Paths.get("src/main/resources/static/combo");
 

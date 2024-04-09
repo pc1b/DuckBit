@@ -371,7 +371,7 @@ public class WebController
     public ResponseEntity<Object> deleteCombo(@CookieValue(value = "id", defaultValue = "-1") String id, @PathVariable int comboID) throws IOException
     {
         int idN = Integer.parseInt(id);
-        if(idN == 0)
+        if(idN == 1)
         {
             this.comboDB.delete(comboID);
             return ResponseEntity.noContent().build();
