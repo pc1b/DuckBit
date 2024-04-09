@@ -170,9 +170,9 @@ public class WebController
 
     // Form sended to login
     @PostMapping({"/login", "/login/"})
-    public ModelAndView Login(@RequestParam String user, @RequestParam String pass, RedirectAttributes attributes, HttpServletResponse response)
+    public ModelAndView Login(@RequestParam String userD, @RequestParam String pass, RedirectAttributes attributes, HttpServletResponse response)
     {
-        Long userID = this.userDB.getIDUser(user, pass);
+        Long userID = this.userDB.getIDUser(userD, pass);
         Cookie cookie = new Cookie("id", String.valueOf(userID));
         if (userID == 1)
         {
@@ -192,15 +192,15 @@ public class WebController
 
     // Form sended to register
     @PostMapping({"/register", "/register/"})
-    public ModelAndView Register(@RequestParam String user, @RequestParam String pass, @RequestParam String mail)
+    public ModelAndView Register(@RequestParam String userD, @RequestParam String pass, @RequestParam String mail)
     {
-        if (this.userDB.userExists(user))
+        if (this.userDB.userExists(userD))
         {
             return new ModelAndView("redirect:/register");
         }
         else
         {
-            this.userDB.addUser(user, mail, pass);
+            this.userDB.addUser(userD, mail, pass);
         }
         return new ModelAndView("redirect:/login");
     }
