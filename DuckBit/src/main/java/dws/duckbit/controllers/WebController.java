@@ -397,8 +397,6 @@ public class WebController
                 this.userDB.addComboToUser(comboBought, userID);
                 comboBought.setUser(this.userDB.findByID(userID).get());
                 this.comboDB.save(comboBought);
-
-                this.userDB.addComboToUser(comboBought, userID);
             }
 
         }

@@ -397,6 +397,7 @@ public class ApiController {
 
 	// ---------- IMAGES MANIPULATION ---------- //
 	//DOWNLOAD IMAGE
+
 	@GetMapping({"/{id}/image", "/{id}/image/"})
 	public ResponseEntity<Object> downloadImage(@PathVariable Long id) throws MalformedURLException
 	{
@@ -418,6 +419,19 @@ public class ApiController {
 
 	//POST AN IMAGE
 	@PostMapping({"/{id}/image", "/{id}/image/"})
+	/*public ResponseEntity<Object> uploadImage(@PathVariable long id, @RequestParam MultipartFile imageFile)
+			throws IOException {
+
+		UserD user = this.userDB.findByID(id).orElseThrow();
+
+		URI location = fromCurrentRequest().build().toUri();
+
+		post.setImage(location.toString());
+		post.setImageFile(BlobProxy.generateProxy(imageFile.getInputStream(), imageFile.getSize()));
+		posts.save(post);
+
+		return ResponseEntity.created(location).build();
+	}*/
 	public ResponseEntity<Object> uploadImage(@PathVariable Long id, @RequestParam MultipartFile image)
 			throws IOException
 	{

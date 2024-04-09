@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,9 @@ public class UserD
     @JsonIgnore
     @OneToMany
     private List<Combo> combos = new ArrayList<>();
+    @Lob
+    @JsonIgnore
+    private Blob imageFile;
     private int credits = 0;
 
 // ---------- CONSTRUCTOR ---------- //
@@ -49,6 +53,15 @@ public class UserD
     public String getUserd()
     {
         return (this.userd);
+    }
+
+
+    public Blob getImageFile() {
+        return imageFile;
+    }
+
+    public void setImageFile(Blob image) {
+        this.imageFile = image;
     }
 
     public String getMail()
