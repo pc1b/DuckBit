@@ -55,10 +55,9 @@ public class LeakService
 		return this.leaksRepository.count();
 	}
 
-	public Leak findByID(long id)
+	public Optional<Leak> findByID(long id)
 	{
-		Optional<Leak> leak = this.leaksRepository.findById(id);
-		return leak.orElse(null);
+		return this.leaksRepository.findById(id);
 	}
 
 	public List<Leak> findAll()

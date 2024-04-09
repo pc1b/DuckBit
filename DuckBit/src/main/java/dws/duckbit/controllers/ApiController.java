@@ -66,14 +66,14 @@ public class ApiController {
 	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
 	public ResponseEntity<Object> getUser(@PathVariable Long id)
 	{
-		UserD u = this.userDB.findByID(id);
-		if (u != null)
+		Optional<UserD> u = this.userDB.findByID(id);
+		if (u.isPresent())
 		{
 			if (id == 0)
 			{
 				HashMap<String,Object> response = new HashMap<>();
-				response.put("User", this.userDB.findByID(id).getUserd());
-				response.put("Mail", this.userDB.findByID(id).getMail());
+				response.put("User", u.get().getUserd());
+				response.put("Mail", u.get().getMail());
 				response.put("Registered users", this.userDB.getSize());
 				response.put("Uploaded combos", this.comboDB.getComboSize());
 				response.put("Sold combos", this.comboDB.getSoldCombos());
@@ -93,11 +93,11 @@ public class ApiController {
 	@GetMapping(value = {"/{id}/credits", "/{id}/credits/"})
 	public ResponseEntity<UserD> buyCredits(@PathVariable Long id)
 	{
-		UserD u = this.userDB.findByID(id);
-		if (u != null)
+		Optional<UserD> u = this.userDB.findByID(id);
+		if (u.isPresent())
 		{
 			this.userDB.addCreditsToUser(500, id);
-			return ResponseEntity.ok(u);
+			return ResponseEntity.ok(u.get());
 		}
 		else
 		{
@@ -118,13 +118,13 @@ public class ApiController {
 	@GetMapping({"/leak/{id}/", "/leak/{id}"})
 	public ResponseEntity<Object> getLeak(@PathVariable int id)
 	{
-		Leak l = this.leaksDB.findByID(id);
-		if (true)																	// CHANGE TO IS_OPTIONAL
+		Optional<Leak> l = this.leaksDB.findByID(id);
+		if (l.isPresent())
 		{
 			HashMap<String,Object> response = new HashMap<>();
-			response.put("ID", this.leaksDB.findByID(id).getId());
-			response.put("Enterprise", this.leaksDB.findByID(id).getEnterprise());
-			response.put("Date", this.leaksDB.findByID(id).getDate());
+			response.put("ID", l.get().getId());
+			response.put("Enterprise", l.get().getEnterprise());
+			response.put("Date", l.get().getDate());
 			return ResponseEntity.ok(response);
 		}
 		else
@@ -158,13 +158,13 @@ public class ApiController {
 	@DeleteMapping({"/leak/{id}", "/leak/{id}/"})
 	public ResponseEntity<Object> deleteLeak(@PathVariable int id) throws IOException
 	{
-		Leak l = this.leaksDB.findByID(id);
-		if (l != null)
+		Optional<Leak> l = this.leaksDB.findByID(id);
+		if (l.isPresent())
 		{
-			this.leaksDB.delete(l);
-			this.comboDB.deleteLeak(l);
+			this.leaksDB.delete(l.get());
+			this.comboDB.deleteLeak(l.get());
 			Files.createDirectories(this.LEAKS_FOLDER);
-			String nameFile = l.getId() + ".txt";
+			String nameFile = l.get().getId() + ".txt";
 			Path leakPath = this.LEAKS_FOLDER.resolve(nameFile);
 			File leak = leakPath.toFile();
 			if (leak.exists())
@@ -216,10 +216,10 @@ public class ApiController {
 		if (c.isPresent())
 		{
 			HashMap<String,Object> response = new HashMap<>();
-			response.put("Name", this.comboDB.findById(id).get().getUser());
-			response.put("Description", this.comboDB.findById(id).get().getDescription());
-			response.put("Price", this.comboDB.findById(id).get().getComboPrice());
-			response.put("Leaks", this.comboDB.findById(id).get().getLeaks());
+			response.put("Name", c.get().getUser());
+			response.put("Description", c.get().getDescription());
+			response.put("Price", c.get().getComboPrice());
+			response.put("Leaks", c.get().getLeaks());
 			return ResponseEntity.ok(response);
 		}
 		else
@@ -290,10 +290,10 @@ public class ApiController {
 			{
 				for (int i : leaks)
 				{
-					Leak leak = this.leaksDB.findByID(i);
-					if (leak != null)
+					Optional<Leak> leak = this.leaksDB.findByID(i);
+					if (leak.isPresent())
 					{
-						leaksEdit.add(leak);
+						leaksEdit.add(leak.get());
 					}
 					else
 					{
@@ -370,7 +370,7 @@ public class ApiController {
 	public ResponseEntity<Object> buyCombo(@RequestParam int combo, @PathVariable Long id)
 	{
 		Optional<Combo> c = this.comboDB.findById(combo);
-		if (c.isEmpty())
+		if (c.isEmpty() || this.userDB.findByID(id).isEmpty())
 		{
 			return ResponseEntity.notFound().build();
 		}
@@ -379,9 +379,8 @@ public class ApiController {
 		{
 			this.userDB.substractCreditsToUser(comboPrice, id);
 			Combo comboBought = c.get();
-			//this.comboDB.delete(combo);
 			this.userDB.addComboToUser(comboBought, id);
-			comboBought.setUser(this.userDB.findByID(id));
+			comboBought.setUser(this.userDB.findByID(id).get());
 			this.comboDB.save(comboBought);
 			this.comboDB.updateSoldCombo();
 			return ResponseEntity.ok(comboBought);
@@ -397,12 +396,12 @@ public class ApiController {
 	@GetMapping({"/{id}/image", "/{id}/image/"})
 	public ResponseEntity<Object> downloadImage(@PathVariable Long id) throws MalformedURLException
 	{
-		UserD u = this.userDB.findByID(id);
-		if (u == null)
+		Optional<UserD> u = this.userDB.findByID(id);
+		if (u.isEmpty())
 		{
 			return ResponseEntity.notFound().build();
 		}
-		Path imgPath = IMAGES_FOLDER.resolve(u.getUserd() +".jpg");
+		Path imgPath = IMAGES_FOLDER.resolve(u.get().getUserd() +".jpg");
 		Resource file = new UrlResource(imgPath.toUri());
 		if(!Files.exists(imgPath))
 		{
@@ -418,12 +417,12 @@ public class ApiController {
 	public ResponseEntity<Object> uploadImage(@PathVariable Long id, @RequestParam MultipartFile image)
 			throws IOException
 	{
-		UserD userD = this.userDB.findByID(id);
-		if (userD != null)
+		Optional<UserD> userD = this.userDB.findByID(id);
+		if (userD.isPresent())
 		{
 			URI location = fromCurrentRequest().build().toUri();
 			Files.createDirectories(IMAGES_FOLDER);
-			String nameFile = userD.getUserd() + ".jpg";
+			String nameFile = userD.get().getUserd() + ".jpg";
 			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
 			image.transferTo(imagePath);
 			return ResponseEntity.created(location).build();
@@ -439,11 +438,11 @@ public class ApiController {
 	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
 	public ResponseEntity<Object> deleteImage(@PathVariable Long id) throws IOException
 	{
-		UserD userD = this.userDB.findByID(id);
-		if(userD != null)
+		Optional<UserD> userD = this.userDB.findByID(id);
+		if(userD.isPresent())
 		{
 			Files.createDirectories(IMAGES_FOLDER);
-			String nameFile = userD.getUserd() + ".jpg";
+			String nameFile = userD.get().getUserd() + ".jpg";
 			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
 			File img = imagePath.toFile();
 			if (img.exists())

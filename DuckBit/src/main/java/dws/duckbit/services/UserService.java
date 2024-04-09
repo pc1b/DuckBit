@@ -40,10 +40,9 @@ public class UserService
         return (-1L);
     }
 
-    public UserD findByID(Long ID)
+    public Optional<UserD> findByID(Long ID)
     {
-        Optional<UserD> u = this.userRepository.findById(ID);
-	    return u.orElse((null));
+        return this.userRepository.findById(ID);
     }
 
 // ---------- ADD AND CREATE ---------- //

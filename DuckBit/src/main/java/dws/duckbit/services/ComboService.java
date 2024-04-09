@@ -132,11 +132,13 @@ public class ComboService
 		ArrayList<Leak> leaks = new ArrayList<>();
 		for (Long lid : leaksID)
 		{
-			Leak l = this.leakService.findByID(lid);
-			if (l != null){
-				leaks.add(l);
+			Optional<Leak> l = this.leakService.findByID(lid);
+			if (l.isPresent())
+			{
+				leaks.add(l.get());
 			}
-			else{
+			else
+			{
 				return  null;
 			}
 		}
