@@ -1,5 +1,6 @@
 package dws.duckbit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.nio.charset.StandardCharsets;
@@ -17,6 +18,7 @@ public class UserD
     private String userd;
     private String mail;
     private byte[] password;
+    @JsonIgnore
     @OneToMany
     private List<Combo> combos = new ArrayList<>();
     private int credits = 0;

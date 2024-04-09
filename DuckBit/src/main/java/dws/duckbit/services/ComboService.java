@@ -68,6 +68,10 @@ public class ComboService
 		return this.comboRepository.findAll();
 	}
 
+	public List<Combo> getAvilableCombos(){
+		return this.comboRepository.findCombosByUserDNull();
+	}
+
 	@SuppressWarnings("null")
 	public Collection<Combo> findAll(String enterprise, int price)
 	{

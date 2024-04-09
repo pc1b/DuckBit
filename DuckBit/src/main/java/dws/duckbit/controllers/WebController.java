@@ -224,7 +224,7 @@ public class WebController
         {
             return new ModelAndView("redirect:/login");
         }
-        Collection<Combo> c = this.comboDB.findAll();
+        Collection<Combo> c = this.comboDB.getAvilableCombos();
         if (!c.isEmpty())
         {
             model.addAttribute("combos", c);
@@ -384,7 +384,10 @@ public class WebController
             Optional<Combo> c =   this.comboDB.findById(combo);
             if (c.isPresent()){
                 Combo comboBought = c.get();
-                this.comboDB.delete(combo);
+                this.userDB.addComboToUser(comboBought, userID);
+                comboBought.setUser(this.userDB.findByID(userID));
+                this.comboDB.save(comboBought);
+
                 this.userDB.addComboToUser(comboBought, userID);
             }
 
@@ -464,6 +467,7 @@ public class WebController
     {
         UserD userD = this.userDB.findByID(Long.parseLong(id));
         userD.addCredits(500);
+        this.userDB.save(userD);
         return new ModelAndView("redirect:/user");
     }
 }

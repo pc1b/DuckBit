@@ -355,7 +355,7 @@ public class ApiController {
 	@GetMapping({"/shop", "/shop/"})
 	public ResponseEntity<Collection<Combo>> getComboDB()
 	{
-		Collection<Combo> c = this.comboDB.findAll();
+		Collection<Combo> c = this.comboDB.getAvilableCombos();
 		if (c != null)
 		{
 			return ResponseEntity.ok(c);
@@ -380,8 +380,10 @@ public class ApiController {
 		{
 			this.userDB.substractCreditsToUser(comboPrice, id);
 			Combo comboBought = c.get();
-			this.comboDB.delete(combo);
+			//this.comboDB.delete(combo);
 			this.userDB.addComboToUser(comboBought, id);
+			comboBought.setUser(this.userDB.findByID(id));
+			this.comboDB.save(comboBought);
 			this.comboDB.updateSoldCombo();
 			return ResponseEntity.ok(comboBought);
 		}

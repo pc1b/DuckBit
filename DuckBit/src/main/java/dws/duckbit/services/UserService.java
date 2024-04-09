@@ -48,6 +48,9 @@ public class UserService
 
 // ---------- ADD AND CREATE ---------- //
 
+    public void save(UserD userD){
+        this.userRepository.save(userD);
+    }
     public void addUser(String user, String mail, String password)
     {
         UserD newUserD = new UserD(user, mail, password);
@@ -56,7 +59,9 @@ public class UserService
 
     public void addComboToUser(Combo combo, Long ID)
     {
-        this.userRepository.findById(ID).orElseThrow().addCombosToUser(combo);
+        Optional<UserD> u = this.userRepository.findById(ID);
+        u.orElseThrow().addCombosToUser(combo);
+        this.userRepository.save(u.get());
     }
 
 // ---------- CREDITS AND MONEY ---------- //
