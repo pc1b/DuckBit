@@ -80,7 +80,7 @@ public class WebController
                 leaks = this.leakDB.findAll();
                 model.addAttribute("leak", leaks);
             }
-            Collection<Combo> c = this.comboDB.findAll();
+            Collection<Combo> c = this.comboDB.getAvilableCombos();
             if (!c.isEmpty())
             {
                 model.addAttribute("combos", c);
