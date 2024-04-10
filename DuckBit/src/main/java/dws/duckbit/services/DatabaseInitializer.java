@@ -46,9 +46,17 @@ public class DatabaseInitializer {
 		this.userService.addUser("admin", "admin@duckbit.org", "admin");
 		this.userService.addUser("paco", "paco@duckbit.org", "paco");
 		this.userService.addUser("juan", "juan@duckbit.org", "juan");
+
 		for (int i = 1; i<=3; i++){
 			UserD u =  this.userService.findByID((long)i).orElseThrow();
-			Path imagePath = IMAGES_FOLDER.resolve("admin.jpg");
+			Path imagePath;
+			if (i == 1){
+				imagePath = IMAGES_FOLDER.resolve("admin.jpg");
+			}
+			else{
+				imagePath = IMAGES_FOLDER.resolve("logo.jpg");
+			}
+
 			Resource image = new UrlResource(imagePath.toUri());
 			u.setImageFile(BlobProxy.generateProxy(image.getInputStream(), image.getFile().length()));
 			this.userService.save(u);
