@@ -99,10 +99,10 @@
                             <div class="w3-left"><h4>{{name}}: {{price}} $</h4></div>
                             <hr style="width:50%;text-align:left;margin-left:0;margin-top: -6px;margin-bottom: -8px">
                             <div class="w3-right"><h4>{{{description}}}</h4></div>
-                            <hr style="width:50%;text-align:left;margin-left:0;margin-top: -6px;margin-bottom: -8px">
+                            <hr style="width:50%;text-align:left;margin-left:0;margin-top: -6px;margin-bottom: -3px">
                             <div class="w3-right"><h4>This Combo contains the following Leaks:</h4></div>
                             {{#leaks}}
-                            <div class="w3-right"><h4>{{enterprise}} {{date}}</h4></div>
+                            <div class="w3-right" style="margin-top: -10px"><h4>{{enterprise}} {{date}}</h4></div>
                             {{/leaks}}
                             <form action="/buy_combo" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="combo" value="{{{id}}}">
