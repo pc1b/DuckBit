@@ -47,15 +47,7 @@ public class ComboService
 		return this.comboRepository.findAllById(ids);
 	}
 
-	public List<String> findLeaksName(Long comboId){
-		Combo c = this.comboRepository.findById(comboId).orElseThrow();
-		List<Leak> leaks = c.getLeaks();
-		List<String> names = new ArrayList<>();
-		for (Leak l : leaks){
-			names.add(l.getEnterprise());
-		}
-		return names;
-	}
+
 	public int getComboPrice(int comboID)
 	{
 		Optional<Combo> c = this.findById(comboID);
