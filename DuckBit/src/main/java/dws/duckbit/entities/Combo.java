@@ -94,14 +94,6 @@ public class Combo {
 	{
 		return this.leaks;
 	}
-	public List<String> findLeaksName(){
-		List<Leak> leaks = this.getLeaks();
-		List<String> names = new ArrayList<>();
-		for (Leak l : leaks){
-			names.add(l.getEnterprise());
-		}
-		return names;
-	}
 
 // ---------- DELETE AND REMOVE ---------- //
 
