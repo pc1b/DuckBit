@@ -1,6 +1,10 @@
 package dws.duckbit.services;
 
 import dws.duckbit.repositories.LeaksRepository;
+
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -15,7 +19,7 @@ public class LeakService
 {
 	private final LeaksRepository leaksRepository;
 	//private final ComboService comboService;
-	private int id = 0;
+	private int id = 1;
 	public LeakService(LeaksRepository leaksRepository){
 		this.leaksRepository = leaksRepository;
 	}
@@ -63,6 +67,11 @@ public class LeakService
 	public List<Leak> findAll()
 	{
 		return this.leaksRepository.findAll();
+	}
+
+	public boolean existsLeakByFilename(String filename)
+	{
+		return this.leaksRepository.existsLeakByFilename(filename);
 	}
 
 // ---------- ADD AND CREATE ---------- //

@@ -41,7 +41,6 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 @Controller
 public class WebController
 {
-    private final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images/profile_images");
     private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
     private final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
     private final UserService userDB;
@@ -384,9 +383,9 @@ public class WebController
     @PostMapping({"/upload_leak", "/upload_leak/"})
     public ModelAndView UploadLeak(@RequestParam String leakName, @RequestParam String leakDate, @RequestParam MultipartFile leak) throws IOException
     {
-        String REGEX_PATTERN = "^[A-Za-z0-9.]{1,255}$";
+        String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
         String filename = leak.getOriginalFilename();
-        if (filename == null || !(filename.matches(REGEX_PATTERN)))
+        if (filename == null || !(filename.matches(REGEX_PATTERN)) || this.leakDB.existsLeakByFilename(filename))
         {
             filename = String.valueOf(this.leakDB.getNextId()) + ".txt";
         }
