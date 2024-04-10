@@ -84,7 +84,7 @@ public class ComboService
 		{
 			price_column = "'1'";
 		}
-		String SQL = "SELECT DISTINCT c.price, c.id, c.description, c.name FROM  combo_leaks cl, leak l, combo c WHERE c.id = cl.combo_id AND cl.leaks_id = l.id AND "+enterprise_column+" = ? AND "+price_column+" < ?";
+		String SQL = "SELECT DISTINCT c.price, c.id, c.description, c.name FROM  combo_leaks cl, leak l, combo c WHERE c.id = cl.combo_id AND c.userd_id is null AND cl.leaks_id = l.id AND "+enterprise_column+" = ? AND "+price_column+" < ?";
 		Collection<Combo> details = jdbcTemp.query(SQL, new PreparedStatementSetter()
 		{
 			public void setValues(PreparedStatement preparedStatement) throws SQLException 
