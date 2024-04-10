@@ -39,6 +39,9 @@ public class UserService
         }
         return (-1L);
     }
+    public Optional<UserD> findByUsername(String username){
+        return this.userRepository.findByUserd(username);
+    }
 
     public Optional<UserD> findByID(Long ID)
     {

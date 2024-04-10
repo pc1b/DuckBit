@@ -1,6 +1,7 @@
 package dws.duckbit.controllers;
 
 import dws.duckbit.entities.UserD;
+import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,9 +22,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.*;
 
 import dws.duckbit.services.ComboService;
@@ -31,6 +34,8 @@ import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
+
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 
 @Controller
@@ -265,7 +270,23 @@ public class WebController
 
     // Upload a new user image
     @PostMapping({"/upload_image", "/upload_image/"})
-    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException
+    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes)
+            throws IOException {
+
+        UserD user = this.userDB.findByUsername(username).orElseThrow();
+
+        URI location = fromCurrentRequest().build().toUri();
+
+        user.setImageFile(BlobProxy.generateProxy(image.getInputStream(), image.getSize()));
+        this.userDB.save(user);
+        if (user.getID().equals(1L))
+        {
+            return new ModelAndView("redirect:/admin");
+        }
+        attributes.addFlashAttribute("username", username);
+        return new ModelAndView("redirect:/user");
+    }
+/*    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException
     {
         Files.createDirectories(IMAGES_FOLDER);
         String nameFile = username + ".jpg";
@@ -277,11 +298,26 @@ public class WebController
         }
         attributes.addFlashAttribute("username", username);
         return new ModelAndView("redirect:/user");
-    }
+    }*/
 
     // Download a user image
     @GetMapping({"/download_image", "/download_image/"})
-    public ResponseEntity<Object> downloadImage(@RequestParam String username, Model model) throws MalformedURLException
+    public ResponseEntity<Object> downloadImage(@RequestParam String username) throws SQLException {
+
+        UserD u = this.userDB.findByUsername(username).orElseThrow();
+
+        if (u.getImageFile() != null) {
+
+            Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
+
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
+                    .contentLength(u.getImageFile().length()).body(file);
+
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    /*public ResponseEntity<Object> downloadImage(@RequestParam String username, Model model) throws MalformedURLException
     {
         String nameFile = username + ".jpg";
         Path imagePath = IMAGES_FOLDER.resolve(nameFile);
@@ -294,11 +330,25 @@ public class WebController
         }
         return ResponseEntity.notFound()
                 .build();
-    }
+    }*/
 
     // Delete a user image
     @DeleteMapping({"/delete_image", "/delete_image/"})
-    public ResponseEntity<Object> deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id) throws IOException
+    public  ModelAndView  deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id, RedirectAttributes attributes) throws IOException {
+
+        UserD u = this.userDB.findByID(Long.parseLong(id)).orElseThrow();
+
+        u.setImageFile(null);
+
+        this.userDB.save(u);
+        if (u.getID().equals(1L))
+        {
+            return new ModelAndView("redirect:/admin");
+        }
+        attributes.addFlashAttribute("username", u.getUserd());
+        return new ModelAndView("redirect:/user");
+    }
+    /*public ResponseEntity<Object> deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id) throws IOException
     {
         Long idNum = Long.parseLong(id);
         if (!(this.userDB.IDExists(idNum)))
@@ -326,7 +376,7 @@ public class WebController
             return ResponseEntity.noContent().build();
 
         }
-    }
+    }*/
 
 // ---------- LEAKS MANIPULATION ---------- //
 
