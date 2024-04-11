@@ -14,12 +14,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Optional;
 
 @Component
-public class DatabaseInitializer {
-
+public class DatabaseInitializer
+{
 	@Autowired
 	private LeakService leakService;
 	private final Path IMAGES_FOLDER = Paths.get("src/main/resources/static/images");
@@ -54,28 +52,25 @@ public class DatabaseInitializer {
 		this.comboService.save(c1);
 		this.comboService.save(c2);
 
-
-
 		this.userService.addUser("admin", "admin@duckbit.org", "admin");
 		this.userService.addUser("paco", "paco@duckbit.org", "paco");
 		this.userService.addUser("juan", "juan@duckbit.org", "juan");
 
-		for (int i = 1; i<=3; i++){
+		for (int i = 1; i<=3; i++)
+		{
 			UserD u =  this.userService.findByID((long)i).orElseThrow();
 			Path imagePath;
-			if (i == 1){
+			if (i == 1)
+			{
 				imagePath = IMAGES_FOLDER.resolve("admin.jpg");
 			}
-			else{
+			else
+			{
 				imagePath = IMAGES_FOLDER.resolve("logo.jpg");
 			}
-
 			Resource image = new UrlResource(imagePath.toUri());
 			u.setImageFile(BlobProxy.generateProxy(image.getInputStream(), image.getFile().length()));
 			this.userService.save(u);
 		}
-
-
 	}
-
 }

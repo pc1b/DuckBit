@@ -1,16 +1,15 @@
 package dws.duckbit.services;
 
-import dws.duckbit.entities.Leak;
 import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.UserRepository;
+import dws.duckbit.entities.Combo;
+
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.Optional;
-
-import dws.duckbit.entities.Combo;
 
 
 @Service
@@ -41,21 +40,27 @@ public class UserService
     {
         byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
         Optional<UserD> u;
-        try {
+        try
+        {
             u = this.userRepository.findByUserdAndPassword(user,MessageDigest.getInstance("MD5").digest(userPassword));
         }
-        catch (Exception e){
+        catch (Exception e)
+        {
             e.printStackTrace();
             return (-1L);
         }
-        if (u.isPresent()){
+        if (u.isPresent())
+        {
             return u.get().getID();
         }
-        else{
+        else
+        {
             return (-1L);
         }
     }
-    public Optional<UserD> findByUsername(String username){
+
+    public Optional<UserD> findByUsername(String username)
+    {
         return this.userRepository.findByUserd(username);
     }
 
@@ -66,9 +71,11 @@ public class UserService
 
 // ---------- ADD AND CREATE ---------- //
 
-    public void save(UserD userD){
+    public void save(UserD userD)
+    {
         this.userRepository.save(userD);
     }
+
     public void addUser(String user, String mail, String password)
     {
         UserD newUserD = new UserD(user, mail, password);
@@ -80,6 +87,18 @@ public class UserService
         Optional<UserD> u = this.userRepository.findById(ID);
         u.orElseThrow().addCombosToUser(combo);
         this.userRepository.save(u.get());
+    }
+
+    public boolean userExists (String user)
+    {
+        Optional<UserD> u = this.userRepository.findByUserd(user);
+	    return u.isPresent();
+    }
+
+    public boolean IDExists(Long ID)
+    {
+        return this.userRepository.findById(ID).isPresent();
+
     }
 
 // ---------- CREDITS AND MONEY ---------- //
@@ -101,50 +120,5 @@ public class UserService
         Optional<UserD> u = this.userRepository.findById(ID);
         u.orElseThrow().substractCredits(minus);
         this.userRepository.save(u.get());
-
-    }   
-
-// ---------- OTHERS ---------- //
-
-    public boolean userExists (String user)
-    {
-        Optional<UserD> u = this.userRepository.findByUserd(user);
-	    return u.isPresent();
     }
-
-    public boolean IDExists(Long ID)
-    {
-        return this.userRepository.findById(ID).isPresent();
-
-    }
-
-// ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
-/*
-    public void changeUserName(int ID, String name, String password)
-    {
-        for (User u: this.userList)
-        {
-            if (u.getID() == ID)
-            {
-                if (u.comparePassword(password))
-                {
-                    u.changeUserName(name);
-                }
-            }
-        }
-    }
-
-    public void changeUserPassword(int ID, String password)
-    {
-        for (User u: this.userList)
-        {
-            if (u.getID() == ID)
-            {
-                if (u.comparePassword(password))
-                {
-                    u.changeUserPassword(password);
-                }
-            }
-        }
-    }*/
 }

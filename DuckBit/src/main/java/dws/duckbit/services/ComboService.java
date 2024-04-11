@@ -51,7 +51,6 @@ public class ComboService
 		return this.comboRepository.findCombosByUserD(u);
 	}
 
-
 	public int getComboPrice(Long comboID)
 	{
 		Optional<Combo> c = this.findById(comboID);
@@ -75,6 +74,7 @@ public class ComboService
 		return this.comboRepository.findCombosByUserDNull();
 	}
 
+	//Dynamic query
 	@SuppressWarnings("null")
 	public Collection<Combo> findAll(String enterprise, int price)
 	{
@@ -123,19 +123,7 @@ public class ComboService
 		return details; 
 	}
 
-	public void editCombo(Combo c, String name, int price, ArrayList<Leak> leaksEdit, String description){
-		List<Leak> leaks = this.leakService.findByCombo(c);
-		for (Leak l : leaks){
-			l.getCombos().remove(c);
-			this.leakService.save(l);
-		}
-		for (Leak l : leaksEdit){
-			l.getCombos().add(c);
-			this.leakService.save(l);
-		}
-		c.editCombo(name, price, leaksEdit, description);
-	}
-	// ---------- ADD AND CREATE ---------- //
+// ---------- ADD AND CREATE ---------- //
 	
 	public Combo save(Combo c)
 	{
@@ -172,8 +160,20 @@ public class ComboService
 		return c;
 	}
 
-// ---------- DELETE AND REMOVE ---------- //
+	public void editCombo(Combo c, String name, int price, ArrayList<Leak> leaksEdit, String description){
+		List<Leak> leaks = this.leakService.findByCombo(c);
+		for (Leak l : leaks){
+			l.getCombos().remove(c);
+			this.leakService.save(l);
+		}
+		for (Leak l : leaksEdit){
+			l.getCombos().add(c);
+			this.leakService.save(l);
+		}
+		c.editCombo(name, price, leaksEdit, description);
+	}
 
+// ---------- DELETE AND REMOVE ---------- //
 
 	public void delete(long id)
 	{
@@ -185,13 +185,4 @@ public class ComboService
 		}
 		this.comboRepository.deleteById(id);
 	}
-
-
-//	public void deleteLeak(Leak l)
-//	{
-//		for (Combo c : this.comboRepository.findAll())
-//		{
-//			c.deleteLeak(l);
-//		}
-//	}
 }

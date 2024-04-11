@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface LeaksRepository extends JpaRepository<Leak, Long> {
+public interface LeaksRepository extends JpaRepository<Leak, Long>
+{
     boolean existsLeakByFilename(String filename);
     List<Leak> findLeaksByCombos(Combo combo);
 }

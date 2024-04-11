@@ -16,7 +16,6 @@ import dws.duckbit.entities.Leak;
 public class LeakService
 {
 	private final LeaksRepository leaksRepository;
-	//private final ComboService comboService;
 	private int id = 1;
 	public LeakService(LeaksRepository leaksRepository){
 		this.leaksRepository = leaksRepository;
@@ -66,11 +65,11 @@ public class LeakService
 	{
 		return this.leaksRepository.findAll();
 	}
+	
 	public List<Leak> findByCombo(Combo c)
-{
-	return this.leaksRepository.findLeaksByCombos(c);
-}
-
+	{
+		return this.leaksRepository.findLeaksByCombos(c);
+	}
 
 	public boolean existsLeakByFilename(String filename)
 	{
