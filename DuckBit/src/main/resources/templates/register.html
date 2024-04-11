@@ -24,7 +24,7 @@
     <img src="../images/logo.jpg" style="width: 250px">
     <form id="loginForm" action="/register" method="post" enctype="multipart/form-data">
       <p>Username: </p>
-      <input type='text' id='user' name='user' required/>
+      <input type='text' id='userD' name='userD' required/>
       <p>Password: </p>
       <input type='password' id="pass" name='pass' required/>
       <p>Email: </p>
@@ -33,6 +33,10 @@
       <br>
       <input type='submit' value='Register'/>
     </form>
+    {{#userExists}}<p>That username already exists!!</p>{{/userExists}}
+    {{#username2Big}}<p>That username is too big, the maximum is 255 characters!!</p>{{/username2Big}}
+    {{#password2Big}}<p>That password is too big, the maximum is 255 characters!!</p>{{/password2Big}}
+    {{#email2Big}}<p>That email is too big, the maximum is 255 characters!!</p>{{/email2Big}}
   </div>
 </header>
 

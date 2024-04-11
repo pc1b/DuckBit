@@ -224,7 +224,10 @@
 
         function sendDeleteRequest()
         {
-            fetch('/delete_image', {method: 'DELETE'});
+            fetch('/delete_image', {method: 'DELETE'})
+                .then(response => {
+                    location.reload();
+                })
         }
 
         // Close the sidebar with the close button

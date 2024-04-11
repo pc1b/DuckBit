@@ -1,142 +1,134 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.UserD;
+import dws.duckbit.repositories.UserRepository;
+import dws.duckbit.entities.Combo;
+
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-
-import dws.duckbit.entities.Combo;
-import dws.duckbit.entities.User;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
 public class UserService
 {
-    private final ArrayList<User> userList;
-    private int nextID;
+    private final UserRepository userRepository;
 
 // ---------- CONSTRUCTOR ---------- //
 
-    public UserService()
+    public UserService(UserRepository userRepository)
     {
-        this.nextID = 0;
-        this.userList = new ArrayList<>();
-        this.addUser("admin", "admin@duckbit.org", "admin");
-        this.addUser("paco", "paco@duckbit.org", "paco");
-        this.addUser("juan", "juan@duckbit.org", "juan");
+	    this.userRepository = userRepository;
     }
 
 // ---------- GET ---------- //
 
-    public int getSize()
+    public long getSize()
     {
-        return this.userList.size();
+        return this.userRepository.count();
     }
 
-    public int getIDUser(String user, String password)
+    public List<UserD> findAll()
     {
-        for (User u: this.userList)
-        {
-            if (u.isUser(user, password))
-            {
-                return (u.getID());
-            }
-        }
-        return (-1);
+        return this.userRepository.findAll();
     }
 
-    public User getByID(int ID)
+    public Long getIDUser(String user, String password)
     {
-        if (ID >= this.getSize() || ID < 0)
+        byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
+        Optional<UserD> u;
+        try
         {
-            return null;
+            u = this.userRepository.findByUserdAndPassword(user,MessageDigest.getInstance("MD5").digest(userPassword));
         }
-        return (this.userList.get(ID));
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return (-1L);
+        }
+        if (u.isPresent())
+        {
+            return u.get().getID();
+        }
+        else
+        {
+            return (-1L);
+        }
+    }
+
+    public Optional<UserD> findByUsername(String username)
+    {
+        return this.userRepository.findByUserd(username);
+    }
+
+    public Optional<UserD> findByID(Long ID)
+    {
+        return this.userRepository.findById(ID);
     }
 
 // ---------- ADD AND CREATE ---------- //
 
+    public void save(UserD userD)
+    {
+        this.userRepository.save(userD);
+    }
+
     public void addUser(String user, String mail, String password)
     {
-        User newUser = new User(this.nextID, user, mail, password);
-        this.userList.add(newUser);
-        this.nextID++;
+        UserD newUserD = new UserD(user, mail, password);
+        this.userRepository.save(newUserD);
     }
 
-    public void addComboToUser(Combo combo, int ID)
+    public void addComboToUser(Combo combo, Long ID)
     {
-        this.userList.get(ID).addCombosToUser(combo);
+        Optional<UserD> u = this.userRepository.findById(ID);
+        u.orElseThrow().addCombosToUser(combo);
+        this.userRepository.save(u.get());
     }
-
-// ---------- CREDITS AND MONEY ---------- //
-
-    public boolean hasEnoughCredits(int price, int ID)
-    {
-        return (this.userList.get(ID).hasEnoughCredits(price));
-    }
-
-    public void addCreditsToUser(int plus, int ID)
-    {
-        this.userList.get(ID).addCredits(plus);
-    }
-
-    public void substractCreditsToUser(int minus, int ID)
-    {
-        this.userList.get(ID).substractCredits(minus);
-    }   
-
-// ---------- OTHERS ---------- //
 
     public boolean userExists (String user)
     {
-        for (User u: this.userList)
-        {
-            if (u.getUser().equals(user))
-            {
-                return (true);
-            }
-        }
-        return (false);
+        Optional<UserD> u = this.userRepository.findByUserd(user);
+	    return u.isPresent();
     }
 
     public boolean IDExists(int ID)
     {
-        for (User u: this.userList)
-        {
-            if (u.getID() == ID)
-            {
-                return (true);
-            }
-        }
-        return (false);
+        return this.userRepository.findById((long)ID).isPresent();
+
     }
 
-// ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
+// ---------- CREDITS AND MONEY ---------- //
 
-    public void changeUserName(int ID, String name, String password)
+    public boolean hasEnoughCredits(int price, Long ID)
     {
-        for (User u: this.userList)
-        {
-            if (u.getID() == ID)
-            {
-                if (u.comparePassword(password))
-                {
-                    u.changeUserName(name);
-                }
-            }
-        }
+        return (this.userRepository.findById(ID).orElseThrow().hasEnoughCredits(price));
     }
 
-    public void changeUserPassword(int ID, String password)
+    public void addCreditsToUser(int plus, Long ID)
     {
-        for (User u: this.userList)
-        {
-            if (u.getID() == ID)
-            {
-                if (u.comparePassword(password))
-                {
-                    u.changeUserPassword(password);
-                }
-            }
-        }
+        Optional<UserD> u = this.userRepository.findById(ID);
+        u.orElseThrow().addCredits(plus);
+        this.userRepository.save(u.get());
     }
+
+    public void substractCreditsToUser(int minus, Long ID)
+    {
+        Optional<UserD> u = this.userRepository.findById(ID);
+        u.orElseThrow().substractCredits(minus);
+        this.userRepository.save(u.get());
+    }
+
+    public boolean IDExists(Long ID)
+    {
+        return this.userRepository.findById(ID).isPresent();
+
+    }
+    public void delete(Long id){
+        this.userRepository.deleteById(id);
+    }
+
 }

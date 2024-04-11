@@ -1,13 +1,13 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.Combo;
+import dws.duckbit.repositories.LeaksRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 import dws.duckbit.entities.Leak;
 
@@ -15,13 +15,15 @@ import dws.duckbit.entities.Leak;
 @Service
 public class LeakService
 {
-	private final HashMap<Integer, Leak> leaks = new HashMap<>();
-	private int id = 0;
-	public LeakService(){}
+	private final LeaksRepository leaksRepository;
+	private int id = 1;
+	public LeakService(LeaksRepository leaksRepository){
+		this.leaksRepository = leaksRepository;
+	}
 
 // ---------- CONSTRUCTOR ---------- //
 
-	public Leak createLeak(String enterprise, String date)
+	public Leak createLeak(String enterprise, String date, String filename)
 	{
 		try
 		{
@@ -30,9 +32,9 @@ public class LeakService
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(fechaDate);
-			Leak l = new Leak(enterprise, calendar, this.id);
+			Leak l = new Leak(enterprise, calendar, filename);
 			this.id++;
-			addLeak(l);
+			save(l);
 			return l;
 		}
 		catch (ParseException e)
@@ -49,36 +51,42 @@ public class LeakService
 		return this.id;
 	}
 
-	public int getSize()
+	public long getSize()
 	{
-		return this.leaks.size();
+		return this.leaksRepository.count();
 	}
 
-	public Leak getByID(int id)
+	public Optional<Leak> findByID(long id)
 	{
-		if (id >= this.getSize())
-		{
-			return null;
-		}
-		return this.leaks.get(id);
+		return this.leaksRepository.findById(id);
 	}
 
-	public Collection<Leak> getAll()
+	public List<Leak> findAll()
 	{
-		return this.leaks.values();
+		return this.leaksRepository.findAll();
+	}
+	
+	public List<Leak> findByCombo(Combo c)
+	{
+		return this.leaksRepository.findLeaksByCombos(c);
+	}
+
+	public boolean existsLeakByFilename(String filename)
+	{
+		return this.leaksRepository.existsLeakByFilename(filename);
 	}
 
 // ---------- ADD AND CREATE ---------- //
 
-	public void addLeak(Leak l)
+	public void save(Leak l)
 	{
-		this.leaks.put(l.getId(), l);
+		this.leaksRepository.save(l);
 	}
 
 // ---------- DELETE AND REMOVE ---------- //
 
-	public void deleteLeak(Leak l)
+	public void delete(Leak l)
 	{
-		this.leaks.remove(l.getId());
+		this.leaksRepository.delete(l);
 	}
 }

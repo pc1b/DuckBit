@@ -24,13 +24,14 @@
         <img src="../images/logo.jpg" style="width: 250px">
         <form id="loginForm" action="/login" method="post" enctype="multipart/form-data">
             <p>Username: </p>
-            <input type='text' id='user' name='user' required/>
+            <input type='text' id='userD' name='userD' required/>
             <p>Password: </p>
             <input type='password' id="pass" name='pass' required/>
             <br>
             <br>
             <input type='submit' value='Login'/>
         </form>
+        {{#incorrectLogin}}<p>Incorrect username or password!!!</p>{{/incorrectLogin}}
     </div>
 </header>
 

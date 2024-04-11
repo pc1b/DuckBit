@@ -1,35 +1,42 @@
 package dws.duckbit.entities;
 
-import java.io.UnsupportedEncodingException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
+import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-
-public class User
+@Entity
+public class UserD
 {
-    private int ID;
-    private String user;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id = null;
+    private String userd;
     private String mail;
     private byte[] password;
-    private MessageDigest md;
-    private ArrayList<Combo> combos;
+    @JsonIgnore
+    @OneToMany
+    private List<Combo> combos = new ArrayList<>();
+    @Lob
+    @JsonIgnore
+    private Blob imageFile;
     private int credits = 0;
 
 // ---------- CONSTRUCTOR ---------- //
 
-    public User(int ID, String user, String mail, String password)
+    public UserD(String userd, String mail, String password)
     {
         try
         {
-            this.ID = ID;
-            this.user = user;
+            this.userd = userd;
             this.mail = mail;
-            byte[] userPassword = password.getBytes("UTF-8");
-            this.md = MessageDigest.getInstance("MD5");
-            this.password = md.digest(userPassword);
-            this.combos = new ArrayList<>();
-            
+            byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
+            this.password = MessageDigest.getInstance("MD5").digest(userPassword);
         }
         catch (Exception e)
         {
@@ -37,11 +44,24 @@ public class User
         }
     }
 
-// ---------- GET ---------- //
+    protected UserD() {
 
-    public String getUser()
+    }
+
+// ---------- GET AND SET ---------- //
+
+    public String getUserd()
     {
-        return (this.user);
+        return (this.userd);
+    }
+
+
+    public Blob getImageFile() {
+        return imageFile;
+    }
+
+    public void setImageFile(Blob image) {
+        this.imageFile = image;
     }
 
     public String getMail()
@@ -49,12 +69,20 @@ public class User
         return (this.mail);
     }
 
-    public int getID()
+    public Long getID()
     {
-        return (this.ID);
+        return (this.id);
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public ArrayList<Combo> getCombos(){
+
+    public void setCombos(ArrayList<Combo> combos) {
+        this.combos = combos;
+    }
+
+    public List<Combo> getCombos(){
         return this.combos;
     }
 
@@ -88,7 +116,7 @@ public class User
 
     public boolean isUser(String user, String password)
     {
-        return(user.equals(this.user) && this.comparePassword(password));
+        return(user.equals(this.userd) && this.comparePassword(password));
     }
 
     public boolean comparePassword(String password)
@@ -97,10 +125,10 @@ public class User
         try
         {
             inputPassword = password.getBytes("UTF-8");
-            byte[] MD5HashedPassword = this.md.digest(inputPassword);
+            byte[] MD5HashedPassword = MessageDigest.getInstance("MD5").digest(inputPassword);
             return (Arrays.equals(MD5HashedPassword, this.password));
         }
-        catch (UnsupportedEncodingException e)
+        catch (Exception e)
         {
             e.printStackTrace();
             return (false);
@@ -111,32 +139,12 @@ public class User
     public String toString()
     {
         return "User{" +
-                "ID=" + ID +
-                ", user='" + user + '\'' +
+                "ID=" + id +
+                ", user='" + userd + '\'' +
                 ", mail='" + mail + '\'' +
                 ", combos=" + combos +
                 ", credits=" + credits +
                 '}';
     }
 
-// ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
-
-    public void changeUserName(String user)
-    {
-        this.user = user;
-    }
-
-    public void changeUserPassword(String password)
-    {
-        try
-        {
-            byte[] userPassword = password.getBytes("UTF-8");
-            this.md = MessageDigest.getInstance("MD5");
-            this.password = md.digest(userPassword);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
 }

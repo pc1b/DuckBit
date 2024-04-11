@@ -1,3 +1,2 @@
-michel:M1ch3l
-raul:3xtr3m0
-sergio:t3sl3
+shop30:sh0p30!owner
+ripe:RipeAdmin
