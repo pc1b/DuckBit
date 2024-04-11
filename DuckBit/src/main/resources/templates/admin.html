@@ -119,7 +119,7 @@
                     <input type='text' name='leakName' style="width: 400px" required/>
                     <p>Date: </p>
                     <input type='date' name='leakDate' style="width: 400px" required/>
-                    <p>File:</p><input type='file' name='leak' accept=".txt" required/>
+                    <p>File:</p><input type='file' name='leak' id='leak' accept=".txt" required/>
                     <br>
                     <input type='submit' value='Save Leak'/>
                 </form>
@@ -329,6 +329,13 @@
 </div>
 
 <script>
+        var fileInput = document.getElementById('leak');
+        fileInput.onchange = function() {
+            if(this.files[0].size > 10485760) {
+                alert("File is too big to be uploaded!!");
+                this.value = "";
+            }
+        };
     const initialData = {
         description: [
             {

@@ -388,9 +388,15 @@ public class WebController
     {
         String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
         String filename = leak.getOriginalFilename();
-        if (filename == null || !(filename.matches(REGEX_PATTERN)) || this.leakDB.existsLeakByFilename(filename))
+        if (filename == null || this.leakDB.existsLeakByFilename(filename))
         {
             filename = String.valueOf(this.leakDB.getNextId()) + ".txt";
+        }
+        else if (!(filename.matches(REGEX_PATTERN))) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("incorrectFileName", true);
+            return modelAndView;
         }
 		Leak l = this.leakDB.createLeak(leakName, leakDate, filename);
 		if (l != null)
