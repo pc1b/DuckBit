@@ -525,6 +525,182 @@
 			"response": []
 		},
 		{
+			"name": "shop query",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/query?enterprise=Amazon&price=41",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"query"
+					],
+					"query": [
+						{
+							"key": "enterprise",
+							"value": "Amazon"
+						},
+						{
+							"key": "price",
+							"value": "41"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "shop query 2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/query?enterprise=URJC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"query"
+					],
+					"query": [
+						{
+							"key": "enterprise",
+							"value": "URJC"
+						},
+						{
+							"key": "price",
+							"value": "41",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "shop query 3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/query?price=35",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"query"
+					],
+					"query": [
+						{
+							"key": "enterprise",
+							"value": "Amazon",
+							"disabled": true
+						},
+						{
+							"key": "price",
+							"value": "35"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "shop query 4",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/query",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"query"
+					],
+					"query": [
+						{
+							"key": "enterprise",
+							"value": "Amazon",
+							"disabled": true
+						},
+						{
+							"key": "price",
+							"value": "41",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "shop query error",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/query?enterprise=555'&price=5'",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"query"
+					],
+					"query": [
+						{
+							"key": "enterprise",
+							"value": "555'"
+						},
+						{
+							"key": "price",
+							"value": "5'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "combo sold  number",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/combo/sold/number",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"combo",
+						"sold",
+						"number"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "combo",
 			"request": {
 				"method": "GET",

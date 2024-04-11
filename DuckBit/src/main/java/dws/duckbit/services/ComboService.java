@@ -111,6 +111,15 @@ public class ComboService
 				}
 			}
 		}, new ComboMapper());
+		if (!details.isEmpty())
+		{
+			ArrayList<Combo> finalCombos = new ArrayList<>();
+			for (Combo cm: details)
+			{
+				finalCombos.add(this.comboRepository.findById(cm.getId()).get());
+			}
+			return finalCombos;
+		}
 		return details; 
 	}
 

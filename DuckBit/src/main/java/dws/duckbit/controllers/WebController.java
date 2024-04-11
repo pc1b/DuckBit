@@ -275,15 +275,16 @@ public class WebController
             return new ModelAndView("redirect:/shop");
         }
         Collection<Combo> c = this.comboDB.findAll(enterprise, price);
-        if (!c.isEmpty())
-        {
-            ArrayList<Combo> finalCombos = new ArrayList<>();
-            for (Combo cm: c)
-            {
-                finalCombos.add(this.comboDB.findById(cm.getId()).get());
-            }
-            model.addAttribute("combos", finalCombos);
-        }
+//        if (!c.isEmpty())
+//        {
+//            ArrayList<Combo> finalCombos = new ArrayList<>();
+//            for (Combo cm: c)
+//            {
+//                finalCombos.add(this.comboDB.findById(cm.getId()).get());
+//            }
+//            model.addAttribute("combos", finalCombos);
+//        }
+        model.addAttribute("combos", c);
         String name = this.userDB.findByID(idNum).get().getUserd();
         int credits = this.userDB.findByID(idNum).get().getCredits();
         model.addAttribute("credits", credits);

@@ -13,6 +13,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -408,6 +409,17 @@ public class ApiController {
 		}
 	}
 
+	//QUERY
+	@GetMapping({"/query", "/query/"})
+	public ResponseEntity<Object> getMethodName(Model model, @RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
+	{
+		Collection<Combo> c = this.comboDB.findAll(enterprise, price);
+		if (!c.isEmpty())
+		{
+			return ResponseEntity.ok(c);
+		}
+		return ResponseEntity.notFound().build();
+	}
 	//BUY COMBO
 	@PostMapping({"/{id}/combo", "/{id}/combo/"})
 	public ResponseEntity<Object> buyCombo(@RequestParam Long combo, @PathVariable Long id)
