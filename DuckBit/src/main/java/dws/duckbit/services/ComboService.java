@@ -142,6 +142,7 @@ public class ComboService
 	public Combo createCombo(String name, ArrayList<Long> leaksID, int price, String description) throws IOException
 	{
 		Combo c = new Combo(name, price, description);
+		this.comboRepository.save(c);
 		for (Long lid : leaksID)
 		{
 			Optional<Leak> l = this.leakService.findByID(lid);

@@ -75,12 +75,12 @@ public class ApiController {
 		}
 		else
 		{
-			return status(HttpStatus.BAD_REQUEST).build();
+			return status(HttpStatus.NOT_FOUND).build();
 		}
 	}
 
 	//NUMBER OF USERS
-	@GetMapping(value = {"/users/number", "/users/number/"})
+	@GetMapping(value = {"/user/number", "/user/number/"})
 	public ResponseEntity<Object> getNumberUsers()
 	{
 		return ResponseEntity.ok(this.userDB.getSize());
@@ -105,7 +105,7 @@ public class ApiController {
 		}
 		else
 		{
-			return status(HttpStatus.BAD_REQUEST).build();
+			return status(HttpStatus.NOT_FOUND).build();
 		}
 	}
 
@@ -142,9 +142,9 @@ public class ApiController {
         String filename = leakInfo.getOriginalFilename();
 		String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
 		if (enterprise.length() > 255 || enterprise.isEmpty() || filename == null || !(filename.matches(REGEX_PATTERN)))
-			return status(HttpStatus.BAD_REQUEST).build();
+			return status(HttpStatus.BAD_REQUEST).body("Wrong enterprise name");
 		if (!(date.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(date.toString().split("-")[0]) > 9990)
-			return status(HttpStatus.BAD_REQUEST).build();
+			return status(HttpStatus.BAD_REQUEST).body("Wrong filename");
 		Leak l = this.leaksDB.createLeak(enterprise, date, filename);
 		if (l != null)
 		{
