@@ -500,6 +500,10 @@ public class WebController
     {
         Long userID = Long.parseLong(id);
         Optional<Combo> c = this.comboDB.findById(combo);
+		if (c.isEmpty())
+		{
+			return new ModelAndView("redirect:/shop");
+		}
         if (!this.comboDB.getAvilableCombos().contains(c.get()))
             return new ModelAndView("redirect:/shop");
         int comboPrice = this.comboDB.getComboPrice(combo);
