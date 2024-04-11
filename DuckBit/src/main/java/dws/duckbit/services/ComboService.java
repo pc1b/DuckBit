@@ -185,10 +185,11 @@ public class ComboService
 			l.getCombos().remove(c);
 			this.leakService.save(l);
 		}
-
-		c.getUser().getCombos().remove(c);
-		this.userService.save(c.getUser());
-		c.setUser(null);
+		if (c.getUser() != null){
+			c.getUser().getCombos().remove(c);
+			this.userService.save(c.getUser());
+			c.setUser(null);
+		}
 		this.comboRepository.save(c);
 		this.comboRepository.deleteById(id);
 	}
