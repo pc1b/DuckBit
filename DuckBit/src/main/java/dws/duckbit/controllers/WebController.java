@@ -552,10 +552,17 @@ public class WebController
             {
                 for (int i : idS)
                 {
-                    Leak leak = this.leakDB.findByID(i).get();
-                    if (leak != null)
+                    Optional<Leak> leak = this.leakDB.findByID(i);
+                    if (leak.isPresent())
                     {
-                        leaksEdit.add(leak);
+                        leaksEdit.add(leak.get());
+                    }
+                    else
+                    {
+                        ModelAndView modelAndView = new ModelAndView();
+                        modelAndView.setViewName("/error");
+                        modelAndView.addObject("Leak " + i + " not found in the server", true);
+                        return modelAndView;
                     }
                 }
                 String nameFile = id + ".txt";
@@ -565,7 +572,7 @@ public class WebController
                 {
                     Files.delete(comboPath);
                 }
-                c.get().editCombo(comboName, Integer.parseInt(price), leaksEdit, description);
+                this.comboDB.editCombo(c.get(), comboName, Integer.parseInt(price), leaksEdit, description);
                 this.comboDB.save(c.get());
             }
         }

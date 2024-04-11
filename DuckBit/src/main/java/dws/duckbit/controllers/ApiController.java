@@ -389,6 +389,9 @@ public class ApiController {
 		{
 			return ResponseEntity.notFound().build();
 		}
+		if (!this.comboDB.getAvilableCombos().contains(c.get())){
+			return ResponseEntity.badRequest().body("This combo is no more for sell");
+		}
 		int comboPrice = this.comboDB.getComboPrice(combo);
 		if (this.userDB.hasEnoughCredits(comboPrice, id))
 		{
