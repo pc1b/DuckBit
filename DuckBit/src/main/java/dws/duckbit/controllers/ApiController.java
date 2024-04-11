@@ -238,9 +238,12 @@ public class ApiController {
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Long> leaks,
 											  @RequestParam int price, @RequestParam String description) throws IOException
 	{
-		if (name.length() > 255){
-			return status(HttpStatus.BAD_REQUEST).build();
-		}
+		if (name.length() > 255)
+			return status(HttpStatus.BAD_REQUEST).body("The name of the combo is too large, it must be 255 characters or less :(");
+		if (description.length() > 255)
+			return status(HttpStatus.BAD_REQUEST).body("The description of the combo is too large, it must be 255 characters or less :(");
+		if (price <= 0)
+			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
 		Combo c = this.comboDB.createCombo(name, leaks, price, description);
 		if (c == null)
 		{
@@ -290,6 +293,12 @@ public class ApiController {
 	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam String price,
 												@PathVariable int id, @RequestParam ArrayList<Integer> leaks, @RequestParam String description) throws IOException
 	{
+		if (name.length() > 255)
+			return status(HttpStatus.BAD_REQUEST).body("The name of the combo is too large, it must be 255 characters or less :(");
+		if (description.length() > 255)
+			return status(HttpStatus.BAD_REQUEST).body("The description of the combo is too large, it must be 255 characters or less :(");
+		if (price.length() > 10 || Integer.parseInt(price) <= 0)
+			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
 		Optional<Combo> c = comboDB.findById(id);
 		ArrayList<Leak> leaksEdit = new ArrayList<>();
 		if (c.isPresent())

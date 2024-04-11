@@ -456,6 +456,18 @@ public class WebController
             modelAndView.addObject("comboName2Big", true);
             return modelAndView;
         }
+        if (description.length() > 255) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("comboDesc2Big", true);
+            return modelAndView;
+        }
+        if (price.length() > 10 || Integer.parseInt(price) <= 0){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("comboWrongPrice", true);
+            return modelAndView;
+        }
         ArrayList<Long> idS = new ArrayList<>();
         for (String i: ids)
         {
@@ -541,6 +553,24 @@ public class WebController
     @PostMapping({"/edit_combo", "/edit_combo/"})
     public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String id, @RequestParam String description, @RequestParam String ... ids) throws IOException
     {
+        if (comboName.length() > 255) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("comboName2Big", true);
+            return modelAndView;
+        }
+        if (description.length() > 255) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("comboDesc2Big", true);
+            return modelAndView;
+        }
+        if (price.length() > 10 || Integer.parseInt(price) <= 0){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("comboWrongPrice", true);
+            return modelAndView;
+        }
         ArrayList<Integer> idS = new ArrayList<Integer>();
         for (String i: ids)
         {
