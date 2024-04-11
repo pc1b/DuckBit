@@ -70,24 +70,26 @@ public class ApiController {
 		Optional<UserD> u = this.userDB.findByID(id);
 		if (u.isPresent())
 		{
-			if (id == 0)
-			{
-				HashMap<String,Object> response = new HashMap<>();
-				response.put("User", u.get().getUserd());
-				response.put("Mail", u.get().getMail());
-				response.put("Registered users", this.userDB.getSize());
-				response.put("Uploaded combos", this.comboDB.getComboSize());
-				response.put("Sold combos", this.comboDB.getSoldCombos());
-				response.put("Leaks", this.leaksDB.findAll());
-				response.put("Combos", this.comboDB.findAll());
-				return ResponseEntity.ok(response);
-			}
 			return ResponseEntity.ok(u);
 		}
 		else
 		{
 			return status(HttpStatus.BAD_REQUEST).build();
 		}
+	}
+
+	//NUMBER OF USERS
+	@GetMapping(value = {"/users/number", "/users/number/"})
+	public ResponseEntity<Object> getNumberUsers()
+	{
+		return ResponseEntity.ok(this.userDB.getSize());
+	}
+
+	//USERS
+	@GetMapping(value = {"/user", "/user/"})
+	public ResponseEntity<Object> getRegisteredUsers()
+	{
+		return ResponseEntity.ok(this.userDB.findAll());
 	}
 
 	//USER BUY CREDITS
@@ -109,7 +111,7 @@ public class ApiController {
 	// ---------- LEAKS ---------- //
 
 	//GET ALL LEAKS
-	@GetMapping({"/leaks/", "/leaks"})
+	@GetMapping({"/leak/", "/leak"})
 	public ResponseEntity<Object> getLeaks()
 	{
 		return ResponseEntity.ok(this.leaksDB.findAll());
@@ -122,11 +124,7 @@ public class ApiController {
 		Optional<Leak> l = this.leaksDB.findByID(id);
 		if (l.isPresent())
 		{
-			HashMap<String,Object> response = new HashMap<>();
-			response.put("ID", l.get().getId());
-			response.put("Enterprise", l.get().getEnterprise());
-			response.put("Date", l.get().getDate());
-			return ResponseEntity.ok(response);
+			return ResponseEntity.ok(l.get());
 		}
 		else
 		{
@@ -212,7 +210,12 @@ public class ApiController {
 			return ResponseEntity.notFound().build();
 		}
 	}
-
+	//SOLD COMBOS
+	@GetMapping(value = {"/combo/sold/number", "/combo/sold/number/"})
+	public ResponseEntity<Object> getSoldCombos()
+	{
+		return ResponseEntity.ok(this.comboDB.getSoldCombos());
+	}
 	//GET A COMBO
 	@GetMapping({"/combo/{id}/", "/combo/{id}"})
 	public ResponseEntity<Object> getCombo(@PathVariable int id)
@@ -220,12 +223,7 @@ public class ApiController {
 		Optional<Combo> c = this.comboDB.findById(id);
 		if (c.isPresent())
 		{
-			HashMap<String,Object> response = new HashMap<>();
-			response.put("Name", c.get().getUser());
-			response.put("Description", c.get().getDescription());
-			response.put("Price", c.get().getComboPrice());
-			response.put("Leaks", c.get().getLeaks());
-			return ResponseEntity.ok(response);
+			return ResponseEntity.ok(c.get());
 		}
 		else
 		{
@@ -356,7 +354,7 @@ public class ApiController {
 
 	// ---------- SHOP ---------- //
 	//SHOP INDEX
-	@GetMapping({"/shop", "/shop/"})
+	@GetMapping({"/combo", "/combo/"})
 	public ResponseEntity<Collection<Combo>> getComboDB()
 	{
 		Collection<Combo> c = this.comboDB.getAvilableCombos();
@@ -415,23 +413,6 @@ public class ApiController {
 			return ResponseEntity.notFound().build();
 		}
 	}
-	/*public ResponseEntity<Object> downloadImage(@PathVariable Long id) throws MalformedURLException
-	{
-		Optional<UserD> u = this.userDB.findByID(id);
-		if (u.isEmpty())
-		{
-			return ResponseEntity.notFound().build();
-		}
-		Path imgPath = IMAGES_FOLDER.resolve(u.get().getUserd() +".jpg");
-		Resource file = new UrlResource(imgPath.toUri());
-		if(!Files.exists(imgPath))
-		{
-			imgPath = IMAGES_FOLDER.resolve( "../admin.jpg");
-			file = new UrlResource(imgPath.toUri());
-		}
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg").body(file);
-
-	}*/
 
 	//POST AN IMAGE
 	@PostMapping({"/{id}/image", "/{id}/image/"})
@@ -447,25 +428,6 @@ public class ApiController {
 
 		return ResponseEntity.created(location).build();
 	}
-	/*public ResponseEntity<Object> uploadImage(@PathVariable Long id, @RequestParam MultipartFile image)
-			throws IOException
-	{
-		Optional<UserD> userD = this.userDB.findByID(id);
-		if (userD.isPresent())
-		{
-			URI location = fromCurrentRequest().build().toUri();
-			Files.createDirectories(IMAGES_FOLDER);
-			String nameFile = userD.get().getUserd() + ".jpg";
-			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
-			image.transferTo(imagePath);
-			return ResponseEntity.created(location).build();
-
-		}
-		else
-		{
-			return ResponseEntity.notFound().build();
-		}
-	}*/
 
 	//DELETE AN IMAGE
 	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
@@ -479,35 +441,4 @@ public class ApiController {
 
 		return ResponseEntity.noContent().build();
 	}
-	/*public ResponseEntity<Object> deleteImage(@PathVariable Long id) throws IOException
-	{
-		Optional<UserD> userD = this.userDB.findByID(id);
-		if(userD.isPresent())
-		{
-			Files.createDirectories(IMAGES_FOLDER);
-			String nameFile = userD.get().getUserd() + ".jpg";
-			Path imagePath = IMAGES_FOLDER.resolve(nameFile);
-			File img = imagePath.toFile();
-			if (img.exists())
-			{
-				try
-				{
-					if (!img.delete())
-					{
-						status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-					}
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-				}
-			}
-			return ResponseEntity.noContent().build();
-		}
-		else
-		{
-			return ResponseEntity.notFound().build();
-		}
-	}*/
 }

@@ -63,8 +63,8 @@ public class Leak {
 		this.enterprise = enterprise;
 	}
 
-	public void setCombos(List<Combo> comobos) {
-	this.combos = comobos;
+	public void setCombos(List<Combo> combos) {
+	this.combos = combos;
 }
 // ---------- OTHERS ---------- //
 

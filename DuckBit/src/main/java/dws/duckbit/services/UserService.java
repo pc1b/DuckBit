@@ -1,9 +1,13 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.Leak;
 import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.List;
 import java.util.Optional;
 
 import dws.duckbit.entities.Combo;
@@ -28,16 +32,28 @@ public class UserService
         return this.userRepository.count();
     }
 
+    public List<UserD> findAll()
+    {
+        return this.userRepository.findAll();
+    }
+
     public Long getIDUser(String user, String password)
     {
-        for (UserD u: this.userRepository.findAll())
-        {
-            if (u.isUser(user, password))
-            {
-                return (u.getID());
-            }
+        byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
+        Optional<UserD> u;
+        try {
+            u = this.userRepository.findByUserdAndPassword(user,MessageDigest.getInstance("MD5").digest(userPassword));
         }
-        return (-1L);
+        catch (Exception e){
+            e.printStackTrace();
+            return (-1L);
+        }
+        if (u.isPresent()){
+            return u.get().getID();
+        }
+        else{
+            return (-1L);
+        }
     }
     public Optional<UserD> findByUsername(String username){
         return this.userRepository.findByUserd(username);
