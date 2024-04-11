@@ -34,6 +34,9 @@
       <input type='submit' value='Register'/>
     </form>
     {{#userExists}}<p>That username already exists!!</p>{{/userExists}}
+    {{#username2Big}}<p>That username is too big, the maximum is 255 characters!!</p>{{/username2Big}}
+    {{#password2Big}}<p>That password is too big, the maximum is 255 characters!!</p>{{/password2Big}}
+    {{#email2Big}}<p>That email is too big, the maximum is 255 characters!!</p>{{/email2Big}}
   </div>
 </header>
 

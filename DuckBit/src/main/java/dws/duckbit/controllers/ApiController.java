@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 
 import java.io.File;
@@ -139,10 +140,8 @@ public class ApiController {
 	{
         String REGEX_PATTERN = "^[A-Za-z0-9.]{1,255}$";
         String filename = leakInfo.getOriginalFilename();
-        if (filename == null || !(filename.matches(REGEX_PATTERN)))
-        {
-            filename = String.valueOf(this.leaksDB.getNextId()) + ".txt";
-        }
+		if (enterprise.length() > 255 || filename == null || !(filename.matches(REGEX_PATTERN)))
+			return status(HttpStatus.BAD_REQUEST).build();
 		Leak l = this.leaksDB.createLeak(enterprise, date, filename);
 		if (l != null)
 		{
@@ -236,6 +235,9 @@ public class ApiController {
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Long> leaks,
 											  @RequestParam int price, @RequestParam String description) throws IOException
 	{
+		if (name.length() > 255){
+			return status(HttpStatus.BAD_REQUEST).build();
+		}
 		Combo c = this.comboDB.createCombo(name, leaks, price, description);
 		if (c == null)
 		{
@@ -341,6 +343,12 @@ public class ApiController {
 	public ResponseEntity<Object> Register(@RequestParam String username, @RequestParam String password,
 										   @RequestParam String mail)
 	{
+		if (username.length() > 255)
+			return status(HttpStatus.BAD_REQUEST).body("Username too long, the maximum is 255 characters");
+		if (password.length() > 255)
+			return status(HttpStatus.BAD_REQUEST).body("Password too long, the maximum is 255 characters");
+		if (mail.length() > 255)
+			return status(HttpStatus.BAD_REQUEST).body("Mail too long, the maximum is 255 characters");
 		if (this.userDB.userExists(username))
 		{
 			return status(HttpStatus.BAD_REQUEST).body("Username already registered");

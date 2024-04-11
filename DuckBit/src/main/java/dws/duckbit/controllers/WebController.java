@@ -201,6 +201,24 @@ public class WebController
     @PostMapping({"/register", "/register/"})
     public ModelAndView Register(@RequestParam String userD, @RequestParam String pass, @RequestParam String mail)
     {
+        if (userD.length() > 255){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("register");
+            modelAndView.addObject("username2Big", true);
+            return modelAndView;
+        }
+        if (pass.length() > 255){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("register");
+            modelAndView.addObject("password2Big", true);
+            return modelAndView;
+        }
+        if (mail.length() > 255){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("register");
+            modelAndView.addObject("email2Big", true);
+            return modelAndView;
+        }
         if (this.userDB.userExists(userD))
         {
             ModelAndView modelAndView = new ModelAndView();
