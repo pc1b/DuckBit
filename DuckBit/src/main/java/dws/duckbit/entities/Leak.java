@@ -1,20 +1,26 @@
 package dws.duckbit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 @Entity
 public class Leak {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id = null;
 	@Lob
 	private String enterprise;
 	private Calendar date;
+
+	@JsonIgnore
 	@ManyToMany
-	private List<Combo> combos;
+	private List<Combo> combos = new ArrayList<>();
 	private String filename;
 
 
@@ -64,8 +70,8 @@ public class Leak {
 	}
 
 	public void setCombos(List<Combo> combos) {
-	this.combos = combos;
-}
+		this.combos = combos;
+	}
 // ---------- OTHERS ---------- //
 
 	@Override

@@ -1,5 +1,7 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.Combo;
+import dws.duckbit.entities.Leak;
 import dws.duckbit.entities.UserD;
 import jakarta.annotation.PostConstruct;
 
@@ -29,18 +31,29 @@ public class DatabaseInitializer {
 
 	@PostConstruct
 	public void init() throws IOException {
+		Leak l1 = this.leakService.createLeak("Orange", "2024-10-8", "1.txt");
+		Leak l2 = this.leakService.createLeak("URJC", "2024-10-8", "2.txt");
+		Leak l3 = this.leakService.createLeak("Amazon", "2024-10-8", "3.txt");
+		this.leakService.save(l1);
+		this.leakService.save(l2);
+		this.leakService.save(l3);
 
-		this.leakService.save(this.leakService.createLeak("Orange", "2024-10-8", "1.txt"));
-		this.leakService.save(this.leakService.createLeak("URJC", "2024-10-8", "2.txt"));
-		this.leakService.save(this.leakService.createLeak("Amazon", "2024-10-8", "3.txt"));
+		Combo c1 = new Combo("Combo1", 30, "<p>El mejor <strong>Combo </strong>que vas a ver en tu <strong><em>vida</em></strong>, asi es como te lo <em>digo</em>!!!!</p>");
+		Combo c2 = new Combo("Combo2",  40, "<p>El segundo ejor <strong>Combo </strong>que vas a ver en tu <strong><em>vida</em></strong>, asi es como te lo <em>digo</em>!!!!</p>");
 
-		ArrayList<Long> id = new ArrayList<>();
-		id.add(3L);
-		id.add(2L);
-		this.comboService.save(this.comboService.createCombo("Combo1", id, 30, "<p>El mejor <strong>Combo </strong>que vas a ver en tu <strong><em>vida</em></strong>, asi es como te lo <em>digo</em>!!!!</p>"));
-		id.remove(1);
-		id.add(1L);
-		this.comboService.save(this.comboService.createCombo("Combo2", id, 40, "<p>El segundo mejor <strong>Combo </strong>que vas a ver en tu <strong><em>vida</em></strong>, asi es como te lo <em>digo</em>!!!!</p>"));
+		this.comboService.save(c1);
+		this.comboService.save(c2);
+		l1.getCombos().add(c1);
+		l2.getCombos().add(c2);
+		l3.getCombos().add(c1);
+		l3.getCombos().add(c2);
+
+		this.leakService.save(l1);
+		this.leakService.save(l2);
+		this.leakService.save(l3);
+		this.comboService.save(c1);
+		this.comboService.save(c2);
+
 
 
 		this.userService.addUser("admin", "admin@duckbit.org", "admin");

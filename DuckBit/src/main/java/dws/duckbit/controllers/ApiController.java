@@ -165,7 +165,7 @@ public class ApiController {
 		if (l.isPresent())
 		{
 			this.leaksDB.delete(l.get());
-			this.comboDB.deleteLeak(l.get());
+			//this.comboDB.deleteLeak(l.get());
 			Files.createDirectories(this.LEAKS_FOLDER);
 			String nameFile = l.get().getId() + ".txt";
 			Path leakPath = this.LEAKS_FOLDER.resolve(nameFile);

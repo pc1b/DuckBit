@@ -1,5 +1,6 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.Combo;
 import dws.duckbit.repositories.LeaksRepository;
 
 import org.springframework.data.jpa.repository.Modifying;
@@ -68,6 +69,11 @@ public class LeakService
 	{
 		return this.leaksRepository.findAll();
 	}
+	public List<Leak> findByCombo(Combo c)
+{
+	return this.leaksRepository.findLeaksByCombos(c);
+}
+
 
 	public boolean existsLeakByFilename(String filename)
 	{

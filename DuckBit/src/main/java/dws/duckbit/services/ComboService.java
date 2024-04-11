@@ -52,7 +52,7 @@ public class ComboService
 	{
 		Optional<Combo> c = this.findById(comboID);
 		if (c.isPresent())
-			return c.get().getComboPrice();
+			return c.get().getPrice();
 		else
 			return 0;
 	}
@@ -84,7 +84,7 @@ public class ComboService
 		{
 			price_column = "'1'";
 		}
-		String SQL = "SELECT DISTINCT c.price, c.id, c.description, c.name FROM  combo_leaks cl, leak l, combo c WHERE c.id = cl.combo_id AND c.userd_id is null AND cl.leaks_id = l.id AND "+enterprise_column+" = ? AND "+price_column+" < ?";
+		String SQL = "SELECT DISTINCT c.price, c.id, c.description, c.name FROM  leak_combos cl, leak l, combo c WHERE c.id = cl.combos_id AND c.userd_id is null AND cl.leaks_id = l.id AND "+enterprise_column+" = ? AND "+price_column+" < ?";
 		Collection<Combo> details = jdbcTemp.query(SQL, new PreparedStatementSetter()
 		{
 			public void setValues(PreparedStatement preparedStatement) throws SQLException 
@@ -118,7 +118,7 @@ public class ComboService
 			return null;
 		}
 		Combo r = this.comboRepository.save(c);
-		r.createFile();
+		r.createFile(this.leakService.findByCombo(c));
 		return r;
 	}
 
@@ -129,20 +129,20 @@ public class ComboService
 
 	public Combo createCombo(String name, ArrayList<Long> leaksID, int price, String description) throws IOException
 	{
-		ArrayList<Leak> leaks = new ArrayList<>();
+		Combo c = new Combo(name, price, description);
 		for (Long lid : leaksID)
 		{
 			Optional<Leak> l = this.leakService.findByID(lid);
 			if (l.isPresent())
 			{
-				leaks.add(l.get());
+				l.get().getCombos().add(c);
+				this.leakService.save(l.get());
 			}
-			else
-			{
-				return  null;
+			else{
+				return null;
 			}
 		}
-		return new Combo(name, leaks, price, description);
+		return c;
 	}
 
 // ---------- DELETE AND REMOVE ---------- //
@@ -154,11 +154,11 @@ public class ComboService
 	}
 
 
-	public void deleteLeak(Leak l)
-	{
-		for (Combo c : this.comboRepository.findAll())
-		{
-			c.deleteLeak(l);
-		}
-	}
+//	public void deleteLeak(Leak l)
+//	{
+//		for (Combo c : this.comboRepository.findAll())
+//		{
+//			c.deleteLeak(l);
+//		}
+//	}
 }

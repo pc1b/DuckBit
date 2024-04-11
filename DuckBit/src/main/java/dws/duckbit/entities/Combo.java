@@ -1,6 +1,7 @@
 package dws.duckbit.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 
 import java.io.BufferedReader;
@@ -14,15 +15,15 @@ import java.util.List;
 
 @Entity
 public class Combo {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id = null;
 	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 	private static final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
 
-	@ManyToMany
-	private List<Leak> leaks;
-
+	@ManyToMany(mappedBy = "combos")
+	private List<Leak> leaks = new ArrayList<>();
 	private String description;
 	private String name;
 	private int price;
@@ -34,12 +35,11 @@ public class Combo {
 // ---------- CONSTRUCTOR ---------- //
 
 	public Combo(){}
-	public Combo(String name, ArrayList<Leak> leaks, int price, String description) throws IOException
+	public Combo(String name,  int price, String description) throws IOException
 	{
 		super();
 		this.name = name;
 		this.description = description;
-		this.leaks = leaks;
 		this.price = price;
 
 	}
@@ -80,7 +80,7 @@ public class Combo {
 		this.name = name;
 	}
 
-	public int getComboPrice()
+	public int getPrice()
 	{
 		return this.price;
 	}
@@ -94,27 +94,31 @@ public class Combo {
 	{
 		return this.leaks;
 	}
+	public void setLeaks(List<Leak> leaks) {
+		this.leaks = leaks;
+	}
+
 
 // ---------- DELETE AND REMOVE ---------- //
 
-	public void deleteLeak(Leak l)
-	{
-		if (this.leaks.remove(l))
-		{
-			try
-			{
-				this.createFile();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}
+//	public void deleteLeak(Leak l)
+//	{
+//		if (this.leaks.remove(l))
+//		{
+//			try
+//			{
+//				this.createFile();
+//			}
+//			catch (Exception e)
+//			{
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 
 // ---------- ADD AND CREATE ---------- //
 
-	public void createFile()
+	public void createFile(List<Leak> leaks)
 	{
 		try {
 			Files.createDirectories(COMBOS_FOLDER);
@@ -134,7 +138,8 @@ public class Combo {
 		}
 		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath()))
 		{
-			for (Leak l: this.leaks)
+
+			for (Leak l: leaks)
 			{
 				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
 				Path leakPath = LEAKS_FOLDER.resolve(l.getFilename());
