@@ -92,7 +92,7 @@ public class WebController
                 model.addAttribute("combos", c);
             }
             model.addAttribute("registredUsers", userDB.getSize());
-            model.addAttribute("combosCreated", comboDB.getComboSize());
+            model.addAttribute("combosCreated", comboDB.getComboSize() - soldCombos);
             model.addAttribute("soldCombos", soldCombos);
             model.addAttribute("email", email);
             return new ModelAndView("admin");
