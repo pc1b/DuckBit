@@ -280,7 +280,7 @@ public class WebController
             ArrayList<Combo> finalCombos = new ArrayList<>();
             for (Combo cm: c)
             {
-                finalCombos.add(this.comboDB.findById(cm.getId().intValue()).get());
+                finalCombos.add(this.comboDB.findById(cm.getId()).get());
             }
             model.addAttribute("combos", finalCombos);
         }
