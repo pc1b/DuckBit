@@ -32,6 +32,12 @@
         {{#leakName2Big}}
         <h3 style="font-weight: bold">The name of the leak is too large, it must be 255 characters or less :(</h3>
         {{/leakName2Big}}
+        {{#leakEmptyName}}
+        <h3 style="font-weight: bold">The name of the leak cant be blank :(</h3>
+        {{/leakEmptyName}}
+        {{#incorrectDate}}
+        <h3 style="font-weight: bold">The date of the leak is wrong, try again :(</h3>
+        {{/incorrectDate}}
         <br>
         <br>
         <br>

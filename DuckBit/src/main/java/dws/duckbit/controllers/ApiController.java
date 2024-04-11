@@ -140,7 +140,10 @@ public class ApiController {
 	{
         String REGEX_PATTERN = "^[A-Za-z0-9.]{1,255}$";
         String filename = leakInfo.getOriginalFilename();
-		if (enterprise.length() > 255 || filename == null || !(filename.matches(REGEX_PATTERN)))
+		String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
+		if (enterprise.length() > 255 || enterprise.isEmpty() || filename == null || !(filename.matches(REGEX_PATTERN)))
+			return status(HttpStatus.BAD_REQUEST).build();
+		if (!(date.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(date.toString().split("-")[0]) > 9990)
 			return status(HttpStatus.BAD_REQUEST).build();
 		Leak l = this.leaksDB.createLeak(enterprise, date, filename);
 		if (l != null)

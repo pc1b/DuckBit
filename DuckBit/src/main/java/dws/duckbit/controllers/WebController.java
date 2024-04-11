@@ -3,6 +3,7 @@ package dws.duckbit.controllers;
 import dws.duckbit.entities.UserD;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ import dws.duckbit.services.UserService;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
 
+import static org.springframework.http.ResponseEntity.status;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 
@@ -405,11 +407,18 @@ public class WebController
     public ModelAndView UploadLeak(@RequestParam String leakName, @RequestParam String leakDate, @RequestParam MultipartFile leak) throws IOException
     {
         String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
+        String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
         String filename = leak.getOriginalFilename();
         if (leakName.length() > 255){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("leakName2Big", true);
+            return modelAndView;
+        }
+        else if (leakName.isEmpty()){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("leakEmptyName", true);
             return modelAndView;
         }
         if (filename == null || !(filename.matches(REGEX_PATTERN)) || this.leakDB.existsLeakByFilename(filename))
@@ -419,7 +428,13 @@ public class WebController
             modelAndView.addObject("incorrectFileName", true);
             return modelAndView;
         }
-		Leak l = this.leakDB.createLeak(leakName, leakDate, filename);
+        if (!(leakDate.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(leakDate.toString().split("-")[0]) > 9990) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("incorrectDate", true);
+            return modelAndView;
+        }
+        Leak l = this.leakDB.createLeak(leakName, leakDate, filename);
 		if (l != null)
 		{
 			Files.createDirectories(LEAKS_FOLDER);
