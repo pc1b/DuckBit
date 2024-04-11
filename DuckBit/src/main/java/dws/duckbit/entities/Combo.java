@@ -166,39 +166,44 @@ public class Combo {
 
 // ---------- EDIT ---------- //
 
-	public void editCombo(String name, int price, ArrayList<Leak> leaks, String description) throws IOException
+	public void editCombo(String name, int price, ArrayList<Leak> leaks, String description)
 	{
-		System.out.println("traceeeeeeeeeeeeeeeeeeeeeeeee");
+		System.out.println("traceeeeeeeeeeeeeeeeeeeeeeeee e e e e e ");
 		this.name = name;
 		this.price = price;
 		this.leaks = leaks;
 		this.description = description;
 		Path comboPath = COMBOS_FOLDER.resolve(this.id + ".txt");
-		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath()))
-		{
-			for (Leak l: this.leaks)
-			{
-				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
-				Path leakPath = LEAKS_FOLDER.resolve(l.getFilename());
-				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath()))
-				{
-					String line;
-					while ((line = reader.readLine()) != null)
-					{
-						writer.write(line);
-						writer.newLine();
-					}
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
+		if (comboPath.toFile().exists()){
+			comboPath.toFile().delete();
 		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+//		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath()))
+//		{
+//			for (Leak l: this.leaks)
+//			{
+//				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
+//				Path leakPath = LEAKS_FOLDER.resolve(l.getFilename());
+//				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath()))
+//				{
+//					String line;
+//					while ((line = reader.readLine()) != null)
+//					{
+//						writer.write(line);
+//						writer.newLine();
+//					}
+//				}
+//				catch (Exception e)
+//				{
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//		catch (Exception e)
+//		{
+//			System.out.println("siuuuuuu");
+//
+//			e.printStackTrace();
+//		}
 	}
 
 // ---------- OHERS ---------- //

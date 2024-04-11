@@ -285,7 +285,7 @@ public class ApiController {
 	//EDIT COMBO
 	@PutMapping({"/combo/{id}", "/combo/{id}/"})
 	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam String price,
-											@PathVariable int id, @RequestParam ArrayList<Integer> leaks, @RequestParam String description) throws IOException
+												@PathVariable int id, @RequestParam ArrayList<Integer> leaks, @RequestParam String description) throws IOException
 	{
 		Optional<Combo> c = comboDB.findById(id);
 		ArrayList<Leak> leaksEdit = new ArrayList<>();
@@ -312,7 +312,8 @@ public class ApiController {
 				{
 					Files.delete(comboPath);
 				}
-				c.get().editCombo(name, Integer.parseInt(price), leaksEdit, description);
+				this.comboDB.editCombo(c.get(), name, Integer.parseInt(price), leaksEdit, description);
+				this.comboDB.save(c.get());
 			}
 			return status(HttpStatus.CREATED).body(c);
 		}

@@ -110,6 +110,18 @@ public class ComboService
 		return details; 
 	}
 
+	public void editCombo(Combo c, String name, int price, ArrayList<Leak> leaksEdit, String description){
+		List<Leak> leaks = this.leakService.findByCombo(c);
+		for (Leak l : leaks){
+			l.getCombos().remove(c);
+			this.leakService.save(l);
+		}
+		for (Leak l : leaksEdit){
+			l.getCombos().add(c);
+			this.leakService.save(l);
+		}
+		c.editCombo(name, price, leaksEdit, description);
+	}
 	// ---------- ADD AND CREATE ---------- //
 	
 	public Combo save(Combo c)
@@ -150,6 +162,12 @@ public class ComboService
 
 	public void delete(long id)
 	{
+		Combo c = this.comboRepository.findById(id).orElseThrow();
+		List<Leak> leaks = this.leakService.findByCombo(c);
+		for (Leak l : leaks){
+			l.getCombos().remove(c);
+			this.leakService.save(l);
+		}
 		this.comboRepository.deleteById(id);
 	}
 
