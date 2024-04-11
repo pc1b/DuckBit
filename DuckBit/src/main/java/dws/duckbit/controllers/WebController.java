@@ -388,11 +388,14 @@ public class WebController
     {
         String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
         String filename = leak.getOriginalFilename();
-        if (filename == null || this.leakDB.existsLeakByFilename(filename))
-        {
-            filename = String.valueOf(this.leakDB.getNextId()) + ".txt";
+        if (leakName.length() > 255){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("leakName2Big", true);
+            return modelAndView;
         }
-        else if (!(filename.matches(REGEX_PATTERN))) {
+        if (filename == null || !(filename.matches(REGEX_PATTERN)) || this.leakDB.existsLeakByFilename(filename))
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("incorrectFileName", true);
@@ -414,6 +417,12 @@ public class WebController
     @PostMapping({"/create_combo", "/create_combo/"} )
     public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String description, @RequestParam String ... ids) throws IOException
     {
+        if (comboName.length() > 255) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("comboName2Big", true);
+            return modelAndView;
+        }
         ArrayList<Long> idS = new ArrayList<>();
         for (String i: ids)
         {
