@@ -12,14 +12,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/api",
+					"raw": "http://localhost:8080/api",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"api",
 						"api"
 					]
 				}
@@ -27,12 +26,12 @@
 			"response": []
 		},
 		{
-			"name": "user/0",
+			"name": "user/1",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/user/0",
+					"raw": "http://localhost:8080/api/user/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -41,19 +40,19 @@
 					"path": [
 						"api",
 						"user",
-						"0"
+						"1"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "user/2",
+			"name": "user combos",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/user/2",
+					"raw": "http://localhost:8080/api/user/2/combos",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -62,7 +61,29 @@
 					"path": [
 						"api",
 						"user",
-						"2"
+						"2",
+						"combos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user oob",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/user/8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"8"
 					]
 				}
 			},
@@ -70,6 +91,27 @@
 		},
 		{
 			"name": "user/error",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/user/99-99",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"99-99"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "users",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -90,12 +132,12 @@
 			"response": []
 		},
 		{
-			"name": "Buy credits",
+			"name": "users number",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/1/credits",
+					"raw": "http://localhost:8080/api/user/number",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -103,7 +145,49 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"1",
+						"user",
+						"number"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy credits",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/2/credits",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"2",
+						"credits"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy credits OOB",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/99/credits",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"99",
 						"credits"
 					]
 				}
@@ -116,7 +200,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/40/credits",
+					"raw": "http://localhost:8080/api/a/credits",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -124,7 +208,7 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"40",
+						"a",
 						"credits"
 					]
 				}
@@ -137,7 +221,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/leaks",
+					"raw": "http://localhost:8080/api/leak",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -145,7 +229,7 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"leaks"
+						"leak"
 					]
 				}
 			},
@@ -173,7 +257,7 @@
 			"response": []
 		},
 		{
-			"name": "leak error",
+			"name": "leak OOB",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -188,6 +272,27 @@
 						"api",
 						"leak",
 						"40"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "leak Error",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/leak/a",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"leak",
+						"a"
 					]
 				}
 			},
@@ -214,7 +319,130 @@
 						{
 							"key": "leakInfo",
 							"type": "file",
-							"src": "/C:/Users/pla10/Downloads/output(3).txt"
+							"src": "/C:/Users/pla10/Desktop/DWS/leak.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/leak/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"leak",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "leak bad date",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "enterprise",
+							"value": "Apple%&/$%!&\"/(·=",
+							"type": "text"
+						},
+						{
+							"key": "date",
+							"value": "2024-55-aa",
+							"type": "text"
+						},
+						{
+							"key": "leakInfo",
+							"type": "file",
+							"src": "/C:/Users/pla10/Desktop/DWS/leak.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/leak/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"leak",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "leak empty name",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "enterprise",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "date",
+							"value": "2222-22-22",
+							"type": "text"
+						},
+						{
+							"key": "leakInfo",
+							"type": "file",
+							"src": "/C:/Users/pla10/Desktop/DWS/leak.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/leak/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"leak",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "leak bad file",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "enterprise",
+							"value": "Apple%&/$%!&\"/(·=",
+							"type": "text"
+						},
+						{
+							"key": "date",
+							"value": "2024-55-55",
+							"type": "text"
+						},
+						{
+							"key": "leakInfo",
+							"type": "file",
+							"src": "/C:/Users/pla10/Desktop/DWS/foto.jpg"
 						}
 					]
 				},
@@ -240,7 +468,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/leak/2",
+					"raw": "http://localhost:8080/api/leak/4",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -249,7 +477,7 @@
 					"path": [
 						"api",
 						"leak",
-						"2"
+						"4"
 					]
 				}
 			},
@@ -261,7 +489,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/leak/90",
+					"raw": "http://localhost:8080/api/leak/a",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -270,7 +498,7 @@
 					"path": [
 						"api",
 						"leak",
-						"90"
+						"a"
 					]
 				}
 			},
@@ -282,7 +510,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/shop",
+					"raw": "http://localhost:8080/api/combo",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -290,39 +518,7 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"shop"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Buy Combo",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "combo",
-							"value": "1",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "http://localhost:8080/api/1/combo/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"1",
-						"combo",
-						""
+						"combo"
 					]
 				}
 			},
@@ -350,12 +546,12 @@
 			"response": []
 		},
 		{
-			"name": "combo error",
+			"name": "combo file",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/combo/50",
+					"raw": "http://localhost:8080/api/combo/2/file",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -364,7 +560,29 @@
 					"path": [
 						"api",
 						"combo",
-						"50"
+						"2",
+						"file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "combo error",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/combo/a",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"combo",
+						"a"
 					]
 				}
 			},
@@ -385,12 +603,17 @@
 						},
 						{
 							"key": "leaks",
-							"value": "0,1",
+							"value": "1,3",
 							"type": "text"
 						},
 						{
 							"key": "price",
 							"value": "80",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "<script>alert(1)</script>",
 							"type": "text"
 						}
 					]
@@ -433,6 +656,11 @@
 							"key": "price",
 							"value": "80",
 							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "<script>alert(1)</script>",
+							"type": "text"
 						}
 					]
 				},
@@ -459,26 +687,10 @@
 				"header": [],
 				"body": {
 					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "name",
-							"value": "combotest",
-							"type": "text"
-						},
-						{
-							"key": "leaks",
-							"value": "1,2",
-							"type": "text"
-						},
-						{
-							"key": "price",
-							"value": "80",
-							"type": "text"
-						}
-					]
+					"formdata": []
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/combo/0",
+					"raw": "http://localhost:8080/api/combo/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -487,7 +699,7 @@
 					"path": [
 						"api",
 						"combo",
-						"0"
+						"1"
 					]
 				}
 			},
@@ -500,26 +712,10 @@
 				"header": [],
 				"body": {
 					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "name",
-							"value": "combotest",
-							"type": "text"
-						},
-						{
-							"key": "leaks",
-							"value": "1,2",
-							"type": "text"
-						},
-						{
-							"key": "price",
-							"value": "80",
-							"type": "text"
-						}
-					]
+					"formdata": []
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/combo/90",
+					"raw": "http://localhost:8080/api/combo/a",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -528,7 +724,7 @@
 					"path": [
 						"api",
 						"combo",
-						"90"
+						"a"
 					]
 				}
 			},
@@ -549,18 +745,23 @@
 						},
 						{
 							"key": "leaks",
-							"value": "0,2",
+							"value": "1,2,3",
 							"type": "text"
 						},
 						{
 							"key": "price",
 							"value": "900",
 							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "este es un combo editado",
+							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/combo/1",
+					"raw": "http://localhost:8080/api/combo/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -569,7 +770,53 @@
 					"path": [
 						"api",
 						"combo",
-						"1"
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "combo error",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "comboEDIT",
+							"type": "text"
+						},
+						{
+							"key": "leaks",
+							"value": "1,2,0x1111111",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "900",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "este es un combo editado",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/combo/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"combo",
+						"2"
 					]
 				}
 			},
@@ -597,11 +844,16 @@
 							"key": "price",
 							"value": "900",
 							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "combo editado",
+							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/combo/0",
+					"raw": "http://localhost:8080/api/combo/-4",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -610,7 +862,7 @@
 					"path": [
 						"api",
 						"combo",
-						"0"
+						"-4"
 					]
 				}
 			},
@@ -631,18 +883,23 @@
 						},
 						{
 							"key": "leaks",
-							"value": "0,2",
+							"value": "1,2",
 							"type": "text"
 						},
 						{
 							"key": "price",
 							"value": "900",
 							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "combo editado",
+							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/combo/90",
+					"raw": "http://localhost:8080/api/combo/a",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -651,7 +908,69 @@
 					"path": [
 						"api",
 						"combo",
-						"90"
+						"a"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy Combo",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "combo",
+							"value": "2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/2/combo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"2",
+						"combo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy Error",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "combo",
+							"value": "44",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/2/combo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"2",
+						"combo"
 					]
 				}
 			},
@@ -667,12 +986,12 @@
 					"formdata": [
 						{
 							"key": "username",
-							"value": "paco",
+							"value": "admin",
 							"type": "text"
 						},
 						{
 							"key": "password",
-							"value": "paco",
+							"value": "admin",
 							"type": "text"
 						}
 					]
@@ -702,12 +1021,12 @@
 					"formdata": [
 						{
 							"key": "username",
-							"value": "a",
+							"value": "'",
 							"type": "text"
 						},
 						{
 							"key": "password",
-							"value": "a",
+							"value": "'",
 							"type": "text"
 						}
 					]
@@ -858,9 +1177,9 @@
 					"mode": "formdata",
 					"formdata": [
 						{
-							"key": "image",
+							"key": "imageFile",
 							"type": "file",
-							"src": "/C:/Users/pla10/Downloads/org.jpg"
+							"src": "/C:/Users/pla10/Desktop/DWS/foto.jpg"
 						}
 					]
 				},
@@ -891,12 +1210,12 @@
 						{
 							"key": "image",
 							"type": "file",
-							"src": "/C:/Users/pla10/Downloads/pon.jpg"
+							"src": "/C:/Users/pla10/Downloads/Correción Fase I(2).docx"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/50/image",
+					"raw": "http://localhost:8080/api/20/image",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -904,7 +1223,7 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"50",
+						"20",
 						"image"
 					]
 				}

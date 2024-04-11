@@ -1,5 +1,6 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.ComboRepository;
 
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -39,16 +40,19 @@ public class ComboService
 		return this.soldCombos;
 	}
 
-	public Optional<Combo> findById(int id)
+	public Optional<Combo> findById(Long id)
 	{
-		return this.comboRepository.findById((long)id);
+		return this.comboRepository.findById(id);
 	}
 	public List<Combo> findByIds(List<Long> ids){
 		return this.comboRepository.findAllById(ids);
 	}
+	public List<Combo> findByUser(UserD u){
+		return this.comboRepository.findCombosByUserD(u);
+	}
 
 
-	public int getComboPrice(int comboID)
+	public int getComboPrice(Long comboID)
 	{
 		Optional<Combo> c = this.findById(comboID);
 		if (c.isPresent())
@@ -155,6 +159,7 @@ public class ComboService
 				return null;
 			}
 		}
+		this.comboRepository.save(c);
 		return c;
 	}
 

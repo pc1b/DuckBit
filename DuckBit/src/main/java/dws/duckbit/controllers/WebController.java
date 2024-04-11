@@ -496,7 +496,7 @@ public class WebController
 
     // Buy a combo
     @PostMapping({"/buy_combo", "/buy_combo/"})
-    public ModelAndView BuyCombo(Model model, @RequestParam int combo, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView BuyCombo(Model model, @RequestParam Long combo, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         Long userID = Long.parseLong(id);
         Optional<Combo> c = this.comboDB.findById(combo);
@@ -580,7 +580,7 @@ public class WebController
         {
             idS.add(Integer.parseInt(i));
         }
-        Optional<Combo> c = comboDB.findById(Integer.parseInt(id));
+        Optional<Combo> c = comboDB.findById(Long.parseLong(id));
         ArrayList<Leak> leaksEdit = new ArrayList<>();
         if (c.isPresent())
         {

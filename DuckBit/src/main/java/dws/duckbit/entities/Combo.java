@@ -168,7 +168,6 @@ public class Combo {
 
 	public void editCombo(String name, int price, ArrayList<Leak> leaks, String description)
 	{
-		System.out.println("traceeeeeeeeeeeeeeeeeeeeeeeee e e e e e ");
 		this.name = name;
 		this.price = price;
 		this.leaks = leaks;
