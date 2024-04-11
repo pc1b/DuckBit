@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,8 +33,6 @@ import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
-
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 
 @Controller
@@ -241,7 +238,7 @@ public class WebController
 
 // ---------- SHOP ---------- //
 
-    // Default page for the shop
+    //Default page for the shop
     @GetMapping({"/shop", "/shop/"})
     public ModelAndView shop(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) throws IOException
     {
@@ -262,6 +259,7 @@ public class WebController
         return new ModelAndView("shop");
     }
 
+    //Filter in the shop
     @GetMapping({"/query", "/query/"})
     public ModelAndView getMethodName(Model model, @CookieValue(value = "id", defaultValue = "-1") String id, @RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
     {
@@ -275,15 +273,6 @@ public class WebController
             return new ModelAndView("redirect:/shop");
         }
         Collection<Combo> c = this.comboDB.findAll(enterprise, price);
-//        if (!c.isEmpty())
-//        {
-//            ArrayList<Combo> finalCombos = new ArrayList<>();
-//            for (Combo cm: c)
-//            {
-//                finalCombos.add(this.comboDB.findById(cm.getId()).get());
-//            }
-//            model.addAttribute("combos", finalCombos);
-//        }
         model.addAttribute("combos", c);
         String name = this.userDB.findByID(idNum).get().getUserd();
         int credits = this.userDB.findByID(idNum).get().getCredits();
@@ -301,8 +290,6 @@ public class WebController
 
         UserD user = this.userDB.findByUsername(username).orElseThrow();
 
-        URI location = fromCurrentRequest().build().toUri();
-
         user.setImageFile(BlobProxy.generateProxy(image.getInputStream(), image.getSize()));
         this.userDB.save(user);
         if (user.getID().equals(1L))
@@ -312,23 +299,11 @@ public class WebController
         attributes.addFlashAttribute("username", username);
         return new ModelAndView("redirect:/user");
     }
-/*    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException
-    {
-        Files.createDirectories(IMAGES_FOLDER);
-        String nameFile = username + ".jpg";
-        Path imagePath = IMAGES_FOLDER.resolve(nameFile);
-        image.transferTo(imagePath);
-        if (this.userDB.findByID(1L).get().getUserd().equals(username))
-        {
-            return new ModelAndView("redirect:/admin");
-        }
-        attributes.addFlashAttribute("username", username);
-        return new ModelAndView("redirect:/user");
-    }*/
 
     // Download a user image
     @GetMapping({"/download_image", "/download_image/"})
-    public ResponseEntity<Object> downloadImage(@RequestParam String username) throws SQLException {
+    public ResponseEntity<Object> downloadImage(@RequestParam String username) throws SQLException
+    {
 
         UserD u = this.userDB.findByUsername(username).orElseThrow();
 
@@ -343,24 +318,11 @@ public class WebController
             return ResponseEntity.notFound().build();
         }
     }
-    /*public ResponseEntity<Object> downloadImage(@RequestParam String username, Model model) throws MalformedURLException
-    {
-        String nameFile = username + ".jpg";
-        Path imagePath = IMAGES_FOLDER.resolve(nameFile);
-        Resource image = new UrlResource(imagePath.toUri());
-        if (image.exists())
-        {
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-                    .body(image);
-        }
-        return ResponseEntity.notFound()
-                .build();
-    }*/
 
     // Delete a user image
     @DeleteMapping({"/delete_image", "/delete_image/"})
-    public  ModelAndView  deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id, RedirectAttributes attributes) throws IOException {
+    public  ModelAndView  deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id, RedirectAttributes attributes) throws IOException
+    {
 
         UserD u = this.userDB.findByID(Long.parseLong(id)).orElseThrow();
 
@@ -374,35 +336,6 @@ public class WebController
         attributes.addFlashAttribute("username", u.getUserd());
         return new ModelAndView("redirect:/user");
     }
-    /*public ResponseEntity<Object> deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id) throws IOException
-    {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userDB.IDExists(idNum)))
-        {
-            return ResponseEntity.notFound().build();
-        }
-        else
-        {
-            UserD userD = userDB.findByID(idNum).get();
-            Files.createDirectories(IMAGES_FOLDER);
-            String nameFile = userD.getUserd() + ".jpg";
-            Path imagePath = IMAGES_FOLDER.resolve(nameFile);
-            File img = imagePath.toFile();
-            if (img.exists())
-            {
-                try
-                {
-                    img.delete();
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }
-            return ResponseEntity.noContent().build();
-
-        }
-    }*/
 
 // ---------- LEAKS MANIPULATION ---------- //
 
@@ -413,13 +346,15 @@ public class WebController
         String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
         String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
         String filename = leak.getOriginalFilename();
-        if (leakName.length() > 255){
+        if (leakName.length() > 255)
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("leakName2Big", true);
             return modelAndView;
         }
-        else if (leakName.isEmpty()){
+        else if (leakName.isEmpty())
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("leakEmptyName", true);
@@ -432,7 +367,8 @@ public class WebController
             modelAndView.addObject("incorrectFileName", true);
             return modelAndView;
         }
-        if (!(leakDate.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(leakDate.toString().split("-")[0]) > 9990) {
+        if (!(leakDate.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(leakDate.toString().split("-")[0]) > 9990)
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("incorrectDate", true);
@@ -454,19 +390,22 @@ public class WebController
     @PostMapping({"/create_combo", "/create_combo/"} )
     public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String description, @RequestParam String ... ids) throws IOException
     {
-        if (comboName.length() > 255) {
+        if (comboName.length() > 255)
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboName2Big", true);
             return modelAndView;
         }
-        if (description.length() > 255) {
+        if (description.length() > 255)
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboDesc2Big", true);
             return modelAndView;
         }
-        if (price.length() > 10 || Integer.parseInt(price) <= 0){
+        if (price.length() > 10 || Integer.parseInt(price) <= 0)
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboWrongPrice", true);
@@ -514,7 +453,8 @@ public class WebController
         if (this.userDB.hasEnoughCredits(comboPrice, userID))
         {
             this.userDB.substractCreditsToUser(comboPrice, userID);
-            if (c.isPresent()){
+            if (c.isPresent())
+            {
                 Combo comboBought = c.get();
                 this.userDB.addComboToUser(comboBought, userID);
                 comboBought.setUser(this.userDB.findByID(userID).get());
@@ -561,19 +501,22 @@ public class WebController
     @PostMapping({"/edit_combo", "/edit_combo/"})
     public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String id, @RequestParam String description, @RequestParam String ... ids) throws IOException
     {
-        if (comboName.length() > 255) {
+        if (comboName.length() > 255)
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboName2Big", true);
             return modelAndView;
         }
-        if (description.length() > 255) {
+        if (description.length() > 255)
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboDesc2Big", true);
             return modelAndView;
         }
-        if (price.length() > 10 || Integer.parseInt(price) <= 0){
+        if (price.length() > 10 || Integer.parseInt(price) <= 0)
+        {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboWrongPrice", true);

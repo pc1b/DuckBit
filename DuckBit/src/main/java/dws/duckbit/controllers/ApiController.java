@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 
 import java.io.File;
@@ -29,7 +28,6 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.status;
@@ -38,7 +36,8 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 
 @RestController
 @RequestMapping("/api")
-public class ApiController {
+public class ApiController
+{
 
 	// ---------- DEFAULT PATHS ---------- //
 	private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
@@ -50,7 +49,8 @@ public class ApiController {
 	private final LeakService leaksDB;
 
 	// ---------- BUILDER ---------- //
-	public ApiController(UserService userDB, ComboService comboDB, LeakService leaksDB) {
+	public ApiController(UserService userDB, ComboService comboDB, LeakService leaksDB)
+	{
 		this.userDB = userDB;
 		this.comboDB = comboDB;
 		this.leaksDB = leaksDB;
@@ -95,6 +95,7 @@ public class ApiController {
 	{
 		return ResponseEntity.ok(this.userDB.findAll());
 	}
+
 	//USER Combos
 	@GetMapping(value = {"/user/{id}/combos", "/user/{id}/combos/"})
 	public ResponseEntity<Object> getCombosUser(@PathVariable Long id)
@@ -109,8 +110,6 @@ public class ApiController {
 			return status(HttpStatus.NOT_FOUND).build();
 		}
 	}
-
-
 
 	//USER BUY CREDITS
 	@GetMapping(value = {"/{id}/credits", "/{id}/credits/"})
@@ -237,6 +236,7 @@ public class ApiController {
 	{
 		return ResponseEntity.ok(this.comboDB.getSoldCombos());
 	}
+
 	//GET A COMBO
 	@GetMapping({"/combo/{id}/", "/combo/{id}"})
 	public ResponseEntity<Object> getCombo(@PathVariable Long id)
@@ -269,7 +269,6 @@ public class ApiController {
 			return status(HttpStatus.BAD_REQUEST).body("Some leaks were not found in the server");
 		}
 		this.comboDB.save(c);
-
 		return getCombo(c.getId());
 	}
 
@@ -353,10 +352,12 @@ public class ApiController {
 	}
 
 	// ---------- LOGIN AND REGISTER ---------- //
+
 	//LOGIN
 	@PostMapping({"/login/", "/login"})
 	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password,
-										HttpServletResponse response){
+										HttpServletResponse response)
+	{
 		Long userID = this.userDB.getIDUser(username, password);
 		Cookie cookie = new Cookie("id", String.valueOf(userID));
 		if (userID >= 0)
@@ -383,13 +384,9 @@ public class ApiController {
 		if (mail.length() > 255)
 			return status(HttpStatus.BAD_REQUEST).body("Mail too long, the maximum is 255 characters");
 		if (this.userDB.userExists(username))
-		{
 			return status(HttpStatus.BAD_REQUEST).body("Username already registered");
-		}
 		else
-		{
 			this.userDB.addUser(username, mail, password);
-		}
 		return status(HttpStatus.CREATED).body(this.userDB.findByID(this.userDB.getIDUser(username, password)));
 	}
 
@@ -420,6 +417,7 @@ public class ApiController {
 		}
 		return ResponseEntity.notFound().build();
 	}
+
 	//BUY COMBO
 	@PostMapping({"/{id}/combo", "/{id}/combo/"})
 	public ResponseEntity<Object> buyCombo(@RequestParam Long combo, @PathVariable Long id)
@@ -429,7 +427,8 @@ public class ApiController {
 		{
 			return ResponseEntity.notFound().build();
 		}
-		if (!this.comboDB.getAvilableCombos().contains(c.get())){
+		if (!this.comboDB.getAvilableCombos().contains(c.get()))
+		{
 			return ResponseEntity.badRequest().body("This combo is no more for sell");
 		}
 		int comboPrice = this.comboDB.getComboPrice(combo);
@@ -450,65 +449,69 @@ public class ApiController {
 	}
 
 	// ---------- IMAGES MANIPULATION ---------- //
+
 	//DOWNLOAD IMAGE
-
 	@GetMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> downloadImage(@PathVariable long id) throws SQLException {
-
+	public ResponseEntity<Object> downloadImage(@PathVariable long id) throws SQLException
+	{
 		Optional<UserD> user = this.userDB.findByID(id);
-		if (user.isEmpty()){
+		if (user.isEmpty())
+		{
 			return ResponseEntity.notFound().build();
 		}
 		UserD u = user.get();
-
-		if (u.getImageFile() != null) {
+		if (u.getImageFile() != null)
+		{
 
 			Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
-
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
 					.contentLength(u.getImageFile().length()).body(file);
-
-		} else {
+		}
+		else
+		{
 			return ResponseEntity.notFound().build();
 		}
 	}
 
 	//POST AN IMAGE
 	@PostMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> uploadImage(@PathVariable long id, @RequestParam MultipartFile imageFile) {
+	public ResponseEntity<Object> uploadImage(@PathVariable long id, @RequestParam MultipartFile imageFile)
+	{
 
 		Optional<UserD> u = this.userDB.findByID(id);
-		if (u.isEmpty()){
+		if (u.isEmpty())
+		{
 			return ResponseEntity.notFound().build();
 		}
 		UserD user = u.get();
 		URI location = fromCurrentRequest().build().toUri();
 		Blob image;
-		try {
+		try
+		{
 			image = BlobProxy.generateProxy(imageFile.getInputStream(), imageFile.getSize());
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			return ResponseEntity.badRequest().body("Not an image");
 		}
 		user.setImageFile(image);
 		this.userDB.save(user);
-
 		return ResponseEntity.created(location).build();
 	}
 
 	//DELETE AN IMAGE
 	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> deleteImage(@PathVariable long id) throws IOException {
+	public ResponseEntity<Object> deleteImage(@PathVariable long id) throws IOException
+	{
 
 		Optional<UserD> user = this.userDB.findByID(id);
-		if (user.isEmpty()){
+		if (user.isEmpty())
+		{
 			return ResponseEntity.notFound().build();
 		}
 		UserD u = user.get();
-
 		u.setImageFile(null);
-
 		this.userDB.save(u);
-
 		return ResponseEntity.noContent().build();
 	}
 }
