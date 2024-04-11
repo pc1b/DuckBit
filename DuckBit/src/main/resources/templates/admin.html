@@ -398,13 +398,19 @@
 
     function deleteCombo(id)
     {
-        fetch("/delete_combo/"+id, {method: "delete"});
+        fetch("/delete_combo/"+id, {method: "delete"})
+            .then(response => {
+                location.reload();
+            })
     }
 
 
     function sendDeleteRequest()
     {
-        fetch('/delete_image', {method: 'DELETE'});
+        fetch('/delete_image', {method: 'DELETE'})
+            .then(response => {
+                location.reload();
+            })
     }
 </script>
 
