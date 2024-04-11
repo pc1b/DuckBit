@@ -157,7 +157,7 @@ public class ApiController {
 	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date,
 											 @RequestParam MultipartFile leakInfo) throws IOException
 	{
-        String REGEX_PATTERN = "^[A-Za-z0-9.]{1,255}$";
+        String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
         String filename = leakInfo.getOriginalFilename();
 		String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
 		if (enterprise.length() > 255 || enterprise.isEmpty() || filename == null || !(filename.matches(REGEX_PATTERN)))
