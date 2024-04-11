@@ -190,7 +190,10 @@ public class WebController
         }
         else
         {
-            return new ModelAndView("login");
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("login");
+            modelAndView.addObject("incorrectLogin", true);
+            return modelAndView;
         }
     }
 
@@ -200,12 +203,12 @@ public class WebController
     {
         if (this.userDB.userExists(userD))
         {
-            return new ModelAndView("redirect:/register");
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("register");
+            modelAndView.addObject("userExists", true);
+            return modelAndView;
         }
-        else
-        {
-            this.userDB.addUser(userD, mail, pass);
-        }
+        this.userDB.addUser(userD, mail, pass);
         return new ModelAndView("redirect:/login");
     }
 
