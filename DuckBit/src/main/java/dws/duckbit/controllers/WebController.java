@@ -487,20 +487,22 @@ public class WebController
     public ModelAndView BuyCombo(Model model, @RequestParam int combo, @CookieValue(value = "id", defaultValue = "-1") String id)
     {
         Long userID = Long.parseLong(id);
+        Optional<Combo> c = this.comboDB.findById(combo);
+        if (!this.comboDB.getAvilableCombos().contains(c.get()))
+            return new ModelAndView("redirect:/shop");
         int comboPrice = this.comboDB.getComboPrice(combo);
         if (this.userDB.hasEnoughCredits(comboPrice, userID))
         {
             this.userDB.substractCreditsToUser(comboPrice, userID);
-            Optional<Combo> c =   this.comboDB.findById(combo);
             if (c.isPresent()){
                 Combo comboBought = c.get();
                 this.userDB.addComboToUser(comboBought, userID);
                 comboBought.setUser(this.userDB.findByID(userID).get());
                 this.comboDB.save(comboBought);
+                soldCombos++;
             }
 
         }
-        soldCombos++;
         return new ModelAndView("redirect:/user");
     }
 
