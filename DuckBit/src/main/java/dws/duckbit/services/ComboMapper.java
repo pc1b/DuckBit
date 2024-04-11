@@ -1,11 +1,11 @@
 package dws.duckbit.services;
 
 import java.sql.ResultSet; 
-import java.sql.SQLException; 
-  
+import java.sql.SQLException;
+
 import org.springframework.jdbc.core.RowMapper;
 
-import dws.duckbit.entities.Combo; 
+import dws.duckbit.entities.Combo;
   
 public class ComboMapper implements RowMapper<Combo>{ 
   

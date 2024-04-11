@@ -1,7 +1,6 @@
 package dws.duckbit.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 
 import java.io.BufferedReader;
@@ -94,10 +93,16 @@ public class Combo {
 	{
 		return this.leaks;
 	}
-	public void setLeaks(List<Leak> leaks) {
+
+	public void setLeaks(List<Leak> leaks)
+	{
 		this.leaks = leaks;
 	}
 
+	public void addLeak(Leak l)
+	{
+		this.leaks.add(l);
+	}
 
 // ---------- DELETE AND REMOVE ---------- //
 

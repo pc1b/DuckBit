@@ -3,9 +3,6 @@ package dws.duckbit.services;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.repositories.LeaksRepository;
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;

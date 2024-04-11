@@ -3,7 +3,6 @@ package dws.duckbit.controllers;
 import dws.duckbit.entities.UserD;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +35,6 @@ import dws.duckbit.services.UserService;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
 
-import static org.springframework.http.ResponseEntity.status;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 
@@ -279,7 +277,12 @@ public class WebController
         Collection<Combo> c = this.comboDB.findAll(enterprise, price);
         if (!c.isEmpty())
         {
-            model.addAttribute("combos", c);
+            ArrayList<Combo> finalCombos = new ArrayList<>();
+            for (Combo cm: c)
+            {
+                finalCombos.add(this.comboDB.findById(cm.getId().intValue()).get());
+            }
+            model.addAttribute("combos", finalCombos);
         }
         String name = this.userDB.findByID(idNum).get().getUserd();
         int credits = this.userDB.findByID(idNum).get().getCredits();
