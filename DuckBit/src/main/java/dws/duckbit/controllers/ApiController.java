@@ -16,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -159,10 +157,12 @@ public class ApiController
         String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
         String filename = leakInfo.getOriginalFilename();
 		String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
-		if (enterprise.length() > 255 || enterprise.isEmpty() || filename == null || !(filename.matches(REGEX_PATTERN)))
+		if (enterprise.length() > 255 || enterprise.isEmpty())
 			return status(HttpStatus.BAD_REQUEST).body("Wrong enterprise name");
-		if (!(date.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(date.toString().split("-")[0]) > 9990)
+		if(filename == null || !(filename.matches(REGEX_PATTERN)) || this.leaksDB.existsLeakByFilename(filename))
 			return status(HttpStatus.BAD_REQUEST).body("Wrong filename");
+		if (!(date.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(date.toString().split("-")[0]) > 9990)
+			return status(HttpStatus.BAD_REQUEST).body("Wrong date");
 		Leak l = this.leaksDB.createLeak(enterprise, date, filename);
 		if (l != null)
 		{
@@ -170,6 +170,21 @@ public class ApiController
 			Path txtPath = LEAKS_FOLDER.resolve(filename);
 			leakInfo.transferTo(txtPath);
 			return status(HttpStatus.CREATED).body(l);
+		}
+		else
+		{
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	//COMBOS IN LEAKS
+	@GetMapping({"/leak/{id}/combos", "/leak/{id}/combos"})
+	public ResponseEntity<Object> getCombosInLeak(@PathVariable int id)
+	{
+		Optional<Leak> l = this.leaksDB.findByID(id);
+		if (l.isPresent())
+		{
+			return ResponseEntity.ok(l.get().getCombos());
 		}
 		else
 		{
@@ -185,7 +200,6 @@ public class ApiController
 		if (l.isPresent())
 		{
 			this.leaksDB.delete(l.get());
-			//this.comboDB.deleteLeak(l.get());
 			Files.createDirectories(this.LEAKS_FOLDER);
 			String nameFile = l.get().getId() + ".txt";
 			Path leakPath = this.LEAKS_FOLDER.resolve(nameFile);
@@ -269,7 +283,13 @@ public class ApiController
 			return status(HttpStatus.BAD_REQUEST).body("Some leaks were not found in the server");
 		}
 		this.comboDB.save(c);
-		return getCombo(c.getId());
+		Combo ret = new Combo(name, price, description);
+		ArrayList<Leak> ls = new ArrayList<>();
+		for (Long l : leaks){
+			ls.add(this.leaksDB.findByID(l).get());
+		}
+		ret.setLeaks(ls);
+		return ResponseEntity.ok(ret);
 	}
 
 	//DELETE A COMBO
@@ -388,6 +408,15 @@ public class ApiController
 		else
 			this.userDB.addUser(username, mail, password);
 		return status(HttpStatus.CREATED).body(this.userDB.findByID(this.userDB.getIDUser(username, password)));
+	}
+
+	//DELETE USERS
+	@DeleteMapping({"/user/{id}", "/user/{id}/"})
+	public ResponseEntity<Object> deleteUser(@PathVariable Long id){
+		if (this.comboDB.deleteUser(id)){
+			return ResponseEntity.ok().build();
+		}
+		return ResponseEntity.notFound().build();
 	}
 
 	// ---------- SHOP ---------- //

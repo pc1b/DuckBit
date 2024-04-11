@@ -21,17 +21,16 @@ public class Combo {
 	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
 	private static final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
 
-	@ManyToMany(mappedBy = "combos")
-	private List<Leak> leaks = new ArrayList<>();
-	private String description;
 	private String name;
 	private int price;
+	private String description;
+	@ManyToMany(mappedBy = "combos")
+	private List<Leak> leaks = new ArrayList<>();
 	@JsonIgnore
 	@ManyToOne
 	private UserD userD;
-	//private HashSet<String> enterpriseArray;
 
-// ---------- CONSTRUCTOR ---------- //
+// ---------- BUILDER ---------- //
 
 	public Combo(){}
 	public Combo(String name,  int price, String description) throws IOException
@@ -49,24 +48,41 @@ public class Combo {
 		return this.id;
 	}
 
-	public void setId(long id){
-		this.id = id;
+	public int getPrice()
+	{
+		return this.price;
 	}
 
+	public String getName()
+	{
+		return this.name;
+	}
 	public UserD getUser() {
 		return userD;
 	}
 
-	public void setUser(UserD userD) {
-		this.userD = userD;
+	public List<Leak> getLeaks()
+	{
+		return this.leaks;
 	}
 
 	public String getDescription(){
 		return this.description;
 	}
+
+// ---------- SET ---------- //
+
 	public void setDescription(String description)
 	{
 		this.description = description;
+	}
+
+	public void setId(long id){
+		this.id = id;
+	}
+
+	public void setUser(UserD userD) {
+		this.userD = userD;
 	}
 
 	public void setPrice(int price)
@@ -79,47 +95,12 @@ public class Combo {
 		this.name = name;
 	}
 
-	public int getPrice()
-	{
-		return this.price;
-	}
-
-	public String getName()
-	{
-		return this.name;
-	}
-
-	public List<Leak> getLeaks()
-	{
-		return this.leaks;
-	}
-
 	public void setLeaks(List<Leak> leaks)
 	{
 		this.leaks = leaks;
 	}
 
-	public void addLeak(Leak l)
-	{
-		this.leaks.add(l);
-	}
 
-// ---------- DELETE AND REMOVE ---------- //
-
-//	public void deleteLeak(Leak l)
-//	{
-//		if (this.leaks.remove(l))
-//		{
-//			try
-//			{
-//				this.createFile();
-//			}
-//			catch (Exception e)
-//			{
-//				e.printStackTrace();
-//			}
-//		}
-//	}
 
 // ---------- ADD AND CREATE ---------- //
 
@@ -133,6 +114,9 @@ public class Combo {
 		}
 		Long id = this.getId();
 		Path comboPath = COMBOS_FOLDER.resolve(id+ ".txt");
+		if(comboPath.toFile().exists()){
+			comboPath.toFile().delete();
+		}
 		try
 		{
 			Files.createFile(comboPath);
@@ -168,6 +152,10 @@ public class Combo {
 			e.printStackTrace();
 		}
 	}
+	public void addLeak(Leak l)
+	{
+		this.leaks.add(l);
+	}
 
 // ---------- EDIT ---------- //
 
@@ -181,33 +169,6 @@ public class Combo {
 		if (comboPath.toFile().exists()){
 			comboPath.toFile().delete();
 		}
-//		try(BufferedWriter writer = Files.newBufferedWriter(comboPath.toAbsolutePath()))
-//		{
-//			for (Leak l: this.leaks)
-//			{
-//				writer.write("-----LEAK FROM " + l.getEnterprise() + " " + l.getDate() + "-----\n");
-//				Path leakPath = LEAKS_FOLDER.resolve(l.getFilename());
-//				try (BufferedReader reader = Files.newBufferedReader(leakPath.toAbsolutePath()))
-//				{
-//					String line;
-//					while ((line = reader.readLine()) != null)
-//					{
-//						writer.write(line);
-//						writer.newLine();
-//					}
-//				}
-//				catch (Exception e)
-//				{
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-//		catch (Exception e)
-//		{
-//			System.out.println("siuuuuuu");
-//
-//			e.printStackTrace();
-//		}
 	}
 
 // ---------- OHERS ---------- //
@@ -233,26 +194,15 @@ public class Combo {
 		}
 	}
 
-	public boolean isEnterpriseInCombo(String enterprise)
-	{
-		for (Leak l: this.leaks)
-		{
-			if (enterprise.equals(l.getEnterprise()))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "Combo{" +
-				"leaks=" + leaks +
-				", id=" + id +
+				"id=" + id +
 				", name='" + name + '\'' +
+				", description='" + description + '\'' +
 				", price=" + price +
+				", leaks=" + leaks +
+				", userD=" + userD +
 				'}';
 	}
 }

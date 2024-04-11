@@ -48,7 +48,7 @@ public class UserD
 
     }
 
-// ---------- GET ---------- //
+// ---------- GET AND SET ---------- //
 
     public String getUserd()
     {
@@ -147,24 +147,4 @@ public class UserD
                 '}';
     }
 
-// ---------- NOT YET IMPLEMENTED ! ---------- // Change username and password
-/*
-    public void changeUserName(String user)
-    {
-        this.user = user;
-    }
-
-    public void changeUserPassword(String password)
-    {
-        try
-        {
-            byte[] userPassword = password.getBytes("UTF-8");
-            this.md = MessageDigest.getInstance("MD5");
-            this.password = md.digest(userPassword);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }*/
 }

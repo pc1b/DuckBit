@@ -299,6 +299,28 @@
 			"response": []
 		},
 		{
+			"name": "leak Combo",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/leak/1/combos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"leak",
+						"1",
+						"combos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "leak",
 			"request": {
 				"method": "POST",
@@ -313,7 +335,7 @@
 						},
 						{
 							"key": "date",
-							"value": "2024-10-1",
+							"value": "2024-10-01",
 							"type": "text"
 						},
 						{
@@ -530,7 +552,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/query?enterprise=Amazon&price=41",
+					"raw": "http://localhost:8080/api/query?enterprise=Amazon&price=40",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -547,7 +569,7 @@
 						},
 						{
 							"key": "price",
-							"value": "41"
+							"value": "40"
 						}
 					]
 				}
@@ -866,7 +888,7 @@
 					"formdata": []
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/combo/1",
+					"raw": "http://localhost:8080/api/combo/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -875,7 +897,7 @@
 					"path": [
 						"api",
 						"combo",
-						"1"
+						"2"
 					]
 				}
 			},
@@ -1297,6 +1319,47 @@
 					"path": [
 						"api",
 						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "paco",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "b",
+							"type": "text"
+						},
+						{
+							"key": "mail",
+							"value": "b@a.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/user/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"2"
 					]
 				}
 			},

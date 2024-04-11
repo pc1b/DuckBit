@@ -21,15 +21,17 @@ public class ComboService
 {
 	private final ComboRepository comboRepository;
 	public final LeakService leakService;
+	public final UserService userService;
 	private final JdbcTemplate jdbcTemp;
 	private int soldCombos = 0;
 
 // ---------- CONSTRUCTOR ---------- //
 
-	public ComboService(ComboRepository comboRepository, LeakService leakService, JdbcTemplate jdbcTemp) throws IOException
+	public ComboService(ComboRepository comboRepository, LeakService leakService, UserService userService, JdbcTemplate jdbcTemp) throws IOException
 	{
 		this.comboRepository = comboRepository;
 		this.leakService = leakService;
+		this.userService = userService;
 		this.jdbcTemp = jdbcTemp;
 	}
 
@@ -183,6 +185,23 @@ public class ComboService
 			l.getCombos().remove(c);
 			this.leakService.save(l);
 		}
+
+		c.getUser().getCombos().remove(c);
+		this.userService.save(c.getUser());
+		c.setUser(null);
+		this.comboRepository.save(c);
 		this.comboRepository.deleteById(id);
 	}
+
+	public boolean deleteUser(long id)
+	{
+		Optional<UserD> u = this.userService.findByID(id);
+		if (u.isPresent()){
+			for (Combo c : u.get().getCombos())
+				this.delete(c.getId());
+			this.userService.delete(id);
+		}
+		return u.isPresent();
+	}
+
 }

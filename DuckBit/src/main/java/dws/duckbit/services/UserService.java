@@ -95,9 +95,9 @@ public class UserService
 	    return u.isPresent();
     }
 
-    public boolean IDExists(Long ID)
+    public boolean IDExists(int ID)
     {
-        return this.userRepository.findById(ID).isPresent();
+        return this.userRepository.findById((long)ID).isPresent();
 
     }
 
@@ -121,4 +121,14 @@ public class UserService
         u.orElseThrow().substractCredits(minus);
         this.userRepository.save(u.get());
     }
+
+    public boolean IDExists(Long ID)
+    {
+        return this.userRepository.findById(ID).isPresent();
+
+    }
+    public void delete(Long id){
+        this.userRepository.deleteById(id);
+    }
+
 }
