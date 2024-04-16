@@ -38,8 +38,8 @@ public class ApiController
 {
 
 	// ---------- DEFAULT PATHS ---------- //
-	private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
-	private final Path COMBO_FOLDER = Paths.get("src/main/resources/static/combo");
+	private final Path LEAKS_FOLDER = Paths.get("files/leaks");
+	private final Path COMBO_FOLDER = Paths.get("files/combo");
 
 	// ---------- SERVICES ---------- //
 	private final UserService userDB;

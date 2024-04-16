@@ -38,8 +38,8 @@ import dws.duckbit.entities.Leak;
 @Controller
 public class WebController
 {
-    private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
-    private final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
+    private final Path LEAKS_FOLDER = Paths.get("files/leaks");
+    private final Path COMBOS_FOLDER = Paths.get("files/combo");
     private final UserService userDB;
     private final LeakService leakDB;
     private final ComboService comboDB;
