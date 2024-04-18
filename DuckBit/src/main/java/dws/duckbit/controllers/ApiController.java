@@ -42,15 +42,15 @@ public class ApiController
 	private final Path COMBO_FOLDER = Paths.get("files/combo");
 
 	// ---------- SERVICES ---------- //
-	private final UserService userDB;
-	private final ComboService comboDB;
+	private final UserService userService;
+	private final ComboService comboService;
 	private final LeakService leaksDB;
 
 	// ---------- BUILDER ---------- //
-	public ApiController(UserService userDB, ComboService comboDB, LeakService leaksDB)
+	public ApiController(UserService userService, ComboService comboService, LeakService leaksDB)
 	{
-		this.userDB = userDB;
-		this.comboDB = comboDB;
+		this.userService = userService;
+		this.comboService = comboService;
 		this.leaksDB = leaksDB;
 	}
 
@@ -69,7 +69,7 @@ public class ApiController
 	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
 	public ResponseEntity<Object> getUser(@PathVariable Long id)
 	{
-		Optional<UserD> u = this.userDB.findByID(id);
+		Optional<UserD> u = this.userService.findByID(id);
 		if (u.isPresent())
 		{
 			return ResponseEntity.ok(u);
@@ -84,24 +84,24 @@ public class ApiController
 	@GetMapping(value = {"/user/number", "/user/number/"})
 	public ResponseEntity<Object> getNumberUsers()
 	{
-		return ResponseEntity.ok(this.userDB.getSize());
+		return ResponseEntity.ok(this.userService.getSize());
 	}
 
 	//USERS
 	@GetMapping(value = {"/user", "/user/"})
 	public ResponseEntity<Object> getRegisteredUsers()
 	{
-		return ResponseEntity.ok(this.userDB.findAll());
+		return ResponseEntity.ok(this.userService.findAll());
 	}
 
 	//USER Combos
 	@GetMapping(value = {"/user/{id}/combos", "/user/{id}/combos/"})
 	public ResponseEntity<Object> getCombosUser(@PathVariable Long id)
 	{
-		Optional<UserD> u = this.userDB.findByID(id);
+		Optional<UserD> u = this.userService.findByID(id);
 		if (u.isPresent())
 		{
-			return ResponseEntity.ok(this.comboDB.findByUser(u.get()));
+			return ResponseEntity.ok(this.comboService.findByUser(u.get()));
 		}
 		else
 		{
@@ -113,10 +113,10 @@ public class ApiController
 	@GetMapping(value = {"/{id}/credits", "/{id}/credits/"})
 	public ResponseEntity<UserD> buyCredits(@PathVariable Long id)
 	{
-		Optional<UserD> u = this.userDB.findByID(id);
+		Optional<UserD> u = this.userService.findByID(id);
 		if (u.isPresent())
 		{
-			this.userDB.addCreditsToUser(500, id);
+			this.userService.addCreditsToUser(500, id);
 			return ResponseEntity.ok(u.get());
 		}
 		else
@@ -233,7 +233,7 @@ public class ApiController
 	@GetMapping({"/combo/{id}/file/", "/combo/{id}/file"})
 	public ResponseEntity<String> getComboDownload(@PathVariable Long id)
 	{
-		Optional<Combo> c = this.comboDB.findById(id);
+		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,
@@ -248,14 +248,14 @@ public class ApiController
 	@GetMapping(value = {"/combo/sold/number", "/combo/sold/number/"})
 	public ResponseEntity<Object> getSoldCombos()
 	{
-		return ResponseEntity.ok(this.comboDB.getSoldCombos());
+		return ResponseEntity.ok(this.comboService.getSoldCombos());
 	}
 
 	//GET A COMBO
 	@GetMapping({"/combo/{id}/", "/combo/{id}"})
 	public ResponseEntity<Object> getCombo(@PathVariable Long id)
 	{
-		Optional<Combo> c = this.comboDB.findById(id);
+		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
 			return ResponseEntity.ok(c.get());
@@ -277,12 +277,12 @@ public class ApiController
 			return status(HttpStatus.BAD_REQUEST).body("The description of the combo is too large, it must be 255 characters or less :(");
 		if (price <= 0)
 			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
-		Combo c = this.comboDB.createCombo(name, leaks, price, description);
+		Combo c = this.comboService.createCombo(name, leaks, price, description);
 		if (c == null)
 		{
 			return status(HttpStatus.BAD_REQUEST).body("Some leaks were not found in the server");
 		}
-		this.comboDB.save(c);
+		this.comboService.save(c);
 		Combo ret = new Combo(name, price, description);
 		ArrayList<Leak> ls = new ArrayList<>();
 		for (Long l : leaks){
@@ -296,10 +296,10 @@ public class ApiController
 	@DeleteMapping({"/combo/{id}", "/combo/{id}/"})
 	public ResponseEntity<Object> deleteCombo(@PathVariable Long id) throws IOException
 	{
-		Optional<Combo> c = this.comboDB.findById(id);
+		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
-			this.comboDB.delete(c.get().getId());
+			this.comboService.delete(c.get().getId());
 			Files.createDirectories(this.COMBO_FOLDER);
 			String nameFile = c.get().getId() + ".txt";
 			Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
@@ -338,7 +338,7 @@ public class ApiController
 			return status(HttpStatus.BAD_REQUEST).body("The description of the combo is too large, it must be 255 characters or less :(");
 		if (price.length() > 10 || Integer.parseInt(price) <= 0)
 			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
-		Optional<Combo> c = comboDB.findById(id);
+		Optional<Combo> c = comboService.findById(id);
 		ArrayList<Leak> leaksEdit = new ArrayList<>();
 		if (c.isPresent())
 		{
@@ -363,8 +363,8 @@ public class ApiController
 				{
 					Files.delete(comboPath);
 				}
-				this.comboDB.editCombo(c.get(), name, Integer.parseInt(price), leaksEdit, description);
-				this.comboDB.save(c.get());
+				this.comboService.editCombo(c.get(), name, Integer.parseInt(price), leaksEdit, description);
+				this.comboService.save(c.get());
 			}
 			return status(HttpStatus.CREATED).body(c);
 		}
@@ -378,7 +378,7 @@ public class ApiController
 	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password,
 										HttpServletResponse response)
 	{
-		Long userID = this.userDB.getIDUser(username, password);
+		Long userID = this.userService.getIDUser(username, password);
 		Cookie cookie = new Cookie("id", String.valueOf(userID));
 		if (userID >= 0)
 		{
@@ -403,17 +403,17 @@ public class ApiController
 			return status(HttpStatus.BAD_REQUEST).body("Password too long, the maximum is 255 characters");
 		if (mail.length() > 255)
 			return status(HttpStatus.BAD_REQUEST).body("Mail too long, the maximum is 255 characters");
-		if (this.userDB.userExists(username))
+		if (this.userService.userExists(username))
 			return status(HttpStatus.BAD_REQUEST).body("Username already registered");
 		else
-			this.userDB.addUser(username, mail, password);
-		return status(HttpStatus.CREATED).body(this.userDB.findByID(this.userDB.getIDUser(username, password)));
+			this.userService.addUser(username, mail, password);
+		return status(HttpStatus.CREATED).body(this.userService.findByID(this.userService.getIDUser(username, password)));
 	}
 
 	//DELETE USERS
 	@DeleteMapping({"/user/{id}", "/user/{id}/"})
 	public ResponseEntity<Object> deleteUser(@PathVariable Long id){
-		if (this.comboDB.deleteUser(id)){
+		if (this.comboService.deleteUser(id)){
 			return ResponseEntity.ok().build();
 		}
 		return ResponseEntity.notFound().build();
@@ -422,9 +422,9 @@ public class ApiController
 	// ---------- SHOP ---------- //
 	//SHOP INDEX
 	@GetMapping({"/combo", "/combo/"})
-	public ResponseEntity<Collection<Combo>> getComboDB()
+	public ResponseEntity<Collection<Combo>> getcomboService()
 	{
-		Collection<Combo> c = this.comboDB.getAvilableCombos();
+		Collection<Combo> c = this.comboService.getAvilableCombos();
 		if (c != null)
 		{
 			return ResponseEntity.ok(c);
@@ -439,7 +439,7 @@ public class ApiController
 	@GetMapping({"/query", "/query/"})
 	public ResponseEntity<Object> getMethodName(Model model, @RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
 	{
-		Collection<Combo> c = this.comboDB.findAll(enterprise, price);
+		Collection<Combo> c = this.comboService.findAll(enterprise, price);
 		if (!c.isEmpty())
 		{
 			return ResponseEntity.ok(c);
@@ -451,24 +451,24 @@ public class ApiController
 	@PostMapping({"/{id}/combo", "/{id}/combo/"})
 	public ResponseEntity<Object> buyCombo(@RequestParam Long combo, @PathVariable Long id)
 	{
-		Optional<Combo> c = this.comboDB.findById(combo);
-		if (c.isEmpty() || this.userDB.findByID(id).isEmpty())
+		Optional<Combo> c = this.comboService.findById(combo);
+		if (c.isEmpty() || this.userService.findByID(id).isEmpty())
 		{
 			return ResponseEntity.notFound().build();
 		}
-		if (!this.comboDB.getAvilableCombos().contains(c.get()))
+		if (!this.comboService.getAvilableCombos().contains(c.get()))
 		{
 			return ResponseEntity.badRequest().body("This combo is no more for sell");
 		}
-		int comboPrice = this.comboDB.getComboPrice(combo);
-		if (this.userDB.hasEnoughCredits(comboPrice, id))
+		int comboPrice = this.comboService.getComboPrice(combo);
+		if (this.userService.hasEnoughCredits(comboPrice, id))
 		{
-			this.userDB.substractCreditsToUser(comboPrice, id);
+			this.userService.substractCreditsToUser(comboPrice, id);
 			Combo comboBought = c.get();
-			this.userDB.addComboToUser(comboBought, id);
-			comboBought.setUser(this.userDB.findByID(id).get());
-			this.comboDB.save(comboBought);
-			this.comboDB.updateSoldCombo();
+			this.userService.addComboToUser(comboBought, id);
+			comboBought.setUser(this.userService.findByID(id).get());
+			this.comboService.save(comboBought);
+			this.comboService.updateSoldCombo();
 			return ResponseEntity.ok(comboBought);
 		}
 		else
@@ -483,7 +483,7 @@ public class ApiController
 	@GetMapping({"/{id}/image", "/{id}/image/"})
 	public ResponseEntity<Object> downloadImage(@PathVariable long id) throws SQLException
 	{
-		Optional<UserD> user = this.userDB.findByID(id);
+		Optional<UserD> user = this.userService.findByID(id);
 		if (user.isEmpty())
 		{
 			return ResponseEntity.notFound().build();
@@ -507,7 +507,7 @@ public class ApiController
 	public ResponseEntity<Object> uploadImage(@PathVariable long id, @RequestParam MultipartFile imageFile)
 	{
 
-		Optional<UserD> u = this.userDB.findByID(id);
+		Optional<UserD> u = this.userService.findByID(id);
 		if (u.isEmpty())
 		{
 			return ResponseEntity.notFound().build();
@@ -524,7 +524,7 @@ public class ApiController
 			return ResponseEntity.badRequest().body("Not an image");
 		}
 		user.setImageFile(image);
-		this.userDB.save(user);
+		this.userService.save(user);
 		return ResponseEntity.created(location).build();
 	}
 
@@ -533,14 +533,14 @@ public class ApiController
 	public ResponseEntity<Object> deleteImage(@PathVariable long id) throws IOException
 	{
 
-		Optional<UserD> user = this.userDB.findByID(id);
+		Optional<UserD> user = this.userService.findByID(id);
 		if (user.isEmpty())
 		{
 			return ResponseEntity.notFound().build();
 		}
 		UserD u = user.get();
 		u.setImageFile(null);
-		this.userDB.save(u);
+		this.userService.save(u);
 		return ResponseEntity.noContent().build();
 	}
 }
