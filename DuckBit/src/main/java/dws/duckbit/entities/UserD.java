@@ -20,7 +20,7 @@ public class UserD
     private String mail;
     private byte[] password;
     @JsonIgnore
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Combo> combos = new ArrayList<>();
     @Lob
     @JsonIgnore

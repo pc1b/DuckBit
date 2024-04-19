@@ -3,10 +3,15 @@ package dws.duckbit.services;
 import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.ComboRepository;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -14,11 +19,14 @@ import java.util.*;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
 
-import org.springframework.jdbc.core.JdbcTemplate; 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ComboService
 {
+	private final Path COMBO_FOLDER = Paths.get("files/combo");
+
 	private final ComboRepository comboRepository;
 	public final LeakService leakService;
 	public final UserService userService;
@@ -177,29 +185,36 @@ public class ComboService
 
 // ---------- DELETE AND REMOVE ---------- //
 
-	public void delete(long id)
-	{
+	//@Transactional
+	public void delete(long id) throws IOException {
 		Combo c = this.comboRepository.findById(id).orElseThrow();
-		List<Leak> leaks = this.leakService.findByCombo(c);
-		for (Leak l : leaks){
+		//List<Leak> leaks = this.leakService.findByCombo(c);
+		/*for (Leak l : leaks){
 			l.getCombos().remove(c);
 			this.leakService.save(l);
-		}
-		if (c.getUser() != null){
+		}*/
+		/*if (c.getUser() != null){
 			c.getUser().getCombos().remove(c);
 			this.userService.save(c.getUser());
 			c.setUser(null);
-		}
-		this.comboRepository.save(c);
+		}*/
+		//this.comboRepository.save(c);
 		this.comboRepository.deleteById(id);
+		Files.createDirectories(this.COMBO_FOLDER);
+		String nameFile = c.getId() + ".txt";
+		Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
+		File combo = comboPath.toFile();
+		if (combo.exists())
+		{
+			combo.delete();
+		}
 	}
 
-	public boolean deleteUser(long id)
-	{
+	public boolean deleteUser(long id) throws IOException {
 		Optional<UserD> u = this.userService.findByID(id);
 		if (u.isPresent()){
-			for (Combo c : u.get().getCombos())
-				this.delete(c.getId());
+			/*for (Combo c : u.get().getCombos())
+				this.delete(c.getId());*/
 			this.userService.delete(id);
 		}
 		return u.isPresent();

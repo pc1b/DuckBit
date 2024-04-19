@@ -4,6 +4,7 @@ import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.UserRepository;
 import dws.duckbit.entities.Combo;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -16,12 +17,14 @@ import java.util.Optional;
 public class UserService
 {
     private final UserRepository userRepository;
+    //private final ComboService comboService;
 
 // ---------- CONSTRUCTOR ---------- //
 
     public UserService(UserRepository userRepository)
     {
 	    this.userRepository = userRepository;
+	    //this.comboService = comboService;
     }
 
 // ---------- GET ---------- //
@@ -131,4 +134,17 @@ public class UserService
         this.userRepository.deleteById(id);
     }
 
+    //NOT FINISHED
+    public boolean buyCombo(Combo c, Long userid){
+        if (this.hasEnoughCredits(c.getPrice(), userid))
+        {
+            this.substractCreditsToUser(c.getPrice(), userid);
+            this.addComboToUser(c, userid);
+            c.setUser(this.findByID(userid).get());
+            //this.comboService.save(c);
+            //this.comboService.updateSoldCombo();
+            return true;
+        }
+        return false;
+    }
 }

@@ -3,8 +3,14 @@ package dws.duckbit.services;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.repositories.LeaksRepository;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,6 +21,8 @@ import dws.duckbit.entities.Leak;
 @Service
 public class LeakService
 {
+	private final Path LEAKS_FOLDER = Paths.get("files/leaks");
+
 	private final LeaksRepository leaksRepository;
 	private int id = 1;
 	public LeakService(LeaksRepository leaksRepository){
@@ -85,8 +93,16 @@ public class LeakService
 
 // ---------- DELETE AND REMOVE ---------- //
 
-	public void delete(Leak l)
+	public void delete(Leak l) throws IOException
 	{
 		this.leaksRepository.delete(l);
+		Files.createDirectories(this.LEAKS_FOLDER);
+		String nameFile = l.getId() + ".txt";
+		Path leakPath = this.LEAKS_FOLDER.resolve(nameFile);
+		File leak = leakPath.toFile();
+		if (leak.exists())
+		{
+			leak.delete();
+		}
 	}
 }

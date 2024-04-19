@@ -19,7 +19,7 @@ public class Leak {
 	private Calendar date;
 
 	@JsonIgnore
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.PERSIST)
 	private List<Combo> combos = new ArrayList<>();
 	private String filename;
 

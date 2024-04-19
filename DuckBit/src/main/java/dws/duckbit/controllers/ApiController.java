@@ -200,25 +200,6 @@ public class ApiController
 		if (l.isPresent())
 		{
 			this.leaksDB.delete(l.get());
-			Files.createDirectories(this.LEAKS_FOLDER);
-			String nameFile = l.get().getId() + ".txt";
-			Path leakPath = this.LEAKS_FOLDER.resolve(nameFile);
-			File leak = leakPath.toFile();
-			if (leak.exists())
-			{
-				try
-				{
-					if (!leak.delete())
-					{
-						return ResponseEntity.internalServerError().build();
-					}
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					return ResponseEntity.internalServerError().build();
-				}
-			}
 			return ResponseEntity.ok().build();
 		}
 		else
@@ -300,25 +281,6 @@ public class ApiController
 		if (c.isPresent())
 		{
 			this.comboService.delete(c.get().getId());
-			Files.createDirectories(this.COMBO_FOLDER);
-			String nameFile = c.get().getId() + ".txt";
-			Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
-			File combo = comboPath.toFile();
-			if (combo.exists())
-			{
-				try
-				{
-					if (!combo.delete())
-					{
-						return ResponseEntity.internalServerError().build();
-					}
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					return ResponseEntity.internalServerError().build();
-				}
-			}
 			return ResponseEntity.ok().build();
 		}
 		else
@@ -412,7 +374,7 @@ public class ApiController
 
 	//DELETE USERS
 	@DeleteMapping({"/user/{id}", "/user/{id}/"})
-	public ResponseEntity<Object> deleteUser(@PathVariable Long id){
+	public ResponseEntity<Object> deleteUser(@PathVariable Long id) throws IOException {
 		if (this.comboService.deleteUser(id)){
 			return ResponseEntity.ok().build();
 		}
