@@ -11,6 +11,7 @@
     <style>
         html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.2/purify.min.js"></script>
 </head>
 <body class="w3-light-grey">
 
@@ -56,10 +57,10 @@
             <div class="w3-col s4">
                 <form id="imageForm" action="/upload_image" method="post" enctype="multipart/form-data">
                     <label for="fileInput">
-                        <img src="/download_image?username={{{username}}}" onerror="this.src='../images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
+                        <img src="/download_image?username={{username}}" onerror="this.src='../images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
                     </label>
                     <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
-                    <input type='hidden' name='username' value="{{{username}}}"/>
+                    <input type='hidden' name='username' value="{{username}}"/>
                 </form>
 
             </div>
@@ -98,14 +99,14 @@
                         <div style="display: flex;align-items: center;justify-content: center;margin-top: 20px;flex-direction: column;border-radius: 10px;background-color: #050E1E;color: white" class="w3-container">
                             <div class="w3-left"><h4>{{name}}: {{price}} $</h4></div>
                             <hr style="width:50%;text-align:left;margin-left:0;margin-top: -6px;margin-bottom: -8px">
-                            <div class="w3-right"><h4>{{{description}}}</h4></div>
+                            <div class="w3-right"><h4 id="{{id}}" style="cursor: pointer" onclick='purifier("{{description}}","{{id}}")'>Click to see description</h4></div>
                             <hr style="width:50%;text-align:left;margin-left:0;margin-top: -6px;margin-bottom: -3px">
                             <div class="w3-right"><h4>This combo contains the following leaks:</h4></div>
                             {{#leaks}}
                             <div class="w3-right" style="margin-top: -10px"><h4>{{enterprise}} {{date}}</h4></div>
                             {{/leaks}}
                             <form action="/buy_combo" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="combo" value="{{{id}}}">
+                                <input type="hidden" name="combo" value="{{id}}">
                                 <div class="w3-center"><input style="width: 200px;border-radius: 10px;margin-left: 15px" class="w3-button w3-teal" type='submit' value="Buy"/></div>
                             </form>
                             <br>
@@ -236,6 +237,12 @@
         function w3_close() {
             mySidebar.style.display = "none";
             overlayBg.style.display = "none";
+        }
+
+        // Purify
+            function purifier(dirty, id) {
+                const clean = DOMPurify.sanitize(dirty, {USE_PROFILES: {html: true}});
+                document.getElementById(id).innerHTML = clean;
         }
     </script>
 

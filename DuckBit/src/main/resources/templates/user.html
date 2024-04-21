@@ -20,10 +20,10 @@
         <div class="w3-col s4">
             <form id="imageForm" action="/upload_image" method="post" enctype="multipart/form-data">
                 <label for="fileInput">
-                    <img src="/download_image?username={{{username}}}" onerror="this.src='../images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
+                    <img src="/download_image?username={{username}}" onerror="this.src='../images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
                 </label>
                 <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
-                <input type='hidden' name='username' value="{{{username}}}"/>
+                <input type='hidden' name='username' value="{{username}}"/>
             </form>
 
         </div>
