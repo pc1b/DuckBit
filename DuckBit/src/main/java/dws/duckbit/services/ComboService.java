@@ -3,12 +3,16 @@ package dws.duckbit.services;
 import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.ComboRepository;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +25,8 @@ import dws.duckbit.entities.Leak;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.http.ResponseEntity.status;
 
 @Service
 public class ComboService
@@ -148,6 +154,51 @@ public class ComboService
 	public void updateSoldCombo()
 	{
 		this.soldCombos++;
+	}
+
+	public int checkCreateCombo(String name, String description, int price){
+		if (name.length() > 255)
+			return 1;
+		if (description.length() > 255)
+			return 2;
+		if (price <= 0)
+			return 3;
+		return 0;
+	}
+
+	public int checkEditCombo(String name, String description, int price, Long id, ComboService comboService, LeakService leakService, ArrayList<Integer> ids) throws IOException {
+		int check = this.checkCreateCombo(name, description, price);
+		if (check != 0)
+			return check;
+		Optional<Combo> c = comboService.findById(id);
+		ArrayList<Leak> leaksEdit = new ArrayList<>();
+		if (c.isPresent())
+		{
+			if (leakService.getNextId() > 0)
+			{
+				for (int i : ids)
+				{
+					Optional<Leak> leak = leakService.findByID(i);
+					if (leak.isPresent())
+					{
+						leaksEdit.add(leak.get());
+					}
+					else
+						return 4;
+				}
+				String nameFile = id + ".txt";
+				Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
+				Resource comboF = new UrlResource(comboPath.toUri());
+				if (comboF.exists())
+				{
+					Files.delete(comboPath);
+				}
+				comboService.editCombo(c.get(), name, price, leaksEdit, description);
+				comboService.save(c.get());
+			}
+			return 5;
+		}
+		return 1;
 	}
 
 	public Combo createCombo(String name, ArrayList<Long> leaksID, int price, String description) throws IOException

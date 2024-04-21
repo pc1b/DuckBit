@@ -3,6 +3,7 @@ package dws.duckbit.services;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.repositories.LeaksRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import dws.duckbit.entities.Leak;
+import org.springframework.web.multipart.MultipartFile;
+
+import static org.springframework.http.ResponseEntity.status;
 
 
 @Service
@@ -85,6 +89,20 @@ public class LeakService
 	}
 
 // ---------- ADD AND CREATE ---------- //
+
+	public int upload(MultipartFile leak, String enterprise, LeakService leaksDB, String date) throws IOException
+	{
+		String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
+		String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
+		String filename = leak.getOriginalFilename();
+		if (enterprise.length() > 255 || enterprise.isEmpty())
+			return 1;
+		if(filename == null || !(filename.matches(REGEX_PATTERN)) || leaksDB.existsLeakByFilename(filename))
+			return 2;
+		if (!(date.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(date.toString().split("-")[0]) > 9990)
+			return 3;
+		return 0;
+	}
 
 	public void save(Leak l)
 	{

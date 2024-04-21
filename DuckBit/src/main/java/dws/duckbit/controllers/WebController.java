@@ -343,31 +343,32 @@ public class WebController
     @PostMapping({"/upload_leak", "/upload_leak/"})
     public ModelAndView UploadLeak(@RequestParam String leakName, @RequestParam String leakDate, @RequestParam MultipartFile leak) throws IOException
     {
-        String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
-        String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
         String filename = leak.getOriginalFilename();
-        if (leakName.length() > 255)
+        int upload = leakService.upload(leak, leakName, this.leakService, leakDate);
+        if (upload == 1)
         {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("/error");
-            modelAndView.addObject("leakName2Big", true);
-            return modelAndView;
+            if (leakName.isEmpty())
+            {
+                ModelAndView modelAndView = new ModelAndView();
+                modelAndView.setViewName("/error");
+                modelAndView.addObject("leakEmptyName", true);
+                return modelAndView;
+            }
+            else {
+                ModelAndView modelAndView = new ModelAndView();
+                modelAndView.setViewName("/error");
+                modelAndView.addObject("leakName2Big", true);
+                return modelAndView;
+            }
         }
-        else if (leakName.isEmpty())
-        {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("/error");
-            modelAndView.addObject("leakEmptyName", true);
-            return modelAndView;
-        }
-        if (filename == null || !(filename.matches(REGEX_PATTERN)) || this.leakService.existsLeakByFilename(filename))
+        if (upload == 2)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("incorrectFileName", true);
             return modelAndView;
         }
-        if (!(leakDate.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(leakDate.toString().split("-")[0]) > 9990)
+        if (upload == 3)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
@@ -388,23 +389,24 @@ public class WebController
 
     // Create a new combo
     @PostMapping({"/create_combo", "/create_combo/"} )
-    public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String description, @RequestParam String ... ids) throws IOException
+    public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam int price, @RequestParam String description, @RequestParam String ... ids) throws IOException
     {
-        if (comboName.length() > 255)
+        int check = comboService.checkCreateCombo(comboName, description, price);
+        if (check == 1)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboName2Big", true);
             return modelAndView;
         }
-        if (description.length() > 255)
+        if (check == 2)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboDesc2Big", true);
             return modelAndView;
         }
-        if (price.length() > 10 || Integer.parseInt(price) <= 0)
+        if (check == 3)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
@@ -416,7 +418,7 @@ public class WebController
         {
             idS.add(Long.parseLong(i));
         }
-        Combo c = comboService.createCombo(comboName, idS, Integer.parseInt(price), description);
+        Combo c = comboService.createCombo(comboName, idS, price, description);
         comboService.save(c);
         return new ModelAndView("redirect:/admin");
     }
@@ -499,65 +501,41 @@ public class WebController
 
     // Edit a combo
     @PostMapping({"/edit_combo", "/edit_combo/"})
-    public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String id, @RequestParam String description, @RequestParam String ... ids) throws IOException
+    public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam int price, @RequestParam String id, @RequestParam String description, @RequestParam String ... ids) throws IOException
     {
-        if (comboName.length() > 255)
+        ArrayList<Integer> idS = new ArrayList<Integer>();
+        for (String i: ids)
+        {
+            idS.add(Integer.parseInt(i));
+        }
+        int check = comboService.checkEditCombo(comboName, description, price, Long.parseLong(id), this.comboService, this.leakService, idS);
+        if (check == 1)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboName2Big", true);
             return modelAndView;
         }
-        if (description.length() > 255)
+        if (check == 2)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboDesc2Big", true);
             return modelAndView;
         }
-        if (price.length() > 10 || Integer.parseInt(price) <= 0)
+        if (check == 3)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboWrongPrice", true);
             return modelAndView;
         }
-        ArrayList<Integer> idS = new ArrayList<Integer>();
-        for (String i: ids)
+        if (check == 4)
         {
-            idS.add(Integer.parseInt(i));
-        }
-        Optional<Combo> c = comboService.findById(Long.parseLong(id));
-        ArrayList<Leak> leaksEdit = new ArrayList<>();
-        if (c.isPresent())
-        {
-            if (this.leakService.getNextId() > 0)
-            {
-                for (int i : idS)
-                {
-                    Optional<Leak> leak = this.leakService.findByID(i);
-                    if (leak.isPresent())
-                    {
-                        leaksEdit.add(leak.get());
-                    }
-                    else
-                    {
-                        ModelAndView modelAndView = new ModelAndView();
-                        modelAndView.setViewName("/error");
-                        modelAndView.addObject("Leak " + i + " not found in the server", true);
-                        return modelAndView;
-                    }
-                }
-                String nameFile = id + ".txt";
-                Path comboPath = COMBOS_FOLDER.resolve(nameFile);
-                Resource comboF = new UrlResource(comboPath.toUri());
-                if (comboF.exists())
-                {
-                    Files.delete(comboPath);
-                }
-                this.comboService.editCombo(c.get(), comboName, Integer.parseInt(price), leaksEdit, description);
-                this.comboService.save(c.get());
-            }
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("One of the leaks has not been found in the server", true);
+            return modelAndView;
         }
         return new ModelAndView("redirect:/admin");
     }

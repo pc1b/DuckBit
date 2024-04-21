@@ -154,14 +154,13 @@ public class ApiController
 	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date,
 											 @RequestParam MultipartFile leakInfo) throws IOException
 	{
-        String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
-        String filename = leakInfo.getOriginalFilename();
-		String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
-		if (enterprise.length() > 255 || enterprise.isEmpty())
+		int upload = leaksDB.upload(leakInfo, enterprise, this.leaksDB, date);
+		String filename = leakInfo.getOriginalFilename();
+		if (upload == 1)
 			return status(HttpStatus.BAD_REQUEST).body("Wrong enterprise name");
-		if(filename == null || !(filename.matches(REGEX_PATTERN)) || this.leaksDB.existsLeakByFilename(filename))
+		if(upload == 2)
 			return status(HttpStatus.BAD_REQUEST).body("Wrong filename");
-		if (!(date.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(date.toString().split("-")[0]) > 9990)
+		if (upload == 3)
 			return status(HttpStatus.BAD_REQUEST).body("Wrong date");
 		Leak l = this.leaksDB.createLeak(enterprise, date, filename);
 		if (l != null)
@@ -252,11 +251,12 @@ public class ApiController
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Long> leaks,
 											  @RequestParam int price, @RequestParam String description) throws IOException
 	{
-		if (name.length() > 255)
+		int check = comboService.checkCreateCombo(name, description, price);
+		if (check == 1)
 			return status(HttpStatus.BAD_REQUEST).body("The name of the combo is too large, it must be 255 characters or less :(");
-		if (description.length() > 255)
+		if (check == 2)
 			return status(HttpStatus.BAD_REQUEST).body("The description of the combo is too large, it must be 255 characters or less :(");
-		if (price <= 0)
+		if (check == 3)
 			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
 		Combo c = this.comboService.createCombo(name, leaks, price, description);
 		if (c == null)
@@ -291,43 +291,20 @@ public class ApiController
 
 	//EDIT COMBO
 	@PutMapping({"/combo/{id}", "/combo/{id}/"})
-	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam String price,
+	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam int price,
 												@PathVariable Long id, @RequestParam ArrayList<Integer> leaks, @RequestParam String description) throws IOException
 	{
-		if (name.length() > 255)
+		int check = comboService.checkEditCombo(name, description, price, id, this.comboService, this.leaksDB, leaks);
+		if (check == 1)
 			return status(HttpStatus.BAD_REQUEST).body("The name of the combo is too large, it must be 255 characters or less :(");
-		if (description.length() > 255)
+		if (check == 2)
 			return status(HttpStatus.BAD_REQUEST).body("The description of the combo is too large, it must be 255 characters or less :(");
-		if (price.length() > 10 || Integer.parseInt(price) <= 0)
+		if (check == 3)
 			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
-		Optional<Combo> c = comboService.findById(id);
-		ArrayList<Leak> leaksEdit = new ArrayList<>();
-		if (c.isPresent())
-		{
-			if (this.leaksDB.getNextId() > 0)
-			{
-				for (int i : leaks)
-				{
-					Optional<Leak> leak = this.leaksDB.findByID(i);
-					if (leak.isPresent())
-					{
-						leaksEdit.add(leak.get());
-					}
-					else
-					{
-						return status(HttpStatus.BAD_REQUEST).body("Leak " + i + " not found in the server");
-					}
-				}
-				String nameFile = id + ".txt";
-				Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
-				Resource comboF = new UrlResource(comboPath.toUri());
-				if (comboF.exists())
-				{
-					Files.delete(comboPath);
-				}
-				this.comboService.editCombo(c.get(), name, Integer.parseInt(price), leaksEdit, description);
-				this.comboService.save(c.get());
-			}
+		if (check == 4)
+			return status(HttpStatus.BAD_REQUEST).body("One of the leaks has not been found in the server");
+		if (check == 5) {
+			Optional<Combo> c = comboService.findById(id);
 			return status(HttpStatus.CREATED).body(c);
 		}
 		return status(HttpStatus.NOT_FOUND).build();
