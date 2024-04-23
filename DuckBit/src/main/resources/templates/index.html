@@ -15,6 +15,12 @@
     <a href="/login" class="w3-bar-item w3-button">Login</a>
     <a href="/register" class="w3-bar-item w3-button">Register</a>
     <a href="/shop" class="w3-bar-item w3-button">Shop</a>
+    {{#admin}}
+    <a href="/admin" class="w3-bar-item w3-button">Admin Page</a>
+    {{/admin}}
+    {{#user}}
+    <a href="/user" class="w3-bar-item w3-button">User Page</a>
+    {{/user}}
     <button class="w3-bar-item w3-button" onclick="w3_close()">Close <img src="../images/close.svg" width="30px"></button>
 </nav>
 

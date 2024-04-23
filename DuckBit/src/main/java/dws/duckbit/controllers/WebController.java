@@ -1,38 +1,40 @@
 package dws.duckbit.controllers;
 
+import dws.duckbit.entities.Combo;
+import dws.duckbit.entities.Leak;
 import dws.duckbit.entities.UserD;
+import dws.duckbit.services.ComboService;
+import dws.duckbit.services.LeakService;
+import dws.duckbit.services.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.core.io.UrlResource;
-
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.*;
-
-import dws.duckbit.services.ComboService;
-import dws.duckbit.services.LeakService;
-import dws.duckbit.services.UserService;
-import dws.duckbit.entities.Combo;
-import dws.duckbit.entities.Leak;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 
 @Controller
@@ -54,8 +56,11 @@ public class WebController
 // ---------- INDEX ---------- //
 
     @GetMapping("/")
-    public String index()
+    public String index(Model model, HttpServletRequest request)
     {
+        System.out.println("traceee");
+        model.addAttribute("admin", request.isUserInRole("ADMIN"));
+        model.addAttribute("user", request.isUserInRole("USER"));
         return "index";
     }
 
@@ -63,40 +68,28 @@ public class WebController
 
     // Admin default page
     @GetMapping({"/admin", "/admin/"})
-    public ModelAndView Admin(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView Admin(Model model)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userService.IDExists(idNum)))     //Cookie check
+
+        String name = this.userService.findByID(1L).get().getUserd();
+        String email = this.userService.findByID(1L).get().getMail();
+        model.addAttribute("username", name);
+        List<Leak> leaks;
+        if (this.leakService.getNextId() > 0)
         {
-            idNum = -1L;
+            leaks = this.leakService.findAll();
+            model.addAttribute("leak", leaks);
         }
-        if (idNum == 1)                         //Admin check
+        Collection<Combo> c = this.comboService.getAvilableCombos();
+        if (!c.isEmpty())
         {
-            String name = this.userService.findByID(idNum).get().getUserd();
-            String email = this.userService.findByID(idNum).get().getMail();
-            model.addAttribute("username", name);
-            List<Leak> leaks = new ArrayList<>();
-            if (this.leakService.getNextId() > 0)
-            {
-                leaks = this.leakService.findAll();
-                model.addAttribute("leak", leaks);
-            }
-            Collection<Combo> c = this.comboService.getAvilableCombos();
-            if (!c.isEmpty())
-            {
-                model.addAttribute("combos", c);
-            }
-            model.addAttribute("registredUsers", userService.getSize());
-            model.addAttribute("combosCreated", comboService.getComboSize() - soldCombos);
-            model.addAttribute("soldCombos", soldCombos);
-            model.addAttribute("email", email);
-            return new ModelAndView("admin");
+            model.addAttribute("combos", c);
         }
-        else if (idNum > 1)
-        {
-            return new ModelAndView("redirect:/user");
-        }
-        return new ModelAndView("redirect:/login");
+        model.addAttribute("registredUsers", userService.getSize());
+        model.addAttribute("combosCreated", comboService.getComboSize() - soldCombos);
+        model.addAttribute("soldCombos", soldCombos);
+        model.addAttribute("email", email);
+        return new ModelAndView("admin");
     }
 
     // View all users only for admin
@@ -127,9 +120,9 @@ public class WebController
 
     // Client default page
     @GetMapping({"/user", "/user/"})
-    public ModelAndView User(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView User(Model model, HttpServletRequest request)
     {
-        Long idNum = Long.parseLong(id);
+        Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
         if (!(this.userService.IDExists(idNum)))         // Cookie check (and if user exists)
         {
             idNum = -1L;
@@ -157,21 +150,8 @@ public class WebController
 
     // Login page
     @GetMapping({"/login", "/login/"})
-    public ModelAndView Login(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView Login()
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userService.IDExists(idNum)))
-        {
-            idNum = -1L;
-        }
-        if (idNum == 1)
-        {
-            return new ModelAndView("redirect:/admin");
-        }
-        else if (idNum > 1)
-        {
-            return new ModelAndView("redirect:/user");
-        }
         return new ModelAndView("login");
     }
 
@@ -196,7 +176,7 @@ public class WebController
     }
 
     // Form sended to login
-    @PostMapping({"/login", "/login/"})
+    /*@PostMapping({"/login", "/login/"})
     public ModelAndView Login(@RequestParam String userD, @RequestParam String pass, RedirectAttributes attributes, HttpServletResponse response)
     {
         Long userID = this.userService.getIDUser(userD, pass);
@@ -218,7 +198,7 @@ public class WebController
             modelAndView.addObject("incorrectLogin", true);
             return modelAndView;
         }
-    }
+    }*/
 
     // Form sended to register
     @PostMapping({"/register", "/register/"})
@@ -249,7 +229,7 @@ public class WebController
             modelAndView.addObject("userExists", true);
             return modelAndView;
         }
-        this.userService.addUser(userD, mail, pass);
+        this.userService.addUser(userD, mail, pass, "USER");
         return new ModelAndView("redirect:/login");
     }
 

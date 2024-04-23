@@ -3,11 +3,8 @@ package dws.duckbit.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.nio.charset.StandardCharsets;
-import java.security.*;
 import java.sql.Blob;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -18,7 +15,7 @@ public class UserD
     private Long id = null;
     private String userd;
     private String mail;
-    private byte[] password;
+    private String encodedPassword;
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
     private List<Combo> combos = new ArrayList<>();
@@ -26,17 +23,19 @@ public class UserD
     @JsonIgnore
     private Blob imageFile;
     private int credits = 0;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles;
 
 // ---------- CONSTRUCTOR ---------- //
 
-    public UserD(String userd, String mail, String password)
+    public UserD(String userd, String mail, String encodedPassword, String... roles)
     {
         try
         {
             this.userd = userd;
             this.mail = mail;
-            byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
-            this.password = MessageDigest.getInstance("MD5").digest(userPassword);
+            this.encodedPassword = encodedPassword;
+            this.roles = List.of(roles);
         }
         catch (Exception e)
         {
@@ -86,7 +85,22 @@ public class UserD
         return this.combos;
     }
 
-// ---------- ADD AND CREATE ---------- //
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    public String  getEncodedPassword() {
+        return encodedPassword;
+    }
+
+    public void setEncodedPassword(String encodedPassword) {
+        this.encodedPassword = encodedPassword;
+    }
+    // ---------- ADD AND CREATE ---------- //
 
     public void addCombosToUser(Combo combo)
     {
@@ -114,7 +128,7 @@ public class UserD
 
 // ---------- OTHERS ---------- //
 
-    public boolean isUser(String user, String password)
+    /*public boolean isUser(String user, String password)
     {
         return(user.equals(this.userd) && this.comparePassword(password));
     }
@@ -126,14 +140,14 @@ public class UserD
         {
             inputPassword = password.getBytes("UTF-8");
             byte[] MD5HashedPassword = MessageDigest.getInstance("MD5").digest(inputPassword);
-            return (Arrays.equals(MD5HashedPassword, this.password));
+            return (Arrays.equals(MD5HashedPassword, this.encodedPassword));
         }
         catch (Exception e)
         {
             e.printStackTrace();
             return (false);
         }
-    }
+    }*/
 
     @Override
     public String toString()

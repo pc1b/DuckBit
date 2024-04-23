@@ -1,14 +1,11 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.UserRepository;
-import dws.duckbit.entities.Combo;
-
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,14 +14,16 @@ import java.util.Optional;
 public class UserService
 {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     //private final ComboService comboService;
 
 // ---------- CONSTRUCTOR ---------- //
 
-    public UserService(UserRepository userRepository)
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder)
     {
 	    this.userRepository = userRepository;
 	    //this.comboService = comboService;
+	    this.passwordEncoder = passwordEncoder;
     }
 
 // ---------- GET ---------- //
@@ -41,11 +40,10 @@ public class UserService
 
     public Long getIDUser(String user, String password)
     {
-        byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
         Optional<UserD> u;
         try
         {
-            u = this.userRepository.findByUserdAndPassword(user,MessageDigest.getInstance("MD5").digest(userPassword));
+            u = this.userRepository.findByUserdAndEncodedPassword(user, password);
         }
         catch (Exception e)
         {
@@ -79,9 +77,11 @@ public class UserService
         this.userRepository.save(userD);
     }
 
-    public void addUser(String user, String mail, String password)
+    public void addUser(String user, String mail, String password, String... roles)
     {
-        UserD newUserD = new UserD(user, mail, password);
+        UserD newUserD = new UserD(user, mail, passwordEncoder.encode(password), roles);
+        //UserD newUserD = new UserD(user, mail, password, roles);
+
         this.userRepository.save(newUserD);
     }
 
