@@ -99,6 +99,32 @@ public class WebController
         return new ModelAndView("redirect:/login");
     }
 
+    // View all users only for admin
+    @GetMapping({"/users", "/users/"})
+    public ModelAndView Users(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    {
+        Long idNum = Long.parseLong(id);
+        if (!(this.userService.IDExists(idNum)))     //Cookie check
+        {
+            idNum = -1L;
+        }
+        if (idNum == 1)                         //Admin check
+        {
+            List<UserD> users = userService.findAll();
+            model.addAttribute("users", users);
+            String name = this.userService.findByID(idNum).get().getUserd();
+            String email = this.userService.findByID(idNum).get().getMail();
+            model.addAttribute("username", name);
+            model.addAttribute("email", email);
+            return new ModelAndView("users");
+        }
+        else if (idNum > 1)
+        {
+            return new ModelAndView("redirect:/user");
+        }
+        return new ModelAndView("redirect:/login");
+    }
+
     // Client default page
     @GetMapping({"/user", "/user/"})
     public ModelAndView User(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)

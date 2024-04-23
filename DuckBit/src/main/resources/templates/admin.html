@@ -37,6 +37,7 @@
 
     </div>
     <div style="margin-top: 10px" class="w3-right">
+        <a href="/users""><img style="width: 45px; margin-bottom: 3px; margin-right: 5px" src="../images/users.svg"></a>
         <a href="/shop"><img style="width: 45px; margin-bottom: 3px; margin-right: 5px" src="../images/shop.svg"></a>
         <a href="/logout"><img style="width: 50px; margin-right: 5px" src="../images/logout.svg"></a>
     </div>
@@ -150,6 +151,18 @@
                 </form>
             </div>
             <div class="w3-third" style="height:auto;overflow: auto">
+                <h5>All Leaks</h5>
+                <table class="w3-table w3-striped w3-white">
+                    {{#leak}}
+                    <tr>
+                        <td>{{enterprise}}</td>
+                        <td><button class="w3-button w3-black" onclick='deleteLeak("{{id}}")'>Delete</button></td>
+                    </tr>
+                    {{/leak}}
+                    {{^leak}}
+                    <h3>There are no leaks</h3>
+                    {{/leak}}
+                </table>
                 <h5>All Combos</h5>
                 <table class="w3-table w3-striped w3-white">
                     {{#combos}}
@@ -403,6 +416,13 @@
             })
     }
 
+        function deleteLeak(id)
+        {
+            fetch("/delete_leak/"+id, {method: "delete"})
+                .then(response => {
+                    location.reload();
+                })
+        }
 
     function sendDeleteRequest()
     {
