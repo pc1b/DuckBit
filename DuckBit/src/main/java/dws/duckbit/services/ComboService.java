@@ -26,6 +26,9 @@ import dws.duckbit.entities.Leak;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
+
 import static org.springframework.http.ResponseEntity.status;
 
 @Service
@@ -203,7 +206,11 @@ public class ComboService
 
 	public Combo createCombo(String name, ArrayList<Long> leaksID, int price, String description) throws IOException
 	{
-		Combo c = new Combo(name, price, description);
+		// Sanitize the string "description"
+		PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+		String descriptionSanitized = policy.sanitize(description);
+
+		Combo c = new Combo(name, price, descriptionSanitized);
 		this.comboRepository.save(c);
 		for (Long lid : leaksID)
 		{
@@ -221,7 +228,11 @@ public class ComboService
 		return c;
 	}
 
-	public void editCombo(Combo c, String name, int price, ArrayList<Leak> leaksEdit, String description){
+	public void editCombo(Combo c, String name, int price, ArrayList<Leak> leaksEdit, String description)
+	{
+		// Sanitize the string "description"
+		PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+		String descriptionSanitized = policy.sanitize(description);
 		List<Leak> leaks = this.leakService.findByCombo(c);
 		for (Leak l : leaks){
 			l.getCombos().remove(c);
@@ -231,7 +242,7 @@ public class ComboService
 			l.getCombos().add(c);
 			this.leakService.save(l);
 		}
-		c.editCombo(name, price, leaksEdit, description);
+		c.editCombo(name, price, leaksEdit, descriptionSanitized);
 	}
 
 // ---------- DELETE AND REMOVE ---------- //
