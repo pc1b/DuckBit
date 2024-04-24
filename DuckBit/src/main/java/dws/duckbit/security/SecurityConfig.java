@@ -42,9 +42,9 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		String[] userEndpoints = {"/user", "/user/", "/shop", "/shop/", "/query", "/query/", "/upload_image",
 				"/upload_image/", "/download_image", "/download_image/", "/delete_image", "/delete_image/",
-				"/buy_combo", "/buy_combo/", "/download_combo", "/download_combo/", "/add_credits", "/add_credits/", "/success"};
+				"/buy_combo", "/buy_combo/", "/download_combo", "/download_combo/", "/add_credits", "/add_credits/"};
 		String[] adminEndpoints = {"/admin", "/admin/", "/users", "/users/", "/upload_leak", "/upload_leak/", "/delete_leak/*","/delete_leak/*/",
-				"/create combo", "/create_combo/", "/delete_combo/*", "/delete_combo/*/", "/edit_combo", "/edit_combo/", "/success,","/delete_user/*","/delete_user/*/"
+				"/create combo", "/create_combo/", "/delete_combo/*", "/delete_combo/*/", "/edit_combo", "/edit_combo/","/delete_user/*","/delete_user/*/"
 				};
 		http.authenticationProvider(authenticationProvider());
 
@@ -53,13 +53,14 @@ public class SecurityConfig {
 						// PUBLIC PAGES
 						.requestMatchers("/", "/images/**", "/css/**", "/gifs/**", "/register", "/error","/api/**").permitAll()
 						// PRIVATE PAGES
+						.requestMatchers("/successLogin").authenticated()
 						.requestMatchers(userEndpoints).hasAnyRole("USER")
 						.requestMatchers(adminEndpoints).hasAnyRole("ADMIN")
 				)
 				.formLogin(formLogin -> formLogin
 						.loginPage("/login")
-						.failureUrl("/error")
-						.defaultSuccessUrl("/success")
+						.failureUrl("/login_error")
+						.defaultSuccessUrl("/successLogin")
 						.permitAll()
 				)
 				.logout(logout -> logout

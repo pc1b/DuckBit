@@ -250,11 +250,10 @@ public class ComboService
 	//@Transactional
 	public void delete(long id) throws IOException {
 		Combo c = this.comboRepository.findById(id).orElseThrow();
-		//List<Leak> leaks = this.leakService.findByCombo(c);
-		/*for (Leak l : leaks){
+		for (Leak l : c.getLeaks()){
 			l.getCombos().remove(c);
 			this.leakService.save(l);
-		}*/
+		}
 		/*if (c.getUser() != null){
 			c.getUser().getCombos().remove(c);
 			this.userService.save(c.getUser());
@@ -275,8 +274,8 @@ public class ComboService
 	public boolean deleteUser(long id) throws IOException {
 		Optional<UserD> u = this.userService.findByID(id);
 		if (u.isPresent()){
-			/*for (Combo c : u.get().getCombos())
-				this.delete(c.getId());*/
+			for (Combo c : u.get().getCombos())
+				this.delete(c.getId());
 			this.userService.delete(id);
 		}
 		return u.isPresent();

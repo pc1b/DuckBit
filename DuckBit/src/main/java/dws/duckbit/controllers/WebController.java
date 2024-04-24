@@ -62,8 +62,8 @@ public class WebController
         model.addAttribute("user", request.isUserInRole("USER"));
         return "index";
     }
-    @GetMapping({"/success", "/success/"})
-    public ModelAndView succesLogin(HttpServletRequest request, @RequestParam String p){
+    @GetMapping({"/successLogin", "/successLogin/"})
+    public ModelAndView succesLogin(HttpServletRequest request){
         if (request.isUserInRole("ADMIN")){
             return new ModelAndView("redirect:/admin");
         }
@@ -155,9 +155,9 @@ public class WebController
 
     // Login page
     @GetMapping({"/login", "/login/"})
-    public ModelAndView Login()
+    public String Login(Model model)
     {
-        return new ModelAndView("login");
+        return "login";
     }
 
     // Register page
@@ -179,7 +179,11 @@ public class WebController
         }
         return new ModelAndView("register");
     }
-
+    @GetMapping({"/login_error"})
+    public ModelAndView loginError(Model model){
+        model.addAttribute("incorrectLogin", true);
+        return new ModelAndView("/login");
+    }
     // Form sended to login
     /*@PostMapping({"/login", "/login/"})
     public ModelAndView Login(@RequestParam String userD, @RequestParam String pass, RedirectAttributes attributes, HttpServletResponse response)
@@ -446,18 +450,10 @@ public class WebController
 
     // Delete a combo
     @DeleteMapping({"/delete_combo/{comboID}", "/delete_combo/{comboID}/"})
-    public ResponseEntity<Object> deleteCombo(@CookieValue(value = "id", defaultValue = "-1") String id, @PathVariable int comboID) throws IOException
+    public ResponseEntity<Object> deleteCombo(@PathVariable int comboID) throws IOException
     {
-        int idN = Integer.parseInt(id);
-        if(idN == 1)
-        {
-            this.comboService.delete(comboID);
-            return ResponseEntity.noContent().build();
-        }
-        else
-        {
-            return ResponseEntity.notFound().build();
-        }
+        this.comboService.delete(comboID);
+        return ResponseEntity.noContent().build();
     }
 
     // Buy a combo

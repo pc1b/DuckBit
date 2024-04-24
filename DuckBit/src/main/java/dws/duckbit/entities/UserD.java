@@ -17,7 +17,7 @@ public class UserD
     private String mail;
     private String encodedPassword;
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userD", cascade = CascadeType.ALL)
     private List<Combo> combos = new ArrayList<>();
     @Lob
     @JsonIgnore
