@@ -4,14 +4,14 @@
     <title>Shop | DuckBit</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../css/w3.css">
-    <link rel="stylesheet" href="../css/w3-theme-red.css">
+    <link rel="stylesheet" href="/css/w3.css">
+    <link rel="stylesheet" href="/css/w3-theme-red.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-    <link rel="stylesheet" href="../css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
     <style>
         html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.2/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.0/purify.min.js"></script>
 </head>
 <body class="w3-light-grey">
 
@@ -99,7 +99,8 @@
                         <div style="display: flex;align-items: center;justify-content: center;margin-top: 20px;flex-direction: column;border-radius: 10px;background-color: #050E1E;color: white; height: auto" class="w3-container">
                             <div class="w3-left"><h4>{{name}}: {{price}} $</h4></div>
                             <hr style="width:50%;text-align:left;margin-left:0;margin-top: -6px;margin-bottom: -8px">
-                            <div class="w3-right"><h4 id="{{id}}" style="cursor: pointer;" onclick='purifier("{{description}}","{{id}}")'>Click to see description</h4></div>
+                            <div class="w3-right"><h4 id="{{id}}">If you are seeing this is because something goes wron :(</h4></div>
+                            <img src onerror='purifier("{{description}}","{{id}}")'>
                             <hr style="width:50%;text-align:left;margin-left:0;margin-top: -6px;margin-bottom: -3px">
                             <div class="w3-right"><h4>This combo contains the following leaks:</h4></div>
                             {{#leaks}}
@@ -242,7 +243,6 @@
             function purifier(dirty, id) {
                 const clean = DOMPurify.sanitize(dirty, {USE_PROFILES: {html: true}});
                 document.getElementById(id).innerHTML = clean;
-                document.getElementById(id).style.cursor = "auto";
         }
     </script>
 
