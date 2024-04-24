@@ -142,6 +142,15 @@ public class WebController
         return new ModelAndView("redirect:/login");
     }
 
+    // Delete User
+
+    @DeleteMapping({"/delete_user/{userID}", "/delete_user/{userID}/"})
+    public ModelAndView deleteUser(@CookieValue(value = "id", defaultValue = "-1") String id, @PathVariable int userID) throws IOException
+    {
+        this.comboService.deleteUser(userID);
+        return new ModelAndView("users");
+    }
+
 // ---------- LOGIN AND REGISTER ---------- //
 
     // Login page
@@ -384,6 +393,16 @@ public class WebController
 			Path txtPath = LEAKS_FOLDER.resolve(filename);
 			leak.transferTo(txtPath);
 		}
+        return new ModelAndView("redirect:/admin");
+    }
+
+    //Delete leak
+    @DeleteMapping({"/delete_leak/{id}", "/delete_leak/{id}/"})
+    public ModelAndView deleteLeak(@PathVariable int id) throws IOException
+    {
+        Optional<Leak> l = this.leakService.findByID(id);
+        if (l.isPresent())
+            this.leakService.delete(l.get());
         return new ModelAndView("redirect:/admin");
     }
 
