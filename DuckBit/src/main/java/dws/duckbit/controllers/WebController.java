@@ -58,12 +58,21 @@ public class WebController
     @GetMapping("/")
     public String index(Model model, HttpServletRequest request)
     {
-        System.out.println("traceee");
         model.addAttribute("admin", request.isUserInRole("ADMIN"));
         model.addAttribute("user", request.isUserInRole("USER"));
         return "index";
     }
-
+    @GetMapping({"/success", "/success/"})
+    public ModelAndView succesLogin(HttpServletRequest request, @RequestParam String p){
+        if (request.isUserInRole("ADMIN")){
+            return new ModelAndView("redirect:/admin");
+        }
+        if (request.isUserInRole("USER")){
+            return new ModelAndView("redirect:/user");
+        }
+        else
+            return new ModelAndView("redirect:/");
+    }
 // ---------- USERS TYPES ---------- //
 
     // Admin default page
@@ -94,28 +103,15 @@ public class WebController
 
     // View all users only for admin
     @GetMapping({"/users", "/users/"})
-    public ModelAndView Users(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView Users(Model model, HttpServletRequest request)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userService.IDExists(idNum)))     //Cookie check
-        {
-            idNum = -1L;
-        }
-        if (idNum == 1)                         //Admin check
-        {
-            List<UserD> users = userService.findAll();
-            model.addAttribute("users", users);
-            String name = this.userService.findByID(idNum).get().getUserd();
-            String email = this.userService.findByID(idNum).get().getMail();
-            model.addAttribute("username", name);
-            model.addAttribute("email", email);
-            return new ModelAndView("users");
-        }
-        else if (idNum > 1)
-        {
-            return new ModelAndView("redirect:/user");
-        }
-        return new ModelAndView("redirect:/login");
+        List<UserD> users = userService.findAll();
+        model.addAttribute("users", users);
+        String name = this.userService.findByID(1l).get().getUserd();
+        String email = this.userService.findByID(1l).get().getMail();
+        model.addAttribute("username", name);
+        model.addAttribute("email", email);
+        return new ModelAndView("users");
     }
 
     // Client default page
@@ -234,13 +230,13 @@ public class WebController
     }
 
     // Logout
-    @GetMapping({"/logout", "/logout/"})
+   /* @GetMapping({"/logout", "/logout/"})
     public ModelAndView Logout(@CookieValue(value = "id", defaultValue = "-1") String id, HttpServletResponse response)
     {
         Cookie cookie = new Cookie("id", null);
         response.addCookie(cookie);
         return new ModelAndView("redirect:/login");
-    }
+    }*/
 
 // ---------- SHOP ---------- //
 
@@ -430,7 +426,7 @@ public class WebController
     }
 
     // Delete a combo
-    @DeleteMapping({"/delete_combo/{id}", "/delete_combo/{comboID}"})
+    @DeleteMapping({"/delete_combo/{comboID}", "/delete_combo/{comboID}/"})
     public ResponseEntity<Object> deleteCombo(@CookieValue(value = "id", defaultValue = "-1") String id, @PathVariable int comboID) throws IOException
     {
         int idN = Integer.parseInt(id);

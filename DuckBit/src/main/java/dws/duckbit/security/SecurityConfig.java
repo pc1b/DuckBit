@@ -9,6 +9,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.Collections;
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -37,21 +40,26 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+		String[] userEndpoints = {"/user", "/user/", "/shop", "/shop/", "/query", "/query/", "/upload_image",
+				"/upload_image/", "/download_image", "/download_image/", "/delete_image", "/delete_image/",
+				"/buy_combo", "/buy_combo/", "/download_combo", "/download_combo/", "/add_credits", "/add_credits/", "/success"};
+		String[] adminEndpoints = {"/admin", "/admin/", "/users", "/users/", "/upload_leak", "/upload_leak/",
+				"/create combo", "/create_combo/", "/delete_combo/*", "/delete_combo/*/", "/edit_combo", "/edit_combo/", "/success"
+				};
 		http.authenticationProvider(authenticationProvider());
 
 		http
 				.authorizeHttpRequests(authorize -> authorize
 						// PUBLIC PAGES
-						.requestMatchers("/", "/images/**", "/css/**", "/gifs/**", "/register").permitAll()
+						.requestMatchers("/", "/images/**", "/css/**", "/gifs/**", "/register", "/error","/api/**").permitAll()
 						// PRIVATE PAGES
-						.requestMatchers("/user").hasAnyRole("USER")
-						.requestMatchers("/admin").hasAnyRole("ADMIN")
+						.requestMatchers(userEndpoints).hasAnyRole("USER")
+						.requestMatchers(adminEndpoints).hasAnyRole("ADMIN")
 				)
 				.formLogin(formLogin -> formLogin
 						.loginPage("/login")
 						.failureUrl("/error")
-						.defaultSuccessUrl("/")
+						.defaultSuccessUrl("/success")
 						.permitAll()
 				)
 				.logout(logout -> logout
