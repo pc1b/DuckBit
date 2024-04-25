@@ -30,6 +30,7 @@
             <br>
             <br>
             <input type='submit' value='Login'/>
+            <input type="hidden" name="_csrf" value="{{token}}"/>
         </form>
         {{#incorrectLogin}}<p>Incorrect username or password!!!</p>{{/incorrectLogin}}
     </div>

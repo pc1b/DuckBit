@@ -61,6 +61,7 @@
                     </label>
                     <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
                     <input type='hidden' name='username' value="{{username}}"/>
+                    <input type="hidden" name="_csrf" value="{{token}}"/>
                 </form>
 
             </div>
@@ -78,6 +79,7 @@
                     <input type="text" name="enterprise" placeholder="Enterprise:">
                     <input type="number" name="price" placeholder="Maximum Price:">
                     <input type="submit" value="Search">
+                    <input type="hidden" name="_csrf" value="{{token}}"/>
                 </form>
             </div>
             <div style="margin-top: 10px" class="w3-right">
@@ -109,6 +111,7 @@
                             <form action="/buy_combo" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="combo" value="{{id}}">
                                 <div class="w3-center"><input style="width: 200px;border-radius: 10px;margin-left: 15px;margin-bottom: 10px" class="w3-button w3-teal" type='submit' value="Buy"/></div>
+                                <input type="hidden" name="_csrf" value="{{token}}"/>
                             </form>
                         </div>
                     </div>

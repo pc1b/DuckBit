@@ -25,6 +25,7 @@
                 </label>
                 <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
                 <input type='hidden' name='username' value="{{username}}"/>
+                <input type="hidden" name="_csrf" value="{{token}}"/>
             </form>
 
         </div>
@@ -123,6 +124,7 @@
                     <p>File:</p><input type='file' name='leak' id='leak' accept=".txt" required/>
                     <br>
                     <input type='submit' value='Save Leak'/>
+                    <input type="hidden" name="_csrf" value="{{token}}"/>
                 </form>
             </div>
             <div class="w3-third" style="height:auto">
@@ -148,6 +150,7 @@
                     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.4/dist/quill.js"></script>
                     <br>
                     <input type='submit' value='Save Combo'/>
+                    <input type="hidden" name="_csrf" value="{{token}}"/>
                 </form>
             </div>
             <div class="w3-third" style="height:auto;overflow: auto">

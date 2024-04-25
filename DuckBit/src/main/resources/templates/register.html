@@ -32,6 +32,7 @@
       <br>
       <br>
       <input type='submit' value='Register'/>
+      <input type="hidden" name="_csrf" value="{{token}}"/>
     </form>
     {{#userExists}}<p>That username already exists!!</p>{{/userExists}}
     {{#username2Big}}<p>That username is too big, the maximum is 255 characters!!</p>{{/username2Big}}

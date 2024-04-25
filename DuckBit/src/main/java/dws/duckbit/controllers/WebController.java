@@ -1,27 +1,5 @@
 package dws.duckbit.controllers;
 
-import dws.duckbit.entities.Combo;
-import dws.duckbit.entities.Leak;
-import dws.duckbit.entities.UserD;
-import dws.duckbit.services.ComboService;
-import dws.duckbit.services.LeakService;
-import dws.duckbit.services.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.engine.jdbc.BlobProxy;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,6 +13,33 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import org.hibernate.engine.jdbc.BlobProxy;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import dws.duckbit.entities.Combo;
+import dws.duckbit.entities.Leak;
+import dws.duckbit.entities.UserD;
+import dws.duckbit.services.ComboService;
+import dws.duckbit.services.LeakService;
+import dws.duckbit.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Controller
@@ -62,8 +67,12 @@ public class WebController
         model.addAttribute("user", request.isUserInRole("USER"));
         return "index";
     }
+    
+    //Authorize(ADMIN)
+    //Authorize(USER)
     @GetMapping({"/successLogin", "/successLogin/"})
-    public ModelAndView succesLogin(HttpServletRequest request){
+    public ModelAndView succesLogin(HttpServletRequest request)
+    {
         if (request.isUserInRole("ADMIN")){
             return new ModelAndView("redirect:/admin");
         }
@@ -73,13 +82,13 @@ public class WebController
         else
             return new ModelAndView("redirect:/");
     }
+
 // ---------- USERS TYPES ---------- //
 
-    // Admin default page
+    //Authorize(ADMIN)
     @GetMapping({"/admin", "/admin/"})
-    public ModelAndView Admin(Model model)
+    public ModelAndView Admin(Model model, HttpServletRequest request)
     {
-
         String name = this.userService.findByID(1L).get().getUserd();
         String email = this.userService.findByID(1L).get().getMail();
         model.addAttribute("username", name);
@@ -98,10 +107,12 @@ public class WebController
         model.addAttribute("combosCreated", comboService.getComboSize() - soldCombos);
         model.addAttribute("soldCombos", soldCombos);
         model.addAttribute("email", email);
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("token", token.getToken());
         return new ModelAndView("admin");
     }
 
-    // View all users only for admin
+    //Authorize(ADMIN)
     @GetMapping({"/users", "/users/"})
     public ModelAndView Users(Model model, HttpServletRequest request)
     {
@@ -111,10 +122,12 @@ public class WebController
         String email = this.userService.findByID(1l).get().getMail();
         model.addAttribute("username", name);
         model.addAttribute("email", email);
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("token", token.getToken());
         return new ModelAndView("users");
     }
 
-    // Client default page
+    //Authorize(USER)
     @GetMapping({"/user", "/user/"})
     public ModelAndView User(Model model, HttpServletRequest request)
     {
@@ -137,77 +150,65 @@ public class WebController
             model.addAttribute("username", name);
             model.addAttribute("combos", combos);
             model.addAttribute("email", email);
+            CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+            model.addAttribute("token", token.getToken());
             return new ModelAndView("user");
         }
         return new ModelAndView("redirect:/login");
     }
 
-    // Delete User
-
+    //Authorize(ADMIN)
+    //Authorize(USER)(DELETE ONLY THE SAME ID)
     @DeleteMapping({"/delete_user/{userID}", "/delete_user/{userID}/"})
-    public ModelAndView deleteUser(@CookieValue(value = "id", defaultValue = "-1") String id, @PathVariable int userID) throws IOException
+    public ModelAndView deleteUser(@PathVariable int userID, HttpServletRequest request) throws IOException
     {
-        this.comboService.deleteUser(userID);
-        return new ModelAndView("users");
+        if (request.isUserInRole("ADMIN"))
+        {
+            this.comboService.deleteUser(userID);
+            return new ModelAndView("redirect:/users");
+        }
+        else if (this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID() == userID)
+        {
+            this.comboService.deleteUser(userID);
+            return new ModelAndView("redirect:/user");
+        }
+        return new ModelAndView("redirect:/user");
     }
 
 // ---------- LOGIN AND REGISTER ---------- //
 
     // Login page
     @GetMapping({"/login", "/login/"})
-    public String Login(Model model)
+    public ModelAndView Login(Model model, HttpServletRequest request)
     {
-        return "login";
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("token", token.getToken());
+        return new ModelAndView("login");
     }
 
     // Register page
     @GetMapping({"/register", "/register/"})
-    public ModelAndView Register(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView Register(Model model, HttpServletRequest request)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userService.IDExists(idNum)))
-        {
-            idNum = -1L;
-        }
-        if (idNum == 1)
+        if (request.isUserInRole("ADMIN"))
         {
             return new ModelAndView("redirect:/admin");
         }
-        else if (idNum > 1)
+        else if (request.isUserInRole("USER"))
         {
             return new ModelAndView("redirect:/user");
         }
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("token", token.getToken());
         return new ModelAndView("register");
     }
+
     @GetMapping({"/login_error"})
-    public ModelAndView loginError(Model model){
-        model.addAttribute("incorrectLogin", true);
-        return new ModelAndView("/login");
-    }
-    // Form sended to login
-    /*@PostMapping({"/login", "/login/"})
-    public ModelAndView Login(@RequestParam String userD, @RequestParam String pass, RedirectAttributes attributes, HttpServletResponse response)
+    public ModelAndView loginError(Model model)
     {
-        Long userID = this.userService.getIDUser(userD, pass);
-        Cookie cookie = new Cookie("id", String.valueOf(userID));
-        if (userID == 1)
-        {
-            response.addCookie(cookie);
-            return new ModelAndView("redirect:/admin");
-        }
-        else if (userID > 1)
-        {
-            response.addCookie(cookie);
-            return new ModelAndView("redirect:/user");
-        }
-        else
-        {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("login");
-            modelAndView.addObject("incorrectLogin", true);
-            return modelAndView;
-        }
-    }*/
+        model.addAttribute("incorrectLogin", true);
+        return new ModelAndView("redirect:/login");
+    }
 
     // Form sended to register
     @PostMapping({"/register", "/register/"})
@@ -242,55 +243,38 @@ public class WebController
         return new ModelAndView("redirect:/login");
     }
 
-    // Logout
-   /* @GetMapping({"/logout", "/logout/"})
-    public ModelAndView Logout(@CookieValue(value = "id", defaultValue = "-1") String id, HttpServletResponse response)
-    {
-        Cookie cookie = new Cookie("id", null);
-        response.addCookie(cookie);
-        return new ModelAndView("redirect:/login");
-    }*/
-
 // ---------- SHOP ---------- //
 
-    //Default page for the shop
+    //Authorize(USER)
     @GetMapping({"/shop", "/shop/"})
-    public ModelAndView shop(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) throws IOException
+    public ModelAndView shop(Model model, HttpServletRequest request) throws IOException
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userService.IDExists(idNum)))
-        {
-            return new ModelAndView("redirect:/login");
-        }
         Collection<Combo> c = this.comboService.getAvilableCombos();
         if (!c.isEmpty())
         {
             model.addAttribute("combos", c);
         }
-        String name = this.userService.findByID(idNum).get().getUserd();
-        int credits = this.userService.findByID(idNum).get().getCredits();
+        String name = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getUserd();
+        int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("token", token.getToken());
         return new ModelAndView("shop");
     }
 
-    //Filter in the shop
+    //Authorize(USER)
     @GetMapping({"/query", "/query/"})
-    public ModelAndView getMethodName(Model model, @CookieValue(value = "id", defaultValue = "-1") String id, @RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
+    public ModelAndView getMethodName(Model model, HttpServletRequest request,@RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userService.IDExists(idNum)))
-        {
-            return new ModelAndView("redirect:/login");
-        }
         if (enterprise.equals("") && price <= 0)
         {
             return new ModelAndView("redirect:/shop");
         }
         Collection<Combo> c = this.comboService.findAll(enterprise, price);
         model.addAttribute("combos", c);
-        String name = this.userService.findByID(idNum).get().getUserd();
-        int credits = this.userService.findByID(idNum).get().getCredits();
+        String name = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getUserd();
+        int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
         return new ModelAndView("shop");
@@ -300,11 +284,9 @@ public class WebController
 
     // Upload a new user image
     @PostMapping({"/upload_image", "/upload_image/"})
-    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes)
-            throws IOException {
-
+    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException 
+    {
         UserD user = this.userService.findByUsername(username).orElseThrow();
-
         user.setImageFile(BlobProxy.generateProxy(image.getInputStream(), image.getSize()));
         this.userService.save(user);
         if (user.getID().equals(1L))
@@ -319,9 +301,7 @@ public class WebController
     @GetMapping({"/download_image", "/download_image/"})
     public ResponseEntity<Object> downloadImage(@RequestParam String username) throws SQLException
     {
-
         UserD u = this.userService.findByUsername(username).orElseThrow();
-
         if (u.getImageFile() != null) {
 
             Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
@@ -336,13 +316,11 @@ public class WebController
 
     // Delete a user image
     @DeleteMapping({"/delete_image", "/delete_image/"})
-    public  ModelAndView  deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id, RedirectAttributes attributes) throws IOException
+    public  ModelAndView  deleteImage(RedirectAttributes attributes, HttpServletRequest request) throws IOException
     {
 
-        UserD u = this.userService.findByID(Long.parseLong(id)).orElseThrow();
-
+        UserD u = this.userService.findByUsername(request.getUserPrincipal().getName()).get();
         u.setImageFile(null);
-
         this.userService.save(u);
         if (u.getID().equals(1L))
         {
@@ -458,9 +436,9 @@ public class WebController
 
     // Buy a combo
     @PostMapping({"/buy_combo", "/buy_combo/"})
-    public ModelAndView BuyCombo(Model model, @RequestParam Long combo, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView BuyCombo(Model model, @RequestParam Long combo, HttpServletRequest request)
     {
-        Long userID = Long.parseLong(id);
+        Long userID = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
         Optional<Combo> c = this.comboService.findById(combo);
 		if (c.isEmpty())
 		{
@@ -487,13 +465,13 @@ public class WebController
 
     // Download a combo
     @PostMapping({"/download_combo", "/download_combo/"})
-    public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam String idCombo, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam String idCombo, HttpServletRequest request)
             throws MalformedURLException, FileNotFoundException
     {
-        Long idNum = Long.parseLong(id);
+        Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
         if (this.userService.IDExists(idNum))
         {
-            for (Combo combo : userService.findByID(Long.parseLong(id)).get().getCombos())
+            for (Combo combo : userService.findByID(idNum).get().getCombos())
             {
                 if (Integer.parseInt(idCombo) == combo.getId())
                 {
@@ -509,7 +487,7 @@ public class WebController
                                 .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
                                 .body(inputStreamResource);
                     }
-                }
+                }  
             }
         }
         return ResponseEntity.notFound()
@@ -560,9 +538,9 @@ public class WebController
 // ---------- CREDITS ---------- //
 
     @PostMapping({"/add_credits", "/add_credits/"})
-    public ModelAndView AddCredits(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView AddCredits(Model model, HttpServletRequest request)
     {
-        Long idNum = Long.parseLong(id);
+        Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
         if (this.userService.IDExists(idNum))
         {
             UserD userD = this.userService.findByID(idNum).get();

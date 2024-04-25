@@ -9,9 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.Collections;
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -42,7 +39,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		String[] userEndpoints = {"/user", "/user/", "/shop", "/shop/", "/query", "/query/", "/upload_image",
 				"/upload_image/", "/download_image", "/download_image/", "/delete_image", "/delete_image/",
-				"/buy_combo", "/buy_combo/", "/download_combo", "/download_combo/", "/add_credits", "/add_credits/"};
+				"/buy_combo", "/buy_combo/", "/download_combo", "/download_combo/", "/add_credits", "/add_credits/", "/delete_user/*","/delete_user/*/"};
 		String[] adminEndpoints = {"/admin", "/admin/", "/users", "/users/", "/upload_leak", "/upload_leak/", "/delete_leak/*","/delete_leak/*/",
 				"/create combo", "/create_combo/", "/delete_combo/*", "/delete_combo/*/", "/edit_combo", "/edit_combo/","/delete_user/*","/delete_user/*/"
 				};
@@ -70,7 +67,7 @@ public class SecurityConfig {
 				);
 
 		// Disable CSRF at the moment
-		http.csrf(csrf -> csrf.disable());
+		//http.csrf(csrf -> csrf.disable());
 
 		return http.build();
 	}
