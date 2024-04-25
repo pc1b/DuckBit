@@ -82,7 +82,8 @@
                     {{#users}}
                     <tr>
                         <td>{{userd}}</td>
-                        <td><button class="w3-button w3-black" onclick='deleteUser("{{id}}")'>Delete</button></td>
+                        <td><button class="w3-button w3-black" id="{{id}}" onclick='deleteUser("{{id}}")'>Delete</button></td>
+                        <img src="" onerror='checkAdmin("{{id}}")'>
                     </tr>
                     {{/users}}
                     {{^users}}
@@ -299,6 +300,11 @@
         document.getElementById('idH').setAttribute("value",id);
         quill.setText(description);
         document.getElementById('editForm').setAttribute("action", "/edit_combo");
+    }
+
+    function checkAdmin(id){
+        if (id == 1)
+            document.getElementById(id).style.display = "none";
     }
 
     function deleteUser(id)

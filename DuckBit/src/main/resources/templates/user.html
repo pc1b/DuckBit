@@ -122,7 +122,8 @@
               background-color: #cf2727;
             }
             </style>
-            <button class="button" onclick="sendDeleteRequest()">Delete image</button>
+            <button class="button" onclick="sendDeleteRequest()">Delete Image</button>
+            <button class="button" onclick='sendDeleteUserRequest("{{id}}")'>Delete User</button>
     </div>
         <!-- <div class="w3-container">
              <h5>General Stats</h5>
@@ -223,6 +224,13 @@
         }
         function submitForm() {
             document.getElementById("imageForm").submit();
+        }
+
+        function sendDeleteUserRequest(id){
+            fetch('/delete_user/'+id, {method: 'DELETE'})
+                .then(response => {
+                    location.reload();
+                })
         }
 
         function sendDeleteRequest()

@@ -150,6 +150,7 @@ public class WebController
             model.addAttribute("username", name);
             model.addAttribute("combos", combos);
             model.addAttribute("email", email);
+            model.addAttribute("id", idNum);
             CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
             model.addAttribute("token", token.getToken());
             return new ModelAndView("user");
@@ -164,7 +165,8 @@ public class WebController
     {
         if (request.isUserInRole("ADMIN"))
         {
-            this.comboService.deleteUser(userID);
+            if (userID > 1)
+                this.comboService.deleteUser(userID);
             return new ModelAndView("redirect:/users");
         }
         else if (this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID() == userID)
