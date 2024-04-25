@@ -161,6 +161,14 @@ public class WebController
         return new ModelAndView("redirect:/login");
     }
 
+    @PostMapping({"/edit_user", "/edit_user/"})
+    public ModelAndView EditUser(@RequestParam String username, @RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password) throws IOException
+    {
+        if (this.userService.findByUsername(username).orElseThrow().getUserd().equals(username))
+            this.userService.editUser(username, usernameUpdate, mail, password);
+        return new ModelAndView("redirect:/user");
+    }
+
     //Authorize(ADMIN)
     //Authorize(USER)(DELETE ONLY THE SAME ID)
     @DeleteMapping({"/delete_user/{userID}", "/delete_user/{userID}/"})

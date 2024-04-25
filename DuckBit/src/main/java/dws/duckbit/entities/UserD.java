@@ -76,6 +76,11 @@ public class UserD
         this.id = id;
     }
 
+    public void editUser(String userd, String mail, String encodedPassword){
+        this.userd = userd;
+        this.mail = mail;
+        this.encodedPassword = encodedPassword;
+    }
 
     public void setCombos(ArrayList<Combo> combos) {
         this.combos = combos;

@@ -134,6 +134,10 @@ public class UserService
         this.userRepository.deleteById(id);
     }
 
+    public void editUser(String userd, String userdUpdated, String mail, String password){
+        this.userRepository.findByUserd(userd).get().editUser(userdUpdated, mail,passwordEncoder.encode(password));
+    }
+
     //NOT FINISHED
     public boolean buyCombo(Combo c, Long userid){
         if (this.hasEnoughCredits(c.getPrice(), userid))
