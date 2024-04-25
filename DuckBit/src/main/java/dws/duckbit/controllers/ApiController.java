@@ -5,28 +5,31 @@ import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 import static org.springframework.http.ResponseEntity.status;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
@@ -66,10 +69,10 @@ public class ApiController
 	// ---------- USER ---------- //
 
 	//USER INFO
-	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
-	public ResponseEntity<Object> getUser(@PathVariable Long id)
+	@GetMapping(value = {"/user", "/user/"})
+	public ResponseEntity<Object> getUser(HttpServletRequest request)
 	{
-		Optional<UserD> u = this.userService.findByID(id);
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (u.isPresent())
 		{
 			return ResponseEntity.ok(u);
@@ -79,6 +82,20 @@ public class ApiController
 			return status(HttpStatus.NOT_FOUND).build();
 		}
 	}
+	//FOR ADMIN, DON'T KNOW IF NECESSARY
+//	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
+//	public ResponseEntity<Object> getUser(HttpServletRequest request)
+//	{
+//		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
+//		if (u.isPresent())
+//		{
+//			return ResponseEntity.ok(u);
+//		}
+//		else
+//		{
+//			return status(HttpStatus.NOT_FOUND).build();
+//		}
+//	}
 
 	//NUMBER OF USERS
 	@GetMapping(value = {"/user/number", "/user/number/"})
@@ -88,17 +105,17 @@ public class ApiController
 	}
 
 	//USERS
-	@GetMapping(value = {"/user", "/user/"})
+	@GetMapping(value = {"/user/all", "/user/all/"})
 	public ResponseEntity<Object> getRegisteredUsers()
 	{
 		return ResponseEntity.ok(this.userService.findAll());
 	}
 
 	//USER Combos
-	@GetMapping(value = {"/user/{id}/combos", "/user/{id}/combos/"})
-	public ResponseEntity<Object> getCombosUser(@PathVariable Long id)
+	@GetMapping(value = {"/user/combo/all/", "/user/combo/all"})
+	public ResponseEntity<Object> getCombosUser(HttpServletRequest request)
 	{
-		Optional<UserD> u = this.userService.findByID(id);
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (u.isPresent())
 		{
 			return ResponseEntity.ok(this.comboService.findByUser(u.get()));
@@ -108,15 +125,33 @@ public class ApiController
 			return status(HttpStatus.NOT_FOUND).build();
 		}
 	}
+	@GetMapping(value = {"/user/combo/{id}", "/user/combo/{id}/"})
+	public ResponseEntity<Object> getComboUser(HttpServletRequest request, @PathVariable Long id)
+	{
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
+		Optional<Combo> c = this.comboService.findById(id);
+		if (u.isPresent() && c.isPresent())
+		{
+			if (!c.get().getUser().equals(u.get())){
+				return status(HttpStatus.UNAUTHORIZED).build();
+			}
+			return ResponseEntity.ok(c.get());
+		}
+		else
+		{
+			return status(HttpStatus.NOT_FOUND).build();
+		}
+	}
+
 
 	//USER BUY CREDITS
-	@GetMapping(value = {"/{id}/credits", "/{id}/credits/"})
-	public ResponseEntity<UserD> buyCredits(@PathVariable Long id)
+	@GetMapping(value = {"/credits", "/credits/"})
+	public ResponseEntity<UserD> buyCredits(HttpServletRequest request)
 	{
-		Optional<UserD> u = this.userService.findByID(id);
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (u.isPresent())
 		{
-			this.userService.addCreditsToUser(500, id);
+			this.userService.addCreditsToUser(500, u.get().getID());
 			return ResponseEntity.ok(u.get());
 		}
 		else
@@ -211,13 +246,23 @@ public class ApiController
 
 	//DOWNLOAD A COMBO
 	@GetMapping({"/combo/{id}/file/", "/combo/{id}/file"})
-	public ResponseEntity<String> getComboDownload(@PathVariable Long id)
+	public ResponseEntity<String> getComboDownload(@PathVariable Long id, HttpServletRequest request)
 	{
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
+		if (u.isEmpty()){
+			return status(HttpStatus.BAD_REQUEST).build();
+		}
 		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,
-					"text/plain").body(c.get().leakedInfo());
+			if (request.isUserInRole("ADMIN") || (request.isUserInRole("USER") && u.get().getCombos().contains(c.get()))){
+				return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,
+						"text/plain").body(c.get().leakedInfo());
+			}
+			else{
+				return status(HttpStatus.FORBIDDEN).build();
+			}
+
 		}
 		else
 		{
@@ -233,12 +278,15 @@ public class ApiController
 
 	//GET A COMBO
 	@GetMapping({"/combo/{id}/", "/combo/{id}"})
-	public ResponseEntity<Object> getCombo(@PathVariable Long id)
+	public ResponseEntity<Object> getCombo(@PathVariable Long id, HttpServletRequest request)
 	{
 		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
-			return ResponseEntity.ok(c.get());
+			if (request.isUserInRole("ADMIN") || c.get().getUser() == null)
+				return ResponseEntity.ok(c.get());
+			else
+				return status(HttpStatus.FORBIDDEN).build();
 		}
 		else
 		{
@@ -275,13 +323,18 @@ public class ApiController
 
 	//DELETE A COMBO
 	@DeleteMapping({"/combo/{id}", "/combo/{id}/"})
-	public ResponseEntity<Object> deleteCombo(@PathVariable Long id) throws IOException
+	public ResponseEntity<Object> deleteCombo(@PathVariable Long id, HttpServletRequest request) throws IOException
 	{
 		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
-			this.comboService.delete(c.get().getId());
-			return ResponseEntity.ok().build();
+			if(request.isUserInRole("ADMIN") || request.getUserPrincipal().equals(c.get().getUser())) {
+				this.comboService.delete(c.get().getId());
+				return ResponseEntity.ok().build();
+			}
+			else{
+				return status(HttpStatus.FORBIDDEN).build();
+			}
 		}
 		else
 		{
@@ -313,7 +366,7 @@ public class ApiController
 	// ---------- LOGIN AND REGISTER ---------- //
 
 	//LOGIN
-	@PostMapping({"/login/", "/login"})
+	/*@PostMapping({"/login/", "/login"})
 	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password,
 										HttpServletResponse response)
 	{
@@ -329,7 +382,7 @@ public class ApiController
 			return status(HttpStatus.BAD_REQUEST).body("Wrong username or password");
 		}
 
-	}
+	}*/
 
 	//REGISTER
 	@PostMapping({"/register","/register/"})
@@ -351,11 +404,19 @@ public class ApiController
 
 	//DELETE USERS
 	@DeleteMapping({"/user/{id}", "/user/{id}/"})
-	public ResponseEntity<Object> deleteUser(@PathVariable Long id) throws IOException {
-		if (this.comboService.deleteUser(id)){
+	public ResponseEntity<Object> deleteUser(@PathVariable Long id, HttpServletRequest request) throws IOException {
+		if (request.isUserInRole("ADMIN"))
+		{
+			if (id > 1)
+				this.comboService.deleteUser(id);
 			return ResponseEntity.ok().build();
 		}
-		return ResponseEntity.notFound().build();
+		else if (Objects.equals(this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID(), id))
+		{
+			this.comboService.deleteUser(id);
+			return ResponseEntity.ok().build();
+		}
+		return status(HttpStatus.FORBIDDEN).build();
 	}
 
 	// ---------- SHOP ---------- //
@@ -387,10 +448,11 @@ public class ApiController
 	}
 
 	//BUY COMBO
-	@PostMapping({"/{id}/combo", "/{id}/combo/"})
-	public ResponseEntity<Object> buyCombo(@RequestParam Long combo, @PathVariable Long id)
+	@PostMapping({"/combo/buy", "/combo/buy/"})
+	public ResponseEntity<Object> buyCombo(@RequestParam Long combo, HttpServletRequest request)
 	{
 		Optional<Combo> c = this.comboService.findById(combo);
+		Long id = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
 		if (c.isEmpty() || this.userService.findByID(id).isEmpty())
 		{
 			return ResponseEntity.notFound().build();
@@ -419,10 +481,10 @@ public class ApiController
 	// ---------- IMAGES MANIPULATION ---------- //
 
 	//DOWNLOAD IMAGE
-	@GetMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> downloadImage(@PathVariable long id) throws SQLException
+	@GetMapping({"/image", "/image/"})
+	public ResponseEntity<Object> downloadImage(HttpServletRequest request) throws SQLException
 	{
-		Optional<UserD> user = this.userService.findByID(id);
+		Optional<UserD> user = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (user.isEmpty())
 		{
 			return ResponseEntity.notFound().build();
@@ -442,11 +504,10 @@ public class ApiController
 	}
 
 	//POST AN IMAGE
-	@PostMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> uploadImage(@PathVariable long id, @RequestParam MultipartFile imageFile)
+	@PostMapping({"/image", "/image/"})
+	public ResponseEntity<Object> uploadImage(HttpServletRequest request, @RequestParam MultipartFile imageFile)
 	{
-
-		Optional<UserD> u = this.userService.findByID(id);
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (u.isEmpty())
 		{
 			return ResponseEntity.notFound().build();
@@ -468,11 +529,10 @@ public class ApiController
 	}
 
 	//DELETE AN IMAGE
-	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> deleteImage(@PathVariable long id) throws IOException
+	@DeleteMapping(value = {"/image", "/image/"})
+	public ResponseEntity<Object> deleteImage(HttpServletRequest request) throws IOException
 	{
-
-		Optional<UserD> user = this.userService.findByID(id);
+		Optional<UserD> user = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (user.isEmpty())
 		{
 			return ResponseEntity.notFound().build();

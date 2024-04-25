@@ -172,7 +172,7 @@ public class WebController
         else if (this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID() == userID)
         {
             this.comboService.deleteUser(userID);
-            return new ModelAndView("redirect:/user");
+            return new ModelAndView("redirect:/");
         }
         return new ModelAndView("redirect:/user");
     }

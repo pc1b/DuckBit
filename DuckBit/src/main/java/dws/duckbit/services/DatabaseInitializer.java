@@ -52,7 +52,7 @@ public class DatabaseInitializer
 		this.comboService.save(c1);
 		this.comboService.save(c2);
 
-		this.userService.addUser("admin", "admin@duckbit.org","admin", "ADMIN");
+		this.userService.addUser("admin", "admin@duckbit.org","admin", "ADMIN", "USER");
 		this.userService.addUser("paco", "paco@duckbit.org", "paco", "USER");
 		this.userService.addUser("juan", "juan@duckbit.org", "juan", "USER");
 
