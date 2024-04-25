@@ -131,7 +131,7 @@
         function sendDeleteUserRequest(id){
             fetch('/delete_user/'+id, {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
                 .then(response => {
-                    location.reload();
+                    location.assign("/");
                 })
         }
 
@@ -139,7 +139,7 @@
         {
             fetch('/delete_image', {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
                 .then(response => {
-                    location.reload();
+                    location.assign("/user");
                 })
         }
 
