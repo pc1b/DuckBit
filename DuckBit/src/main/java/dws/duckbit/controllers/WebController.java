@@ -19,6 +19,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
@@ -40,6 +41,8 @@ import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+
+import static org.springframework.http.ResponseEntity.status;
 
 
 @Controller
@@ -430,10 +433,23 @@ public class WebController
 
     // Delete a combo
     @DeleteMapping({"/delete_combo/{comboID}", "/delete_combo/{comboID}/"})
-    public ResponseEntity<Object> deleteCombo(@PathVariable int comboID) throws IOException
+    public ResponseEntity<Object> deleteCombo(@PathVariable Long comboID, HttpServletRequest request) throws IOException
     {
-        this.comboService.delete(comboID);
-        return ResponseEntity.noContent().build();
+        Optional<Combo> c = this.comboService.findById((long) comboID);
+        if (c.isPresent())
+        {
+            if(request.isUserInRole("ADMIN") || this.userService.findByUsername(request.getUserPrincipal().getName()).get().equals(c.get().getUser())) {
+                this.comboService.delete(c.get().getId());
+                return ResponseEntity.ok().build();
+            }
+            else{
+                return status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+        else
+        {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Buy a combo

@@ -55,17 +55,18 @@
             <div class="w3-twothird" style="height:600px;overflow: auto">
                 <h3>My Combos</h3>
                 {{#combos}}
-                <form action="/download_combo" method="post" enctype="multipart/form-data">
-                    <input type="hidden" name="idCombo" value="{{id}}">
                 <table class="w3-table w3-striped w3-white">
+                    <form action="/download_combo" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="idCombo" value="{{id}}">
                     <tr style="display: flex;align-items: center;justify-content: space-evenly">
                         <td style="width: 100px;">{{name}}</td>
                         <td>{{price}} $</td>
                         <td><input class="w3-button w3-orange" style="width: 300px; height: 50px" type="submit" value="Download"/></td>
                         <input type="hidden" name="_csrf" value="{{token}}"/>
+                    </form>
+                        <td><button class="w3-button w3-red" style="width: 300px; height: 50px" onclick='deleteCombo("{{id}}")'>Delete</button></td>
                     </tr>
                 </table>
-                </form>
                 {{/combos}}
                 {{^combos}}
                 <h4>You have no combos</h4>
@@ -132,6 +133,14 @@
             fetch('/delete_user/'+id, {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
                 .then(response => {
                     location.assign("/");
+                })
+        }
+
+        function deleteCombo(id)
+        {
+            fetch('/delete_combo/'+id, {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
+                .then(response => {
+                    location.reload();
                 })
         }
 
