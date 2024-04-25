@@ -413,7 +413,7 @@
 
     function deleteCombo(id)
     {
-        fetch("/delete_combo/"+id, {method: "delete"})
+        fetch("/delete_combo/"+id, {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
             .then(response => {
                 location.reload();
             })
@@ -421,7 +421,7 @@
 
         function deleteLeak(id)
         {
-            fetch("/delete_leak/"+id, {method: "delete"})
+            fetch("/delete_leak/"+id, {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
                 .then(response => {
                     location.reload();
                 })
@@ -429,7 +429,7 @@
 
     function sendDeleteRequest()
     {
-        fetch('/delete_image', {method: 'DELETE'})
+        fetch('/delete_image', {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
             .then(response => {
                 location.reload();
             })
