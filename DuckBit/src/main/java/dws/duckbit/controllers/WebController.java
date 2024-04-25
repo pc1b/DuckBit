@@ -164,6 +164,8 @@ public class WebController
     @PostMapping({"/edit_user", "/edit_user/"})
     public ModelAndView EditUser(@RequestParam String username, @RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password) throws IOException
     {
+        if (username.isEmpty() || usernameUpdate.isEmpty() || mail.isEmpty() || password.isEmpty())
+            return new ModelAndView("redirect:/user");
         if (this.userService.findByUsername(username).orElseThrow().getUserd().equals(username))
             this.userService.editUser(username, usernameUpdate, mail, password);
         return new ModelAndView("redirect:/user");

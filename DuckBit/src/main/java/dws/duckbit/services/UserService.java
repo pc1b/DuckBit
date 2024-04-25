@@ -135,7 +135,8 @@ public class UserService
     }
 
     public void editUser(String userd, String userdUpdated, String mail, String password){
-        this.userRepository.findByUserd(userd).get().editUser(userdUpdated, mail,passwordEncoder.encode(password));
+        this.userRepository.findByUserd(userd).get().editUser(userdUpdated, mail, passwordEncoder.encode(password));
+        this.userRepository.save(this.userRepository.findByUserd(userd).get());
     }
 
     //NOT FINISHED

@@ -31,6 +31,15 @@
         <div style="display: flex;align-items: center;flex-direction: row;flex-wrap: wrap" class="w3-col s8 w3-bar">
             <span style="width: 400px" class="w3-white">Welcome, <strong>{{username}}</strong> at [{{email}}]</span><br>
             <h4 style="width:160px;color:white;margin-bottom: 3px; margin-right: 5px">Credits: {{credits}}</h4>
+            <button style="background-color: transparent; border: none; cursor: pointer" onclick='editUser()'><img style="width: 45px; margin-bottom: 3px; margin-right: 5px" src="/images/edit.svg"></button>
+            <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded">
+                <input type="hidden" name="username" value="{{username}}">
+                <input id="usernameEdit" type="hidden" name="usernameUpdate" value="{{username}}" required>
+                <input id="emailEdit" type="hidden" name="mail" value="{{email}}" required>
+                <input id="passwordEdit" type="hidden" name="password" placeholder="New Password:" required>
+                <input type="hidden" name="_csrf" value="{{token}}"/>
+                <input id="submitEdit" type="hidden" value="Update Values">
+            </form>
         </div>
     </div>
     <div style="margin-top: 10px" class="w3-right">
@@ -43,7 +52,7 @@
 <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
 
 <!-- !PAGE CONTENT! -->
-<div class="w3-main" style="margin-top:43px;">
+<div class="w3-main" style="margin-top:60px;">
 
     <!-- Header -->
     <header class="w3-container" style="padding-top:22px">
@@ -150,6 +159,13 @@
                 .then(response => {
                     location.assign("/user");
                 })
+        }
+
+        function editUser(){
+            document.getElementById("usernameEdit").type = "text";
+            document.getElementById("emailEdit").type = "text";
+            document.getElementById("passwordEdit").type = "password";
+            document.getElementById("submitEdit").type = "submit";
         }
 
         // Close the sidebar with the close button

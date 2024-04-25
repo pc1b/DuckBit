@@ -107,7 +107,7 @@ public class SecurityConfig {
 		String[] userEndpoints = {"/user", "/user/", "/shop", "/shop/", "/query", "/query/", "/upload_image",
 				"/upload_image/", "/download_image", "/download_image/", "/delete_image", "/delete_image/",
 				"/buy_combo", "/buy_combo/", "/download_combo", "/download_combo/", "/add_credits", "/add_credits/",
-				"/delete_user/**", "/delete_combo/*", "/delete_combo/*/"};
+				"/delete_user/**", "/delete_combo/*", "/delete_combo/*/", "/edit_user/**", "/edit_user/**/"};
 		String[] adminEndpoints = {"/admin", "/admin/", "/users", "/users/", "/upload_leak", "/upload_leak/", "/delete_leak/**","/delete_leak/*/",
 				"/create_combo", "/create_combo/", "/delete_combo/*", "/delete_combo/*/", "/edit_combo", "/edit_combo/"
 				};
