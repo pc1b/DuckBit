@@ -72,9 +72,13 @@ public class SecurityConfig {
 		http
 				.authorizeHttpRequests(authorize -> authorize
 						// PRIVATE ENDPOINTS
-						.requestMatchers(HttpMethod.POST,"/api/books/").hasRole("USER")
-						.requestMatchers(HttpMethod.PUT,"/api/books/**").hasRole("USER")
-						.requestMatchers(HttpMethod.DELETE,"/api/books/**").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.GET,userGETEndpoints).hasRole("USER")
+						.requestMatchers(HttpMethod.POST,userPOSTEndpoints).hasRole("USER")
+						.requestMatchers(HttpMethod.DELETE, userDELEndpoints).hasRole("USER")
+						.requestMatchers(HttpMethod.GET, adminGETEndpoints).hasRole("ADMIN")
+						.requestMatchers(HttpMethod.POST, adminPOSTEndpoints).hasRole("ADMIN")
+						.requestMatchers(HttpMethod.DELETE, adminDELEndpoints).hasRole("ADMIN")
+						.requestMatchers(HttpMethod.PUT,adminPUTEndpoints).hasRole("ADMIN")
 						// PUBLIC ENDPOINTS
 						.anyRequest().permitAll()
 				);
