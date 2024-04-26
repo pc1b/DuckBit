@@ -24,7 +24,6 @@
                     <img src="/download_image?username={{username}}" onerror="this.src='/images/admin.jpg'" class="w3-circle w3-margin-right" style="width:46px; cursor: pointer;" />
                 </label>
                 <input type='file' id='fileInput' name='image' accept=".jpg, .jpeg" style="display: none;" onchange="submitForm()" />
-                <input type='hidden' name='username' value="{{username}}"/>
                 <input type="hidden" name="_csrf" value="{{token}}"/>
             </form>
 

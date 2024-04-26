@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import dws.duckbit.services.ImageService;
 import jakarta.servlet.ServletException;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
@@ -22,10 +23,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,13 +53,15 @@ public class WebController
     private final UserService userService;
     private final LeakService leakService;
     private final ComboService comboService;
+    private final ImageService imageService;
 
     private int soldCombos = 0;
 
-    public WebController(UserService userService, LeakService leakService, ComboService comboService) {
+    public WebController(UserService userService, LeakService leakService, ComboService comboService, ImageService imageService) {
         this.userService = userService;
         this.leakService = leakService;
         this.comboService = comboService;
+        this.imageService = imageService;
     }
 // ---------- INDEX ---------- //
 
@@ -111,8 +112,6 @@ public class WebController
         model.addAttribute("combosCreated", comboService.getComboSize() - soldCombos);
         model.addAttribute("soldCombos", soldCombos);
         model.addAttribute("email", email);
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("admin");
     }
 
@@ -126,8 +125,6 @@ public class WebController
         String email = this.userService.findByID(1l).get().getMail();
         model.addAttribute("username", name);
         model.addAttribute("email", email);
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("users");
     }
 
@@ -155,8 +152,6 @@ public class WebController
             model.addAttribute("combos", combos);
             model.addAttribute("email", email);
             model.addAttribute("id", idNum);
-            CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-            model.addAttribute("token", token.getToken());
             return new ModelAndView("user");
         }
         return new ModelAndView("redirect:/login");
@@ -200,8 +195,6 @@ public class WebController
     @GetMapping({"/login", "/login/"})
     public ModelAndView Login(Model model, HttpServletRequest request, @RequestParam Optional<String> fail)
     {
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         if (fail.isPresent())
             model.addAttribute("incorrectLogin", true);
         return new ModelAndView("login");
@@ -219,8 +212,6 @@ public class WebController
         {
             return new ModelAndView("redirect:/user");
         }
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("register");
     }
 
@@ -279,8 +270,6 @@ public class WebController
         int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("shop");
     }
 
@@ -298,8 +287,6 @@ public class WebController
         int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("shop");
     }
 
@@ -307,16 +294,15 @@ public class WebController
 
     // Upload a new user image
     @PostMapping({"/upload_image", "/upload_image/"})
-    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException 
+    public ModelAndView uploadImage(@RequestParam MultipartFile image, RedirectAttributes attributes,HttpServletRequest request) throws IOException
     {
-        UserD user = this.userService.findByUsername(username).orElseThrow();
-        user.setImageFile(BlobProxy.generateProxy(image.getInputStream(), image.getSize()));
-        this.userService.save(user);
+        UserD user = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow();
+        this.imageService.uploadImage(user,image);
         if (user.getID().equals(1L))
         {
             return new ModelAndView("redirect:/admin");
         }
-        attributes.addFlashAttribute("username", username);
+        attributes.addFlashAttribute("username", request.getUserPrincipal().getName());
         return new ModelAndView("redirect:/user");
     }
 
@@ -324,27 +310,14 @@ public class WebController
     @GetMapping({"/download_image", "/download_image/"})
     public ResponseEntity<Object> downloadImage(@RequestParam String username) throws SQLException
     {
-        UserD u = this.userService.findByUsername(username).orElseThrow();
-        if (u.getImageFile() != null) {
-
-            Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
-
-            return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-                    .contentLength(u.getImageFile().length()).body(file);
-
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return this.imageService.getImage(username);
     }
 
     // Delete a user image
     @DeleteMapping({"/delete_image", "/delete_image/"})
     public  ModelAndView  deleteImage(RedirectAttributes attributes, HttpServletRequest request) throws IOException
     {
-
-        UserD u = this.userService.findByUsername(request.getUserPrincipal().getName()).get();
-        u.setImageFile(null);
-        this.userService.save(u);
+        UserD u = this.imageService.deleteImage(request);
         if (u.getID().equals(1L))
         {
             return new ModelAndView("redirect:/admin");
