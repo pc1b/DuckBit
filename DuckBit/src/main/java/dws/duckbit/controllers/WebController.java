@@ -22,10 +22,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -111,8 +109,6 @@ public class WebController
         model.addAttribute("combosCreated", comboService.getComboSize() - soldCombos);
         model.addAttribute("soldCombos", soldCombos);
         model.addAttribute("email", email);
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("admin");
     }
 
@@ -126,8 +122,6 @@ public class WebController
         String email = this.userService.findByID(1l).get().getMail();
         model.addAttribute("username", name);
         model.addAttribute("email", email);
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("users");
     }
 
@@ -155,8 +149,6 @@ public class WebController
             model.addAttribute("combos", combos);
             model.addAttribute("email", email);
             model.addAttribute("id", idNum);
-            CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-            model.addAttribute("token", token.getToken());
             return new ModelAndView("user");
         }
         return new ModelAndView("redirect:/login");
@@ -200,8 +192,6 @@ public class WebController
     @GetMapping({"/login", "/login/"})
     public ModelAndView Login(Model model, HttpServletRequest request, @RequestParam Optional<String> fail)
     {
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         if (fail.isPresent())
             model.addAttribute("incorrectLogin", true);
         return new ModelAndView("login");
@@ -219,8 +209,6 @@ public class WebController
         {
             return new ModelAndView("redirect:/user");
         }
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("register");
     }
 
@@ -279,8 +267,6 @@ public class WebController
         int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("shop");
     }
 
@@ -298,8 +284,6 @@ public class WebController
         int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());
         return new ModelAndView("shop");
     }
 
