@@ -78,7 +78,7 @@ public class WebController
     public ModelAndView succesLogin(HttpServletRequest request)
     {
         if (request.isUserInRole("ADMIN")){
-            return new ModelAndView("redirect:/admin");
+            return new ModelAndView("redirect:/admin/");
         }
         if (request.isUserInRole("USER")){
             return new ModelAndView("redirect:/user");
@@ -169,7 +169,7 @@ public class WebController
         if (this.userService.findByUsername(username).orElseThrow().getUserd().equals(username)){
             this.userService.editUser(username, usernameUpdate, mail, password);
             request.logout();
-            request.login(usernameUpdate, password);    
+            request.login(usernameUpdate, password);
             return succesLogin(request);
         }
         return new ModelAndView("redirect:/user");
@@ -198,10 +198,12 @@ public class WebController
 
     // Login page
     @GetMapping({"/login", "/login/"})
-    public ModelAndView Login(Model model, HttpServletRequest request)
+    public ModelAndView Login(Model model, HttpServletRequest request, @RequestParam Optional<String> fail)
     {
         CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
         model.addAttribute("token", token.getToken());
+        if (fail.isPresent())
+            model.addAttribute("incorrectLogin", true);
         return new ModelAndView("login");
     }
 
@@ -226,7 +228,7 @@ public class WebController
     public ModelAndView loginError(Model model)
     {
         model.addAttribute("incorrectLogin", true);
-        return new ModelAndView("redirect:/login");
+        return new ModelAndView("login");
     }
 
     // Form sended to register

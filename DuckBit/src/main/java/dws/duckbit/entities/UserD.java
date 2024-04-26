@@ -15,6 +15,7 @@ public class UserD
     private Long id = null;
     private String userd;
     private String mail;
+    @JsonIgnore
     private String encodedPassword;
     @JsonIgnore
     @OneToMany(mappedBy = "userD", cascade = CascadeType.ALL)

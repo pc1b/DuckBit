@@ -52,11 +52,11 @@ public class SecurityConfig {
 	@Bean
 	@Order(1)
 	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-		String[] userGETEndpoints = {"/api/user/**", "api/user", "/api/combo", "/api/combo/", "/api/query", "/api/query/",
+		String[] userGETEndpoints = {"/api/user/", "/api/user", "/api/user/combo/**","/api/combo", "/api/combo/", "/api/query", "/api/query/",
 				"/api/combo/buy/*", "/api/combo/buy/*/","/api/combo/*", "/api/combo/*/", "/api/credits", "/api/credits/"
 				, "/api/image", "/api/image/", "/api/combo/*/file", "/api/combo/*/file/"};
 		String[] userPOSTEndpoints ={"/api/image", "/api/image/"};
-		String[] userDELEndpoints ={"/api/image", "/api/image/", "/api/combo/*", "/api/combo/*/"};
+		String[] userDELEndpoints ={"/api/image", "/api/image/", "/api/combo/*", "/api/combo/*/", "/api/user/*", "/api/user/*/"};
 		String[] adminGETEndpoints = {"/api/admin", "/api/admin/", "/api/user/number", "/api/user/number/", "/api/user/all",
 				"/api/user/all/", "/api/leak/**", "/api/leak/*/combos", "/api/leak/*/combos/", "api/combo/sold/number/",
 				"api/combo/sold/number"};
@@ -117,7 +117,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(authorize -> authorize
 						// PUBLIC PAGES
 
-						.requestMatchers("/", "/images/**", "/css/**", "/gifs/**", "/register", "/error").permitAll()
+						.requestMatchers("/", "/images/**", "/css/**", "/gifs/**", "/register", "/error", "/error/**").permitAll()
 
 						// PRIVATE PAGES
 						.requestMatchers("/successLogin").authenticated()
@@ -126,7 +126,7 @@ public class SecurityConfig {
 				)
 				.formLogin(formLogin -> formLogin
 						.loginPage("/login")
-						.failureUrl("/login_error")
+						.failureUrl("/login?fail")
 						.defaultSuccessUrl("/successLogin")
 						.permitAll()
 				)

@@ -132,7 +132,8 @@ public class ApiController
 		Optional<Combo> c = this.comboService.findById(id);
 		if (u.isPresent() && c.isPresent())
 		{
-			if (!c.get().getUser().equals(u.get())){
+			UserD user= c.get().getUser();
+			if (user == null || !user.equals(u.get())){
 				return status(HttpStatus.UNAUTHORIZED).build();
 			}
 			return ResponseEntity.ok(c.get());
