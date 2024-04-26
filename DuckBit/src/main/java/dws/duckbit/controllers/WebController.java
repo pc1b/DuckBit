@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.servlet.ServletException;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -162,12 +163,15 @@ public class WebController
     }
 
     @PostMapping({"/edit_user", "/edit_user/"})
-    public ModelAndView EditUser(@RequestParam String username, @RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password) throws IOException
-    {
+    public ModelAndView EditUser(@RequestParam String username, @RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
         if (username.isEmpty() || usernameUpdate.isEmpty() || mail.isEmpty() || password.isEmpty())
             return new ModelAndView("redirect:/user");
-        if (this.userService.findByUsername(username).orElseThrow().getUserd().equals(username))
+        if (this.userService.findByUsername(username).orElseThrow().getUserd().equals(username)){
             this.userService.editUser(username, usernameUpdate, mail, password);
+            request.logout();
+            request.login(usernameUpdate, password);    
+            return succesLogin(request);
+        }
         return new ModelAndView("redirect:/user");
     }
 
