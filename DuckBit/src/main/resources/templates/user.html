@@ -32,7 +32,7 @@
             <span style="width: 400px" class="w3-white">Welcome, <strong>{{username}}</strong> at [{{email}}]</span><br>
             <h4 style="width:160px;color:white;margin-bottom: 3px; margin-right: 5px">Credits: {{credits}}</h4>
             <button style="background-color: transparent; border: none; cursor: pointer" onclick='editUser()'><img style="width: 45px; margin-bottom: 3px; margin-right: 5px" src="/images/edit.svg"></button>
-            <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded">
+            <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded" style="display: flex; flex-direction: column; align-items: center;">
                 <input type="hidden" name="username" value="{{username}}">
                 <input id="usernameEdit" type="hidden" name="usernameUpdate" value="{{username}}" required>
                 <input id="emailEdit" type="hidden" name="mail" value="{{email}}" required>
@@ -162,10 +162,22 @@
         }
 
         function editUser(){
-            document.getElementById("usernameEdit").type = "text";
-            document.getElementById("emailEdit").type = "text";
-            document.getElementById("passwordEdit").type = "password";
-            document.getElementById("submitEdit").type = "submit";
+            if (document.getElementById("usernameEdit").type == "text")
+                document.getElementById("usernameEdit").type = "hidden";
+            else if (document.getElementById("usernameEdit").type == "hidden")
+                document.getElementById("usernameEdit").type = "text";
+            if (document.getElementById("emailEdit").type == "text")
+                document.getElementById("emailEdit").type = "hidden";
+            else if (document.getElementById("emailEdit").type == "hidden")
+                document.getElementById("emailEdit").type = "text";
+            if (document.getElementById("passwordEdit").type == "password")
+                document.getElementById("passwordEdit").type = "hidden";
+            else if (document.getElementById("passwordEdit").type == "hidden")
+                document.getElementById("passwordEdit").type = "password";
+            if (document.getElementById("submitEdit").type == "submit")
+                document.getElementById("submitEdit").type = "hidden";
+            else if (document.getElementById("submitEdit").type == "hidden")
+                document.getElementById("submitEdit").type = "submit";
         }
 
         // Close the sidebar with the close button
