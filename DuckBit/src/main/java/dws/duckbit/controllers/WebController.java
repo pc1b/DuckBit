@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import dws.duckbit.services.ImageService;
 import jakarta.servlet.ServletException;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
@@ -52,13 +53,15 @@ public class WebController
     private final UserService userService;
     private final LeakService leakService;
     private final ComboService comboService;
+    private final ImageService imageService;
 
     private int soldCombos = 0;
 
-    public WebController(UserService userService, LeakService leakService, ComboService comboService) {
+    public WebController(UserService userService, LeakService leakService, ComboService comboService, ImageService imageService) {
         this.userService = userService;
         this.leakService = leakService;
         this.comboService = comboService;
+        this.imageService = imageService;
     }
 // ---------- INDEX ---------- //
 
@@ -291,16 +294,15 @@ public class WebController
 
     // Upload a new user image
     @PostMapping({"/upload_image", "/upload_image/"})
-    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes) throws IOException 
+    public ModelAndView uploadImage(@RequestParam MultipartFile image, RedirectAttributes attributes,HttpServletRequest request) throws IOException
     {
-        UserD user = this.userService.findByUsername(username).orElseThrow();
-        user.setImageFile(BlobProxy.generateProxy(image.getInputStream(), image.getSize()));
-        this.userService.save(user);
+        UserD user = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow();
+        this.imageService.uploadImage(user,image);
         if (user.getID().equals(1L))
         {
             return new ModelAndView("redirect:/admin");
         }
-        attributes.addFlashAttribute("username", username);
+        attributes.addFlashAttribute("username", request.getUserPrincipal().getName());
         return new ModelAndView("redirect:/user");
     }
 
@@ -308,27 +310,14 @@ public class WebController
     @GetMapping({"/download_image", "/download_image/"})
     public ResponseEntity<Object> downloadImage(@RequestParam String username) throws SQLException
     {
-        UserD u = this.userService.findByUsername(username).orElseThrow();
-        if (u.getImageFile() != null) {
-
-            Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
-
-            return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-                    .contentLength(u.getImageFile().length()).body(file);
-
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return this.imageService.getImage(username);
     }
 
     // Delete a user image
     @DeleteMapping({"/delete_image", "/delete_image/"})
     public  ModelAndView  deleteImage(RedirectAttributes attributes, HttpServletRequest request) throws IOException
     {
-
-        UserD u = this.userService.findByUsername(request.getUserPrincipal().getName()).get();
-        u.setImageFile(null);
-        this.userService.save(u);
+        UserD u = this.imageService.deleteImage(request);
         if (u.getID().equals(1L))
         {
             return new ModelAndView("redirect:/admin");

@@ -2,6 +2,7 @@ package dws.duckbit.controllers;
 
 import dws.duckbit.entities.*;
 import dws.duckbit.services.ComboService;
+import dws.duckbit.services.ImageService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
 import jakarta.servlet.http.Cookie;
@@ -48,14 +49,16 @@ public class ApiController
 	private final UserService userService;
 	private final ComboService comboService;
 	private final LeakService leaksDB;
+	private final ImageService imageService;
 
 	// ---------- BUILDER ---------- //
-	public ApiController(UserService userService, ComboService comboService, LeakService leaksDB)
+	public ApiController(UserService userService, ComboService comboService, LeakService leaksDB, ImageService imageService)
 	{
 		this.userService = userService;
 		this.comboService = comboService;
 		this.leaksDB = leaksDB;
-	}
+        this.imageService = imageService;
+    }
 
 	// ---------- INDEX ---------- //
 
@@ -485,62 +488,22 @@ public class ApiController
 	@GetMapping({"/image", "/image/"})
 	public ResponseEntity<Object> downloadImage(HttpServletRequest request) throws SQLException
 	{
-		Optional<UserD> user = this.userService.findByUsername(request.getUserPrincipal().getName());
-		if (user.isEmpty())
-		{
-			return ResponseEntity.notFound().build();
-		}
-		UserD u = user.get();
-		if (u.getImageFile() != null)
-		{
-
-			Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-					.contentLength(u.getImageFile().length()).body(file);
-		}
-		else
-		{
-			return ResponseEntity.notFound().build();
-		}
+		return this.imageService.getImage(request.getUserPrincipal().getName());
 	}
 
 	//POST AN IMAGE
 	@PostMapping({"/image", "/image/"})
 	public ResponseEntity<Object> uploadImage(HttpServletRequest request, @RequestParam MultipartFile imageFile)
 	{
-		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
-		if (u.isEmpty())
-		{
-			return ResponseEntity.notFound().build();
-		}
-		UserD user = u.get();
-		URI location = fromCurrentRequest().build().toUri();
-		Blob image;
-		try
-		{
-			image = BlobProxy.generateProxy(imageFile.getInputStream(), imageFile.getSize());
-		}
-		catch (IOException e)
-		{
-			return ResponseEntity.badRequest().body("Not an image");
-		}
-		user.setImageFile(image);
-		this.userService.save(user);
-		return ResponseEntity.created(location).build();
+		UserD user = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow();
+		return this.imageService.uploadImage(user, imageFile);
 	}
 
 	//DELETE AN IMAGE
 	@DeleteMapping(value = {"/image", "/image/"})
 	public ResponseEntity<Object> deleteImage(HttpServletRequest request) throws IOException
 	{
-		Optional<UserD> user = this.userService.findByUsername(request.getUserPrincipal().getName());
-		if (user.isEmpty())
-		{
-			return ResponseEntity.notFound().build();
-		}
-		UserD u = user.get();
-		u.setImageFile(null);
-		this.userService.save(u);
+		this.imageService.deleteImage(request);
 		return ResponseEntity.noContent().build();
 	}
 }
