@@ -5,14 +5,11 @@ import dws.duckbit.repositories.ComboRepository;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,12 +21,9 @@ import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
 
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
-
-import static org.springframework.http.ResponseEntity.status;
 
 @Service
 public class ComboService
@@ -79,9 +73,9 @@ public class ComboService
 			return 0;
 	}
 
-	public long getComboSize()
+	public Long getAvailableCombosSize()
 	{
-		return this.comboRepository.count();
+		return this.comboRepository.countCombosByUserDNull();
 	}
 
 	public Collection<Combo> findAll()
@@ -89,7 +83,7 @@ public class ComboService
 		return this.comboRepository.findAll();
 	}
 
-	public List<Combo> getAvilableCombos(){
+	public List<Combo> getAvailableCombos(){
 		return this.comboRepository.findCombosByUserDNull();
 	}
 

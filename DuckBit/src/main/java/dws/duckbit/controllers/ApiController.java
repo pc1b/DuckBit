@@ -5,35 +5,22 @@ import dws.duckbit.services.ComboService;
 import dws.duckbit.services.ImageService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.engine.jdbc.BlobProxy;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.Principal;
-import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.*;
 
 import static org.springframework.http.ResponseEntity.status;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 
 @RestController
@@ -43,7 +30,6 @@ public class ApiController
 
 	// ---------- DEFAULT PATHS ---------- //
 	private final Path LEAKS_FOLDER = Paths.get("files/leaks");
-	private final Path COMBO_FOLDER = Paths.get("files/combo");
 
 	// ---------- SERVICES ---------- //
 	private final UserService userService;
@@ -428,7 +414,7 @@ public class ApiController
 	@GetMapping({"/combo", "/combo/"})
 	public ResponseEntity<Collection<Combo>> getcomboService()
 	{
-		Collection<Combo> c = this.comboService.getAvilableCombos();
+		Collection<Combo> c = this.comboService.getAvailableCombos();
 		if (c != null)
 		{
 			return ResponseEntity.ok(c);
@@ -461,7 +447,7 @@ public class ApiController
 		{
 			return ResponseEntity.notFound().build();
 		}
-		if (!this.comboService.getAvilableCombos().contains(c.get()))
+		if (!this.comboService.getAvailableCombos().contains(c.get()))
 		{
 			return ResponseEntity.badRequest().body("This combo is no more for sell");
 		}

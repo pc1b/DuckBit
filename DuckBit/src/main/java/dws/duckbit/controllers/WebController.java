@@ -16,7 +16,6 @@ import java.util.Optional;
 
 import dws.duckbit.services.ImageService;
 import jakarta.servlet.ServletException;
-import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -103,13 +102,13 @@ public class WebController
             leaks = this.leakService.findAll();
             model.addAttribute("leak", leaks);
         }
-        Collection<Combo> c = this.comboService.getAvilableCombos();
+        Collection<Combo> c = this.comboService.getAvailableCombos();
         if (!c.isEmpty())
         {
             model.addAttribute("combos", c);
         }
         model.addAttribute("registredUsers", userService.getSize());
-        model.addAttribute("combosCreated", comboService.getComboSize() - soldCombos);
+        model.addAttribute("combosCreated", comboService.getAvailableCombosSize());
         model.addAttribute("soldCombos", soldCombos);
         model.addAttribute("email", email);
         return new ModelAndView("admin");
@@ -261,7 +260,7 @@ public class WebController
     @GetMapping({"/shop", "/shop/"})
     public ModelAndView shop(Model model, HttpServletRequest request) throws IOException
     {
-        Collection<Combo> c = this.comboService.getAvilableCombos();
+        Collection<Combo> c = this.comboService.getAvailableCombos();
         if (!c.isEmpty())
         {
             model.addAttribute("combos", c);
@@ -453,7 +452,7 @@ public class WebController
 		{
 			return new ModelAndView("redirect:/shop");
 		}
-        if (!this.comboService.getAvilableCombos().contains(c.get()))
+        if (!this.comboService.getAvailableCombos().contains(c.get()))
             return new ModelAndView("redirect:/shop");
         int comboPrice = this.comboService.getComboPrice(combo);
         if (this.userService.hasEnoughCredits(comboPrice, userID))

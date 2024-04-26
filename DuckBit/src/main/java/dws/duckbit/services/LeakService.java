@@ -3,8 +3,6 @@ package dws.duckbit.services;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.repositories.LeaksRepository;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -18,8 +16,6 @@ import java.util.*;
 
 import dws.duckbit.entities.Leak;
 import org.springframework.web.multipart.MultipartFile;
-
-import static org.springframework.http.ResponseEntity.status;
 
 
 @Service
