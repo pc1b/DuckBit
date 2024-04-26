@@ -285,7 +285,7 @@ public class WebController
     }
 
     //Authorize(USER)
-    @GetMapping({"/query", "/query/"})
+    @PostMapping({"/query", "/query/"})
     public ModelAndView getMethodName(Model model, HttpServletRequest request,@RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
     {
         if (enterprise.equals("") && price <= 0)
@@ -298,6 +298,8 @@ public class WebController
         int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("token", token.getToken());
         return new ModelAndView("shop");
     }
 

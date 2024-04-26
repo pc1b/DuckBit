@@ -48,7 +48,7 @@
         </div>
         <div style="margin-top: 10px" class="w3-right">
             <div style="margin-top: 17px;margin-right: 5px" class="w3-left">
-                <form id="queryForm" action="/query" method="get" enctype="multipart/form-data" style="visibility: hidden">
+                <form id="queryForm" action="/query" method="post" enctype="multipart/form-data" style="visibility: hidden">
                     <input type="text" name="enterprise" placeholder="Enterprise:">
                     <input type="number" name="price" placeholder="Maximum Price:">
                     <input type="submit" value="Search">
@@ -58,7 +58,10 @@
             <div style="margin-top: 10px" class="w3-right">
                 <button style="background-color: transparent; border: none; cursor: pointer" id="btn"><img style="width: 45px; margin-right: 5px;" src="/images/filter.svg"></button>
                 <a href="/user"><img style="width: 50px; margin-right: 5px" src="/images/profile.svg"></a>
-                <a href="/logout"><img style="width: 50px; margin-right: 5px" src="/images/logout.svg"></a>
+                <form action="/logout" method="post" style="display: inline;" class="w3-right">
+                    <input type="image" name="submit_blue" value="blue" alt="blue" style="width: 45px; margin-bottom: 3px; margin-right: 5px" src="/images/logout.svg">
+                    <input type="hidden" name="_csrf" value="{{token}}"/>
+                </form>
             </div>
         </div>
     </div>
