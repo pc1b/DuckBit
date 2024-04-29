@@ -5,6 +5,7 @@ import dws.duckbit.services.ComboService;
 import dws.duckbit.services.ImageService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,6 +22,7 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
 
+import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.status;
 
 
@@ -346,6 +349,8 @@ public class ApiController
 			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
 		if (check == 4)
 			return status(HttpStatus.BAD_REQUEST).body("One of the leaks has not been found in the server");
+		if (check == 6)
+			return status(HttpStatus.BAD_REQUEST).body("Combo not found on the server");
 		if (check == 5) {
 			Optional<Combo> c = comboService.findById(id);
 			return status(HttpStatus.CREATED).body(c);
@@ -397,9 +402,15 @@ public class ApiController
 	public ResponseEntity<Object> deleteUser(@PathVariable Long id, HttpServletRequest request) throws IOException {
 		if (request.isUserInRole("ADMIN"))
 		{
-			if (id > 1)
+			if (id > 1 && this.userService.findByID(id).isPresent()){
 				this.comboService.deleteUser(id);
-			return ResponseEntity.ok().build();
+				return ResponseEntity.ok().build();
+			} else if (id == 1) {
+				return ResponseEntity.badRequest().body("CAN'T DELETE ADMIN USER");
+			}
+			else
+				return ResponseEntity.notFound().build();
+
 		}
 		else if (Objects.equals(this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID(), id))
 		{
@@ -409,6 +420,16 @@ public class ApiController
 		return status(HttpStatus.FORBIDDEN).build();
 	}
 
+	//EDIT USER
+	@PutMapping({"/user", "/user/"})
+	public ResponseEntity<Object> EditUser(@RequestParam String username, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
+		if (username.isEmpty() || mail.isEmpty() || password.isEmpty())
+			return ResponseEntity.badRequest().body("FILL USERNAME, MAIL AND PASSWORD TO CHANGE");
+		this.userService.editUser(request.getUserPrincipal().getName(), username, mail, password);
+		request.logout();
+		request.login(username, password);
+		return ResponseEntity.ok(this.userService.findByUsername(request.getUserPrincipal().getName()));
+	}
 	// ---------- SHOP ---------- //
 	//SHOP INDEX
 	@GetMapping({"/combo", "/combo/"})

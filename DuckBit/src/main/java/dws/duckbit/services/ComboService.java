@@ -195,7 +195,7 @@ public class ComboService
 			}
 			return 5;
 		}
-		return 1;
+		return 6;
 	}
 
 	public Combo createCombo(String name, ArrayList<Long> leaksID, int price, String description) throws IOException

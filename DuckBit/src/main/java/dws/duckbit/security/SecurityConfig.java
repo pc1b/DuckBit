@@ -57,7 +57,9 @@ public class SecurityConfig {
 				, "/api/image", "/api/image/", "/api/combo/*/file", "/api/combo/*/file/"};
 		String[] userPOSTEndpoints ={"/api/image", "/api/image/"};
 		String[] userDELEndpoints ={"/api/image", "/api/image/", "/api/combo/*", "/api/combo/*/", "/api/user/*", "/api/user/*/"};
-		String[] adminGETEndpoints = {"/api/admin", "/api/admin/", "/api/user/number", "/api/user/number/", "/api/user/all",
+		String[] userPUTEndpoints ={"/api/user", "/api/user/"};
+
+		String[] adminGETEndpoints = {"/api/user/number", "/api/user/number/", "/api/user/all",
 				"/api/user/all/", "/api/leak/**", "/api/leak/*/combos", "/api/leak/*/combos/", "api/combo/sold/number/",
 				"api/combo/sold/number"};
 		String[] adminPOSTEndpoints = {"/api/leak/", "/api/leak", "/api/combo/", "/api/combo"};
@@ -75,6 +77,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET,userGETEndpoints).hasRole("USER")
 						.requestMatchers(HttpMethod.POST,userPOSTEndpoints).hasRole("USER")
 						.requestMatchers(HttpMethod.DELETE, userDELEndpoints).hasRole("USER")
+						.requestMatchers(HttpMethod.PUT, userPUTEndpoints).hasRole("USER")
 						.requestMatchers(HttpMethod.GET, adminGETEndpoints).hasRole("ADMIN")
 						.requestMatchers(HttpMethod.POST, adminPOSTEndpoints).hasRole("ADMIN")
 						.requestMatchers(HttpMethod.DELETE, adminDELEndpoints).hasRole("ADMIN")

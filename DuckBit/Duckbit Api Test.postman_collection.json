@@ -1,11 +1,266 @@
 {
 	"info": {
 		"_postman_id": "56b70838-911a-4d21-854c-63aa5bda53b6",
-		"name": "Duckbit Api Test Copy",
+		"name": "Duckbit Api Test",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "33165348"
 	},
 	"item": [
+		{
+			"name": "Admin login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/auth/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"paco\",\r\n    \"password\": \"paco\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/auth/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login error",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"'\",\r\n    \"password\": \"'\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/auth/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8443/api/auth/logout",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8443/api/auth/refresh",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"auth",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "pedro",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "b",
+							"type": "text"
+						},
+						{
+							"key": "mail",
+							"value": "b@a.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/register",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register error",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "paco",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "b",
+							"type": "text"
+						},
+						{
+							"key": "mail",
+							"value": "b@a.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/register",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "USER",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "pedro",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "ba",
+							"type": "text"
+						},
+						{
+							"key": "mail",
+							"value": "b@a.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/user",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "Welcome",
 			"request": {
@@ -26,12 +281,12 @@
 			"response": []
 		},
 		{
-			"name": "user/1",
+			"name": "user/",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/user/1",
+					"raw": "https://localhost:8443/api/user",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -39,8 +294,7 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"user",
-						"1"
+						"user"
 					]
 				}
 			},
@@ -52,7 +306,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/user/2/combos",
+					"raw": "https://localhost:8443/api/user/combo/all",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -61,20 +315,20 @@
 					"path": [
 						"api",
 						"user",
-						"2",
-						"combos"
+						"combo",
+						"all"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "user oob",
+			"name": "user combo not owner",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/user/8",
+					"raw": "https://localhost:8443/api/user/combo/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -83,19 +337,20 @@
 					"path": [
 						"api",
 						"user",
-						"8"
+						"combo",
+						"1"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "user/error",
+			"name": "users all",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/user/99-99",
+					"raw": "https://localhost:8443/api/user/all",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -104,28 +359,7 @@
 					"path": [
 						"api",
 						"user",
-						"99-99"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "users",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/user/",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"user",
-						""
+						"all"
 					]
 				}
 			},
@@ -158,7 +392,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/2/credits",
+					"raw": "https://localhost:8443/api/credits",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -166,49 +400,6 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"2",
-						"credits"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Buy credits OOB",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/99/credits",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"99",
-						"credits"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Buy credits error",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/a/credits",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"a",
 						"credits"
 					]
 				}
@@ -251,48 +442,6 @@
 						"api",
 						"leak",
 						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "leak OOB",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/leak/40",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"leak",
-						"40"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "leak Error",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/leak/a",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"leak",
-						"a"
 					]
 				}
 			},
@@ -382,7 +531,7 @@
 						{
 							"key": "leakInfo",
 							"type": "file",
-							"src": "/C:/Users/pla10/Desktop/DWS/leak.txt"
+							"src": "/C:/Users/pla10/Desktop/DWS/apple.txt"
 						}
 					]
 				},
@@ -490,7 +639,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/leak/1",
+					"raw": "https://localhost:8443/api/leak/4",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -499,28 +648,7 @@
 					"path": [
 						"api",
 						"leak",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "leak error",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/leak/a",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"leak",
-						"a"
+						"4"
 					]
 				}
 			},
@@ -529,6 +657,9 @@
 		{
 			"name": "shop",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -888,7 +1019,7 @@
 					"formdata": []
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/combo/2",
+					"raw": "https://localhost:8443/api/combo/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -897,7 +1028,7 @@
 					"path": [
 						"api",
 						"combo",
-						"2"
+						"1"
 					]
 				}
 			},
@@ -1128,7 +1259,7 @@
 					]
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/2/combo",
+					"raw": "https://localhost:8443/api/combo/buy",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -1136,8 +1267,8 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"2",
-						"combo"
+						"combo",
+						"buy"
 					]
 				}
 			},
@@ -1159,7 +1290,7 @@
 					]
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/2/combo",
+					"raw": "https://localhost:8443/api/combo/buy",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -1167,158 +1298,8 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"2",
-						"combo"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "login",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "username",
-							"value": "admin",
-							"type": "text"
-						},
-						{
-							"key": "password",
-							"value": "admin",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/login",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"login"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "login error",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "username",
-							"value": "'",
-							"type": "text"
-						},
-						{
-							"key": "password",
-							"value": "'",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/login",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"login"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "register",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "username",
-							"value": "pedro",
-							"type": "text"
-						},
-						{
-							"key": "password",
-							"value": "b",
-							"type": "text"
-						},
-						{
-							"key": "mail",
-							"value": "b@a.com",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/register",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"register"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "register error",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "username",
-							"value": "paco",
-							"type": "text"
-						},
-						{
-							"key": "password",
-							"value": "b",
-							"type": "text"
-						},
-						{
-							"key": "mail",
-							"value": "b@a.com",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/register",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"register"
+						"combo",
+						"buy"
 					]
 				}
 			},
@@ -1371,7 +1352,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/2/image",
+					"raw": "https://localhost:8443/api/image",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -1379,28 +1360,6 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"2",
-						"image"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "image error",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/40/image",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"40",
 						"image"
 					]
 				}
@@ -1423,7 +1382,7 @@
 					]
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/2/image",
+					"raw": "https://localhost:8443/api/image",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -1431,38 +1390,6 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"2",
-						"image"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "image error",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "image",
-							"type": "file",
-							"src": "/C:/Users/pla10/Downloads/Correción Fase I(2).docx"
-						}
-					]
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/20/image",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"20",
 						"image"
 					]
 				}
@@ -1479,7 +1406,7 @@
 					"formdata": []
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/2/image",
+					"raw": "https://localhost:8443/api/image",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -1487,7 +1414,6 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"2",
 						"image"
 					]
 				}
