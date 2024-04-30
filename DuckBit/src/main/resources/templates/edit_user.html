@@ -51,15 +51,16 @@
 
 
     <div class="w3-panel" style="display: flex; flex-direction: column; align-content: space-around; flex-wrap: wrap; margin-top: 100px; height:510px ">
-        <div class="w3-third" style="height:auto;overflow: auto">
+        <div class="w3-third" style="height:auto;overflow: auto;display: flex;flex-direction: column; align-items: center">
             <h5>Edit {{username}}</h5>
             <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded" style="display: flex; flex-direction: column; align-items: center;">
                 <input style="margin-bottom: 5px" id="usernameEdit" type="text" name="usernameUpdate" value="{{username}}" required>
                 <input id="emailEdit" style="margin-bottom: 5px" type="email" name="mail" value="{{email}}" required>
                 <input id="passwordEdit" style="margin-bottom: 5px" type="password" name="password" placeholder="New Password:" required>
                 <input type="hidden" name="_csrf" value="{{token}}"/>
-                <input id="submitEdit" type="submit" value="Update Values">
+                <input id="submitEdit" type="submit" value="Update Values" style="margin-bottom: 5px">
             </form>
+            <button class="button" onclick='sendDeleteUserRequest("{{id}}")'>Delete User</button>
         </div>
     </div>
 
@@ -140,18 +141,13 @@
         document.getElementById('editForm').setAttribute("action", "/edit_combo");
     }
 
-    function checkAdmin(id){
-        if (id == 1)
-            document.getElementById(id).style.display = "none";
-    }
-
-    function deleteUser(id)
-    {
-        fetch("/delete_user/"+id, {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
+    function sendDeleteUserRequest(id){
+        fetch('/delete_user/'+id, {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
             .then(response => {
-                location.reload();
+                location.assign("/");
             })
     }
+
 
     function sendDeleteRequest()
     {

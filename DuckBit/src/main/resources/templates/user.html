@@ -100,7 +100,6 @@
             }
             </style>
             <button class="button" onclick="sendDeleteRequest()">Delete Image</button>
-            <button class="button" onclick='sendDeleteUserRequest("{{id}}")'>Delete User</button>
     </div>
         <!-- Footer -->
         <footer class="w3-container w3-theme-dark w3-padding-16">
@@ -132,12 +131,6 @@
             document.getElementById("imageForm").submit();
         }
 
-        function sendDeleteUserRequest(id){
-            fetch('/delete_user/'+id, {method: "delete", headers: {'X-CSRF-TOKEN': '{{token}}'}})
-                .then(response => {
-                    location.assign("/");
-                })
-        }
 
         function deleteCombo(id)
         {
