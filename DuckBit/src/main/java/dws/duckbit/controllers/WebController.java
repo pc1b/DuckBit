@@ -524,7 +524,7 @@ public class WebController
 
     // Download a combo
     @PostMapping({"/download_combo", "/download_combo/"})
-    public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam String idCombo, HttpServletRequest request)
+    public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam int idCombo, HttpServletRequest request)
             throws MalformedURLException, FileNotFoundException
     {
         Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
@@ -532,7 +532,7 @@ public class WebController
         {
             for (Combo combo : userService.findByID(idNum).get().getCombos())
             {
-                if (Integer.parseInt(idCombo) == combo.getId())
+                if (idCombo == combo.getId())
                 {
                     String nameFile = idCombo + ".txt";
                     Path comboPath = COMBOS_FOLDER.resolve(nameFile);
