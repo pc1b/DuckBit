@@ -156,6 +156,33 @@ public class WebController
         return new ModelAndView("redirect:/login");
     }
 
+    @GetMapping({"/edit_user", "/edit_user/"})
+    public ModelAndView EditUserView(Model model, HttpServletRequest request){
+        Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
+        if (!(this.userService.IDExists(idNum)))         // Cookie check (and if user exists)
+        {
+            idNum = -1L;
+        }
+        if (idNum == 1)
+        {
+            return new ModelAndView("redirect:/users");
+        }
+        else if (idNum > 1)
+        {
+            String name = this.userService.findByID(idNum).get().getUserd();
+            int credits = this.userService.findByID(idNum).get().getCredits();
+            String email = this.userService.findByID(idNum).get().getMail();
+            List<Combo> combos = this.userService.findByID(idNum).get().getCombos();
+            model.addAttribute("credits", credits);
+            model.addAttribute("username", name);
+            model.addAttribute("combos", combos);
+            model.addAttribute("email", email);
+            model.addAttribute("id", idNum);
+            return new ModelAndView("edit_user");
+        }
+        return new ModelAndView("redirect:/login");
+    }
+
     @PostMapping({"/edit_user", "/edit_user/"})
     public ModelAndView EditUser(@RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
         if (usernameUpdate.length() > 255){
