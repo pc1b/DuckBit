@@ -157,9 +157,36 @@ public class WebController
     }
 
     @PostMapping({"/edit_user", "/edit_user/"})
-    public ModelAndView EditUser(@RequestParam String username, @RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
-        if (username.isEmpty() || usernameUpdate.isEmpty() || mail.isEmpty() || password.isEmpty())
-            return new ModelAndView("redirect:/user");
+    public ModelAndView EditUser(@RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
+        if (usernameUpdate.length() > 255){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("error");
+            modelAndView.addObject("username2Big", true);
+            return modelAndView;
+        }
+        if (password.length() > 255){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("error");
+            modelAndView.addObject("password2Big", true);
+            return modelAndView;
+        }
+        if (mail.length() > 255){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("error");
+            modelAndView.addObject("email2Big", true);
+            return modelAndView;
+        }
+        if (usernameUpdate.isEmpty() || mail.isEmpty() || password.isEmpty())
+        {
+            return new ModelAndView("redirect:/success");
+        }
+        if (!(request.getUserPrincipal().getName().equals(usernameUpdate)) && this.userService.userExists(usernameUpdate))
+        {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("error");
+            modelAndView.addObject("usernameAlreadyExists", true);
+            return modelAndView;
+        }
         this.userService.editUser(request.getUserPrincipal().getName(), usernameUpdate, mail, password);
         request.logout();
         request.login(usernameUpdate, password);
@@ -173,7 +200,7 @@ public class WebController
     {
         if (request.isUserInRole("ADMIN"))
         {
-            if (userID > 1)
+            if (userID > 1)                                     //Check that the user to eliminate is not the admin
                 this.comboService.deleteUser(userID);
             return new ModelAndView("redirect:/users");
         }

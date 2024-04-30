@@ -32,7 +32,6 @@
             <span style="width: 400px" class="w3-white">Welcome, <strong>{{username}}</strong> at [{{email}}]</span><br>
             <button style="background-color: transparent; border: none; cursor: pointer" onclick='editUser()'><img style="width: 45px; margin-bottom: 3px; margin-right: 5px" src="/images/edit.svg"></button>
             <form action="/edit_user" method="post" enctype="application/x-www-form-urlencoded" style="display: flex; flex-direction: column; align-items: center;">
-                <input type="hidden" name="username" value="{{username}}">
                 <input id="usernameEdit" type="hidden" name="usernameUpdate" value="{{username}}" required>
                 <input id="emailEdit" type="hidden" name="mail" value="{{email}}" required>
                 <input id="passwordEdit" type="hidden" name="password" placeholder="New Password:" required>
