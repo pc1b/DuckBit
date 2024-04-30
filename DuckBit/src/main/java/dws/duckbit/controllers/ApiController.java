@@ -126,7 +126,7 @@ public class ApiController
 		{
 			UserD user= c.get().getUser();
 			if (user == null || !user.equals(u.get())){
-				return status(HttpStatus.UNAUTHORIZED).build();
+				return status(HttpStatus.FORBIDDEN).build();
 			}
 			return ResponseEntity.ok(c.get());
 		}
