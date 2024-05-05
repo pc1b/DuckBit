@@ -3,11 +3,14 @@ package dws.duckbit.services;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.http.ResponseEntity.status;
 
 
 @Service
@@ -38,27 +41,6 @@ public class UserService
         return this.userRepository.findAll();
     }
 
-    public Long getIDUser(String user, String password)
-    {
-        Optional<UserD> u;
-        try
-        {
-            u = this.userRepository.findByUserdAndEncodedPassword(user, password);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return (-1L);
-        }
-        if (u.isPresent())
-        {
-            return u.get().getID();
-        }
-        else
-        {
-            return (-1L);
-        }
-    }
 
     public Optional<UserD> findByUsername(String username)
     {
@@ -80,7 +62,6 @@ public class UserService
     public void addUser(String user, String mail, String password, String... roles)
     {
         UserD newUserD = new UserD(user, mail, passwordEncoder.encode(password), roles);
-        //UserD newUserD = new UserD(user, mail, password, roles);
 
         this.userRepository.save(newUserD);
     }
@@ -139,6 +120,17 @@ public class UserService
         this.userRepository.save(this.userRepository.findByUserd(userd).get());
     }
 
+    public int checkUser(String username, String password, String mail){
+        if (username.length() > 255)
+            return 1;
+        if (password.length() > 255)
+            return 2;
+        if (mail.length() > 255)
+            return 3;
+        if (this.userExists(username))
+            return 4;
+        return 0;
+    }
     //NOT FINISHED
     public boolean buyCombo(Combo c, Long userid){
         if (this.hasEnoughCredits(c.getPrice(), userid))

@@ -185,19 +185,20 @@ public class WebController
 
     @PostMapping({"/edit_user", "/edit_user/"})
     public ModelAndView EditUser(@RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
-        if (usernameUpdate.length() > 255){
+        int check = this.userService.checkUser(usernameUpdate, password, mail);
+        if (check == 1){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("error");
             modelAndView.addObject("username2Big", true);
             return modelAndView;
         }
-        if (password.length() > 255){
+        if (check == 2){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("error");
             modelAndView.addObject("password2Big", true);
             return modelAndView;
         }
-        if (mail.length() > 255){
+        if (check == 3){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("error");
             modelAndView.addObject("email2Big", true);
@@ -207,17 +208,20 @@ public class WebController
         {
             return new ModelAndView("redirect:/success");
         }
-        if (!(request.getUserPrincipal().getName().equals(usernameUpdate)) && this.userService.userExists(usernameUpdate))
+        if (check == 4)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("error");
             modelAndView.addObject("usernameAlreadyExists", true);
             return modelAndView;
         }
-        this.userService.editUser(request.getUserPrincipal().getName(), usernameUpdate, mail, password);
-        request.logout();
-        request.login(usernameUpdate, password);
-        return succesLogin(request);
+        if (check == 0){
+            this.userService.editUser(request.getUserPrincipal().getName(), usernameUpdate, mail, password);
+            request.logout();
+            request.login(usernameUpdate, password);
+            return succesLogin(request);
+        }
+        return new ModelAndView("redirect:/error");
     }
 
     //Authorize(ADMIN)
@@ -276,33 +280,37 @@ public class WebController
     @PostMapping({"/register", "/register/"})
     public ModelAndView Register(@RequestParam String userD, @RequestParam String pass, @RequestParam String mail)
     {
-        if (userD.length() > 255){
+        int check = this.userService.checkUser(userD, pass, mail);
+        if (check == 1){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("register");
             modelAndView.addObject("username2Big", true);
             return modelAndView;
         }
-        if (pass.length() > 255){
+        if (check == 2){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("register");
             modelAndView.addObject("password2Big", true);
             return modelAndView;
         }
-        if (mail.length() > 255){
+        if (check == 3){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("register");
             modelAndView.addObject("email2Big", true);
             return modelAndView;
         }
-        if (this.userService.userExists(userD))
+        if (check == 4)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("register");
             modelAndView.addObject("userExists", true);
             return modelAndView;
         }
-        this.userService.addUser(userD, mail, pass, "USER");
-        return new ModelAndView("redirect:/login");
+        if (check == 0){
+            this.userService.addUser(userD, mail, pass, "USER");
+            return new ModelAndView("redirect:/login");
+        }
+        return new ModelAndView("redirect:/error");
     }
 
 // ---------- SHOP ---------- //

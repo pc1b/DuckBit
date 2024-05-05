@@ -358,43 +358,30 @@ public class ApiController
 		return status(HttpStatus.NOT_FOUND).build();
 	}
 
-	// ---------- LOGIN AND REGISTER ---------- //
+	// ---------- REGISTER ---------- //
 
-	//LOGIN
-	/*@PostMapping({"/login/", "/login"})
-	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password,
-										HttpServletResponse response)
-	{
-		Long userID = this.userService.getIDUser(username, password);
-		Cookie cookie = new Cookie("id", String.valueOf(userID));
-		if (userID >= 0)
-		{
-			response.addCookie(cookie);
-			return ResponseEntity.ok().build();
-		}
-		else
-		{
-			return status(HttpStatus.BAD_REQUEST).body("Wrong username or password");
-		}
-
-	}*/
 
 	//REGISTER
 	@PostMapping({"/register","/register/"})
 	public ResponseEntity<Object> Register(@RequestParam String username, @RequestParam String password,
 										   @RequestParam String mail)
 	{
-		if (username.length() > 255)
+		if (username.isEmpty() || mail.isEmpty() || password.isEmpty())
+			return ResponseEntity.badRequest().body("FILL USERNAME, MAIL AND PASSWORD TO REGISTER");
+		int check = this.userService.checkUser(username, password, mail);
+		if (check == 1)
 			return status(HttpStatus.BAD_REQUEST).body("Username too long, the maximum is 255 characters");
-		if (password.length() > 255)
+		if (check == 2)
 			return status(HttpStatus.BAD_REQUEST).body("Password too long, the maximum is 255 characters");
-		if (mail.length() > 255)
+		if (check == 3)
 			return status(HttpStatus.BAD_REQUEST).body("Mail too long, the maximum is 255 characters");
-		if (this.userService.userExists(username))
+		if (check == 4)
 			return status(HttpStatus.BAD_REQUEST).body("Username already registered");
-		else
+		if (check == 0){
 			this.userService.addUser(username, mail, password);
-		return status(HttpStatus.CREATED).body(this.userService.findByID(this.userService.getIDUser(username, password)));
+			return status(HttpStatus.CREATED).body(this.userService.findByUsername(username));
+		}
+		return status(HttpStatus.BAD_REQUEST).build();
 	}
 
 	//DELETE USERS
@@ -425,10 +412,22 @@ public class ApiController
 	public ResponseEntity<Object> EditUser(@RequestParam String username, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
 		if (username.isEmpty() || mail.isEmpty() || password.isEmpty())
 			return ResponseEntity.badRequest().body("FILL USERNAME, MAIL AND PASSWORD TO CHANGE");
-		this.userService.editUser(request.getUserPrincipal().getName(), username, mail, password);
-		request.logout();
-		request.login(username, password);
-		return ResponseEntity.ok(this.userService.findByUsername(request.getUserPrincipal().getName()));
+		int check = this.userService.checkUser(username, password, mail);
+		if (check == 1)
+			return status(HttpStatus.BAD_REQUEST).body("Username too long, the maximum is 255 characters");
+		if (check == 2)
+			return status(HttpStatus.BAD_REQUEST).body("Password too long, the maximum is 255 characters");
+		if (check == 3)
+			return status(HttpStatus.BAD_REQUEST).body("Mail too long, the maximum is 255 characters");
+		if (check == 4)
+			return status(HttpStatus.BAD_REQUEST).body("Username already registered");
+		if (check == 0){
+			this.userService.editUser(request.getUserPrincipal().getName(), username, mail, password);
+			request.logout();
+			request.login(username, password);
+			return ResponseEntity.ok(this.userService.findByUsername(request.getUserPrincipal().getName()));
+		}
+		return status(HttpStatus.BAD_REQUEST).build();
 	}
 	// ---------- SHOP ---------- //
 	//SHOP INDEX
