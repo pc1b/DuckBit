@@ -9,10 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import dws.duckbit.services.ImageService;
 import jakarta.servlet.ServletException;
@@ -446,7 +443,7 @@ public class WebController
 
     // Create a new combo
     @PostMapping({"/create_combo", "/create_combo/"} )
-    public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam int price, @RequestParam String description, @RequestParam String ... ids) throws IOException
+    public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam int price, @RequestParam String description, @RequestParam Long ... ids) throws IOException
     {
         int check = comboService.checkCreateCombo(comboName, description, price);
         if (check == 1)
@@ -470,11 +467,7 @@ public class WebController
             modelAndView.addObject("comboWrongPrice", true);
             return modelAndView;
         }
-        ArrayList<Long> idS = new ArrayList<>();
-        for (String i: ids)
-        {
-            idS.add(Long.parseLong(i));
-        }
+        ArrayList<Long> idS = new ArrayList<>(Arrays.asList(ids));
         Combo c = comboService.createCombo(comboName, idS, price, description);
         comboService.save(c);
         return new ModelAndView("redirect:/admin");
@@ -563,14 +556,10 @@ public class WebController
 
     // Edit a combo
     @PostMapping({"/edit_combo", "/edit_combo/"})
-    public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam int price, @RequestParam String id, @RequestParam String description, @RequestParam String ... ids) throws IOException
+    public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam int price, @RequestParam Long id, @RequestParam String description, @RequestParam Integer ... ids) throws IOException
     {
-        ArrayList<Integer> idS = new ArrayList<Integer>();
-        for (String i: ids)
-        {
-            idS.add(Integer.parseInt(i));
-        }
-        int check = comboService.checkEditCombo(comboName, description, price, Long.parseLong(id), this.comboService, this.leakService, idS);
+        ArrayList<Integer> idS = new ArrayList<Integer>(Arrays.asList(ids));
+        int check = comboService.checkEditCombo(comboName, description, price, id, this.comboService, this.leakService, idS);
         if (check == 1)
         {
             ModelAndView modelAndView = new ModelAndView();
