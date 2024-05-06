@@ -2,34 +2,28 @@ package dws.duckbit.controllers;
 
 import dws.duckbit.entities.*;
 import dws.duckbit.services.ComboService;
+import dws.duckbit.services.ImageService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.engine.jdbc.BlobProxy;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.File;
+import org.springframework.web.servlet.ModelAndView;
+
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Blob;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
+import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.status;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 
 @RestController
@@ -38,21 +32,22 @@ public class ApiController
 {
 
 	// ---------- DEFAULT PATHS ---------- //
-	private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
-	private final Path COMBO_FOLDER = Paths.get("src/main/resources/static/combo");
+	private final Path LEAKS_FOLDER = Paths.get("files/leaks");
 
 	// ---------- SERVICES ---------- //
-	private final UserService userDB;
-	private final ComboService comboDB;
+	private final UserService userService;
+	private final ComboService comboService;
 	private final LeakService leaksDB;
+	private final ImageService imageService;
 
 	// ---------- BUILDER ---------- //
-	public ApiController(UserService userDB, ComboService comboDB, LeakService leaksDB)
+	public ApiController(UserService userService, ComboService comboService, LeakService leaksDB, ImageService imageService)
 	{
-		this.userDB = userDB;
-		this.comboDB = comboDB;
+		this.userService = userService;
+		this.comboService = comboService;
 		this.leaksDB = leaksDB;
-	}
+        this.imageService = imageService;
+    }
 
 	// ---------- INDEX ---------- //
 
@@ -66,10 +61,10 @@ public class ApiController
 	// ---------- USER ---------- //
 
 	//USER INFO
-	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
-	public ResponseEntity<Object> getUser(@PathVariable Long id)
+	@GetMapping(value = {"/user", "/user/"})
+	public ResponseEntity<Object> getUser(HttpServletRequest request)
 	{
-		Optional<UserD> u = this.userDB.findByID(id);
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (u.isPresent())
 		{
 			return ResponseEntity.ok(u);
@@ -79,29 +74,61 @@ public class ApiController
 			return status(HttpStatus.NOT_FOUND).build();
 		}
 	}
+	//FOR ADMIN, DON'T KNOW IF NECESSARY
+//	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
+//	public ResponseEntity<Object> getUser(HttpServletRequest request)
+//	{
+//		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
+//		if (u.isPresent())
+//		{
+//			return ResponseEntity.ok(u);
+//		}
+//		else
+//		{
+//			return status(HttpStatus.NOT_FOUND).build();
+//		}
+//	}
 
 	//NUMBER OF USERS
 	@GetMapping(value = {"/user/number", "/user/number/"})
 	public ResponseEntity<Object> getNumberUsers()
 	{
-		return ResponseEntity.ok(this.userDB.getSize());
+		return ResponseEntity.ok(this.userService.getSize());
 	}
 
 	//USERS
-	@GetMapping(value = {"/user", "/user/"})
+	@GetMapping(value = {"/user/all", "/user/all/"})
 	public ResponseEntity<Object> getRegisteredUsers()
 	{
-		return ResponseEntity.ok(this.userDB.findAll());
+		return ResponseEntity.ok(this.userService.findAll());
 	}
 
 	//USER Combos
-	@GetMapping(value = {"/user/{id}/combos", "/user/{id}/combos/"})
-	public ResponseEntity<Object> getCombosUser(@PathVariable Long id)
+	@GetMapping(value = {"/user/combo/all/", "/user/combo/all"})
+	public ResponseEntity<Object> getCombosUser(HttpServletRequest request)
 	{
-		Optional<UserD> u = this.userDB.findByID(id);
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (u.isPresent())
 		{
-			return ResponseEntity.ok(this.comboDB.findByUser(u.get()));
+			return ResponseEntity.ok(this.comboService.findByUser(u.get()));
+		}
+		else
+		{
+			return status(HttpStatus.NOT_FOUND).build();
+		}
+	}
+	@GetMapping(value = {"/user/combo/{id}", "/user/combo/{id}/"})
+	public ResponseEntity<Object> getComboUser(HttpServletRequest request, @PathVariable Long id)
+	{
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
+		Optional<Combo> c = this.comboService.findById(id);
+		if (u.isPresent() && c.isPresent())
+		{
+			UserD user= c.get().getUser();
+			if (user == null || !user.equals(u.get())){
+				return status(HttpStatus.FORBIDDEN).build();
+			}
+			return ResponseEntity.ok(c.get());
 		}
 		else
 		{
@@ -109,14 +136,15 @@ public class ApiController
 		}
 	}
 
+
 	//USER BUY CREDITS
-	@GetMapping(value = {"/{id}/credits", "/{id}/credits/"})
-	public ResponseEntity<UserD> buyCredits(@PathVariable Long id)
+	@GetMapping(value = {"/credits", "/credits/"})
+	public ResponseEntity<UserD> buyCredits(HttpServletRequest request)
 	{
-		Optional<UserD> u = this.userDB.findByID(id);
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
 		if (u.isPresent())
 		{
-			this.userDB.addCreditsToUser(500, id);
+			this.userService.addCreditsToUser(500, u.get().getID());
 			return ResponseEntity.ok(u.get());
 		}
 		else
@@ -154,14 +182,13 @@ public class ApiController
 	public ResponseEntity<Object> uploadLeak(@RequestParam String enterprise, @RequestParam String date,
 											 @RequestParam MultipartFile leakInfo) throws IOException
 	{
-        String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
-        String filename = leakInfo.getOriginalFilename();
-		String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
-		if (enterprise.length() > 255 || enterprise.isEmpty())
+		int upload = leaksDB.upload(leakInfo, enterprise, this.leaksDB, date);
+		String filename = leakInfo.getOriginalFilename();
+		if (upload == 1)
 			return status(HttpStatus.BAD_REQUEST).body("Wrong enterprise name");
-		if(filename == null || !(filename.matches(REGEX_PATTERN)) || this.leaksDB.existsLeakByFilename(filename))
+		if(upload == 2)
 			return status(HttpStatus.BAD_REQUEST).body("Wrong filename");
-		if (!(date.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(date.toString().split("-")[0]) > 9990)
+		if (upload == 3)
 			return status(HttpStatus.BAD_REQUEST).body("Wrong date");
 		Leak l = this.leaksDB.createLeak(enterprise, date, filename);
 		if (l != null)
@@ -200,25 +227,6 @@ public class ApiController
 		if (l.isPresent())
 		{
 			this.leaksDB.delete(l.get());
-			Files.createDirectories(this.LEAKS_FOLDER);
-			String nameFile = l.get().getId() + ".txt";
-			Path leakPath = this.LEAKS_FOLDER.resolve(nameFile);
-			File leak = leakPath.toFile();
-			if (leak.exists())
-			{
-				try
-				{
-					if (!leak.delete())
-					{
-						return ResponseEntity.internalServerError().build();
-					}
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					return ResponseEntity.internalServerError().build();
-				}
-			}
 			return ResponseEntity.ok().build();
 		}
 		else
@@ -231,13 +239,23 @@ public class ApiController
 
 	//DOWNLOAD A COMBO
 	@GetMapping({"/combo/{id}/file/", "/combo/{id}/file"})
-	public ResponseEntity<String> getComboDownload(@PathVariable Long id)
+	public ResponseEntity<String> getComboDownload(@PathVariable Long id, HttpServletRequest request)
 	{
-		Optional<Combo> c = this.comboDB.findById(id);
+		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
+		if (u.isEmpty()){
+			return status(HttpStatus.BAD_REQUEST).build();
+		}
+		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,
-					"text/plain").body(c.get().leakedInfo());
+			if (request.isUserInRole("ADMIN") || (request.isUserInRole("USER") && u.get().getCombos().contains(c.get()))){
+				return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,
+						"text/plain").body(c.get().leakedInfo());
+			}
+			else{
+				return status(HttpStatus.FORBIDDEN).build();
+			}
+
 		}
 		else
 		{
@@ -248,17 +266,20 @@ public class ApiController
 	@GetMapping(value = {"/combo/sold/number", "/combo/sold/number/"})
 	public ResponseEntity<Object> getSoldCombos()
 	{
-		return ResponseEntity.ok(this.comboDB.getSoldCombos());
+		return ResponseEntity.ok(this.comboService.getSoldCombos());
 	}
 
 	//GET A COMBO
 	@GetMapping({"/combo/{id}/", "/combo/{id}"})
-	public ResponseEntity<Object> getCombo(@PathVariable Long id)
+	public ResponseEntity<Object> getCombo(@PathVariable Long id, HttpServletRequest request)
 	{
-		Optional<Combo> c = this.comboDB.findById(id);
+		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
-			return ResponseEntity.ok(c.get());
+			if (request.isUserInRole("ADMIN") || c.get().getUser() == null)
+				return ResponseEntity.ok(c.get());
+			else
+				return status(HttpStatus.FORBIDDEN).build();
 		}
 		else
 		{
@@ -271,18 +292,19 @@ public class ApiController
 	public ResponseEntity<Object> createCombo(@RequestParam String name, @RequestParam ArrayList<Long> leaks,
 											  @RequestParam int price, @RequestParam String description) throws IOException
 	{
-		if (name.length() > 255)
+		int check = comboService.checkCreateCombo(name, description, price);
+		if (check == 1)
 			return status(HttpStatus.BAD_REQUEST).body("The name of the combo is too large, it must be 255 characters or less :(");
-		if (description.length() > 255)
+		if (check == 2)
 			return status(HttpStatus.BAD_REQUEST).body("The description of the combo is too large, it must be 255 characters or less :(");
-		if (price <= 0)
+		if (check == 3)
 			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
-		Combo c = this.comboDB.createCombo(name, leaks, price, description);
+		Combo c = this.comboService.createCombo(name, leaks, price, description);
 		if (c == null)
 		{
 			return status(HttpStatus.BAD_REQUEST).body("Some leaks were not found in the server");
 		}
-		this.comboDB.save(c);
+		this.comboService.save(c);
 		Combo ret = new Combo(name, price, description);
 		ArrayList<Leak> ls = new ArrayList<>();
 		for (Long l : leaks){
@@ -294,32 +316,18 @@ public class ApiController
 
 	//DELETE A COMBO
 	@DeleteMapping({"/combo/{id}", "/combo/{id}/"})
-	public ResponseEntity<Object> deleteCombo(@PathVariable Long id) throws IOException
+	public ResponseEntity<Object> deleteCombo(@PathVariable Long id, HttpServletRequest request) throws IOException
 	{
-		Optional<Combo> c = this.comboDB.findById(id);
+		Optional<Combo> c = this.comboService.findById(id);
 		if (c.isPresent())
 		{
-			this.comboDB.delete(c.get().getId());
-			Files.createDirectories(this.COMBO_FOLDER);
-			String nameFile = c.get().getId() + ".txt";
-			Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
-			File combo = comboPath.toFile();
-			if (combo.exists())
-			{
-				try
-				{
-					if (!combo.delete())
-					{
-						return ResponseEntity.internalServerError().build();
-					}
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					return ResponseEntity.internalServerError().build();
-				}
+			if(request.isUserInRole("ADMIN") || request.getUserPrincipal().equals(c.get().getUser())) {
+				this.comboService.delete(c.get().getId());
+				return ResponseEntity.ok().build();
 			}
-			return ResponseEntity.ok().build();
+			else{
+				return status(HttpStatus.FORBIDDEN).build();
+			}
 		}
 		else
 		{
@@ -329,102 +337,104 @@ public class ApiController
 
 	//EDIT COMBO
 	@PutMapping({"/combo/{id}", "/combo/{id}/"})
-	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam String price,
+	public ResponseEntity<Object> EditCombo(@RequestParam String name, @RequestParam int price,
 												@PathVariable Long id, @RequestParam ArrayList<Integer> leaks, @RequestParam String description) throws IOException
 	{
-		if (name.length() > 255)
+		int check = comboService.checkEditCombo(name, description, price, id, this.comboService, this.leaksDB, leaks);
+		if (check == 1)
 			return status(HttpStatus.BAD_REQUEST).body("The name of the combo is too large, it must be 255 characters or less :(");
-		if (description.length() > 255)
+		if (check == 2)
 			return status(HttpStatus.BAD_REQUEST).body("The description of the combo is too large, it must be 255 characters or less :(");
-		if (price.length() > 10 || Integer.parseInt(price) <= 0)
+		if (check == 3)
 			return status(HttpStatus.BAD_REQUEST).body("The price of the combo is wrong :(");
-		Optional<Combo> c = comboDB.findById(id);
-		ArrayList<Leak> leaksEdit = new ArrayList<>();
-		if (c.isPresent())
-		{
-			if (this.leaksDB.getNextId() > 0)
-			{
-				for (int i : leaks)
-				{
-					Optional<Leak> leak = this.leaksDB.findByID(i);
-					if (leak.isPresent())
-					{
-						leaksEdit.add(leak.get());
-					}
-					else
-					{
-						return status(HttpStatus.BAD_REQUEST).body("Leak " + i + " not found in the server");
-					}
-				}
-				String nameFile = id + ".txt";
-				Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
-				Resource comboF = new UrlResource(comboPath.toUri());
-				if (comboF.exists())
-				{
-					Files.delete(comboPath);
-				}
-				this.comboDB.editCombo(c.get(), name, Integer.parseInt(price), leaksEdit, description);
-				this.comboDB.save(c.get());
-			}
+		if (check == 4)
+			return status(HttpStatus.BAD_REQUEST).body("One of the leaks has not been found in the server");
+		if (check == 6)
+			return status(HttpStatus.BAD_REQUEST).body("Combo not found on the server");
+		if (check == 5) {
+			Optional<Combo> c = comboService.findById(id);
 			return status(HttpStatus.CREATED).body(c);
 		}
 		return status(HttpStatus.NOT_FOUND).build();
 	}
 
-	// ---------- LOGIN AND REGISTER ---------- //
+	// ---------- REGISTER ---------- //
 
-	//LOGIN
-	@PostMapping({"/login/", "/login"})
-	public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password,
-										HttpServletResponse response)
-	{
-		Long userID = this.userDB.getIDUser(username, password);
-		Cookie cookie = new Cookie("id", String.valueOf(userID));
-		if (userID >= 0)
-		{
-			response.addCookie(cookie);
-			return ResponseEntity.ok().build();
-		}
-		else
-		{
-			return status(HttpStatus.BAD_REQUEST).body("Wrong username or password");
-		}
-
-	}
 
 	//REGISTER
 	@PostMapping({"/register","/register/"})
 	public ResponseEntity<Object> Register(@RequestParam String username, @RequestParam String password,
 										   @RequestParam String mail)
 	{
-		if (username.length() > 255)
+		if (username.isEmpty() || mail.isEmpty() || password.isEmpty())
+			return ResponseEntity.badRequest().body("FILL USERNAME, MAIL AND PASSWORD TO REGISTER");
+		int check = this.userService.checkUser(username, password, mail);
+		if (check == 1)
 			return status(HttpStatus.BAD_REQUEST).body("Username too long, the maximum is 255 characters");
-		if (password.length() > 255)
+		if (check == 2)
 			return status(HttpStatus.BAD_REQUEST).body("Password too long, the maximum is 255 characters");
-		if (mail.length() > 255)
+		if (check == 3)
 			return status(HttpStatus.BAD_REQUEST).body("Mail too long, the maximum is 255 characters");
-		if (this.userDB.userExists(username))
+		if (check == 4)
 			return status(HttpStatus.BAD_REQUEST).body("Username already registered");
-		else
-			this.userDB.addUser(username, mail, password);
-		return status(HttpStatus.CREATED).body(this.userDB.findByID(this.userDB.getIDUser(username, password)));
+		if (check == 0){
+			this.userService.addUser(username, mail, password);
+			return status(HttpStatus.CREATED).body(this.userService.findByUsername(username));
+		}
+		return status(HttpStatus.BAD_REQUEST).build();
 	}
 
 	//DELETE USERS
 	@DeleteMapping({"/user/{id}", "/user/{id}/"})
-	public ResponseEntity<Object> deleteUser(@PathVariable Long id){
-		if (this.comboDB.deleteUser(id)){
+	public ResponseEntity<Object> deleteUser(@PathVariable Long id, HttpServletRequest request) throws IOException {
+		if (request.isUserInRole("ADMIN"))
+		{
+			if (id > 1 && this.userService.findByID(id).isPresent()){
+				this.comboService.deleteUser(id);
+				return ResponseEntity.ok().build();
+			} else if (id == 1) {
+				return ResponseEntity.badRequest().body("CAN'T DELETE ADMIN USER");
+			}
+			else
+				return ResponseEntity.notFound().build();
+
+		}
+		else if (Objects.equals(this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID(), id))
+		{
+			this.comboService.deleteUser(id);
 			return ResponseEntity.ok().build();
 		}
-		return ResponseEntity.notFound().build();
+		return status(HttpStatus.FORBIDDEN).build();
 	}
 
+	//EDIT USER
+	@PutMapping({"/user", "/user/"})
+	public ResponseEntity<Object> EditUser(@RequestParam String username, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
+		if (username.isEmpty() || mail.isEmpty() || password.isEmpty())
+			return ResponseEntity.badRequest().body("FILL USERNAME, MAIL AND PASSWORD TO CHANGE");
+		int check = this.userService.checkUser(username, password, mail);
+		if (check == 1)
+			return status(HttpStatus.BAD_REQUEST).body("Username too long, the maximum is 255 characters");
+		if (check == 2)
+			return status(HttpStatus.BAD_REQUEST).body("Password too long, the maximum is 255 characters");
+		if (check == 3)
+			return status(HttpStatus.BAD_REQUEST).body("Mail too long, the maximum is 255 characters");
+		if (check == 4)
+			return status(HttpStatus.BAD_REQUEST).body("Username already registered");
+		if (check == 0){
+			this.userService.editUser(request.getUserPrincipal().getName(), username, mail, password);
+			request.logout();
+			request.login(username, password);
+			return ResponseEntity.ok(this.userService.findByUsername(request.getUserPrincipal().getName()));
+		}
+		return status(HttpStatus.BAD_REQUEST).build();
+	}
 	// ---------- SHOP ---------- //
 	//SHOP INDEX
 	@GetMapping({"/combo", "/combo/"})
-	public ResponseEntity<Collection<Combo>> getComboDB()
+	public ResponseEntity<Collection<Combo>> getcomboService()
 	{
-		Collection<Combo> c = this.comboDB.getAvilableCombos();
+		Collection<Combo> c = this.comboService.getAvailableCombos();
 		if (c != null)
 		{
 			return ResponseEntity.ok(c);
@@ -439,7 +449,7 @@ public class ApiController
 	@GetMapping({"/query", "/query/"})
 	public ResponseEntity<Object> getMethodName(Model model, @RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
 	{
-		Collection<Combo> c = this.comboDB.findAll(enterprise, price);
+		Collection<Combo> c = this.comboService.findAll(enterprise, price);
 		if (!c.isEmpty())
 		{
 			return ResponseEntity.ok(c);
@@ -448,27 +458,28 @@ public class ApiController
 	}
 
 	//BUY COMBO
-	@PostMapping({"/{id}/combo", "/{id}/combo/"})
-	public ResponseEntity<Object> buyCombo(@RequestParam Long combo, @PathVariable Long id)
+	@PostMapping({"/combo/buy", "/combo/buy/"})
+	public ResponseEntity<Object> buyCombo(@RequestParam Long combo, HttpServletRequest request)
 	{
-		Optional<Combo> c = this.comboDB.findById(combo);
-		if (c.isEmpty() || this.userDB.findByID(id).isEmpty())
+		Optional<Combo> c = this.comboService.findById(combo);
+		Long id = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
+		if (c.isEmpty() || this.userService.findByID(id).isEmpty())
 		{
 			return ResponseEntity.notFound().build();
 		}
-		if (!this.comboDB.getAvilableCombos().contains(c.get()))
+		if (!this.comboService.getAvailableCombos().contains(c.get()))
 		{
 			return ResponseEntity.badRequest().body("This combo is no more for sell");
 		}
-		int comboPrice = this.comboDB.getComboPrice(combo);
-		if (this.userDB.hasEnoughCredits(comboPrice, id))
+		int comboPrice = this.comboService.getComboPrice(combo);
+		if (this.userService.hasEnoughCredits(comboPrice, id))
 		{
-			this.userDB.substractCreditsToUser(comboPrice, id);
+			this.userService.substractCreditsToUser(comboPrice, id);
 			Combo comboBought = c.get();
-			this.userDB.addComboToUser(comboBought, id);
-			comboBought.setUser(this.userDB.findByID(id).get());
-			this.comboDB.save(comboBought);
-			this.comboDB.updateSoldCombo();
+			this.userService.addComboToUser(comboBought, id);
+			comboBought.setUser(this.userService.findByID(id).get());
+			this.comboService.save(comboBought);
+			this.comboService.updateSoldCombo();
 			return ResponseEntity.ok(comboBought);
 		}
 		else
@@ -480,67 +491,25 @@ public class ApiController
 	// ---------- IMAGES MANIPULATION ---------- //
 
 	//DOWNLOAD IMAGE
-	@GetMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> downloadImage(@PathVariable long id) throws SQLException
+	@GetMapping({"/image", "/image/"})
+	public ResponseEntity<Object> downloadImage(HttpServletRequest request) throws SQLException
 	{
-		Optional<UserD> user = this.userDB.findByID(id);
-		if (user.isEmpty())
-		{
-			return ResponseEntity.notFound().build();
-		}
-		UserD u = user.get();
-		if (u.getImageFile() != null)
-		{
-
-			Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-					.contentLength(u.getImageFile().length()).body(file);
-		}
-		else
-		{
-			return ResponseEntity.notFound().build();
-		}
+		return this.imageService.getImage(request.getUserPrincipal().getName());
 	}
 
 	//POST AN IMAGE
-	@PostMapping({"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> uploadImage(@PathVariable long id, @RequestParam MultipartFile imageFile)
+	@PostMapping({"/image", "/image/"})
+	public ResponseEntity<Object> uploadImage(HttpServletRequest request, @RequestParam MultipartFile imageFile)
 	{
-
-		Optional<UserD> u = this.userDB.findByID(id);
-		if (u.isEmpty())
-		{
-			return ResponseEntity.notFound().build();
-		}
-		UserD user = u.get();
-		URI location = fromCurrentRequest().build().toUri();
-		Blob image;
-		try
-		{
-			image = BlobProxy.generateProxy(imageFile.getInputStream(), imageFile.getSize());
-		}
-		catch (IOException e)
-		{
-			return ResponseEntity.badRequest().body("Not an image");
-		}
-		user.setImageFile(image);
-		this.userDB.save(user);
-		return ResponseEntity.created(location).build();
+		UserD user = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow();
+		return this.imageService.uploadImage(user, imageFile);
 	}
 
 	//DELETE AN IMAGE
-	@DeleteMapping(value = {"/{id}/image", "/{id}/image/"})
-	public ResponseEntity<Object> deleteImage(@PathVariable long id) throws IOException
+	@DeleteMapping(value = {"/image", "/image/"})
+	public ResponseEntity<Object> deleteImage(HttpServletRequest request) throws IOException
 	{
-
-		Optional<UserD> user = this.userDB.findByID(id);
-		if (user.isEmpty())
-		{
-			return ResponseEntity.notFound().build();
-		}
-		UserD u = user.get();
-		u.setImageFile(null);
-		this.userDB.save(u);
+		this.imageService.deleteImage(request);
 		return ResponseEntity.noContent().build();
 	}
 }

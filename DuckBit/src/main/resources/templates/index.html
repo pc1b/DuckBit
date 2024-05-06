@@ -4,9 +4,9 @@
     <title>Home | DuckBit</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../css/w3.css">
-    <link rel="stylesheet" href="../css/w3-theme-red.css">
-    <link rel="stylesheet" href="../css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/w3.css">
+    <link rel="stylesheet" href="/css/w3-theme-red.css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
 </head>
 <body>
 
@@ -15,46 +15,30 @@
     <a href="/login" class="w3-bar-item w3-button">Login</a>
     <a href="/register" class="w3-bar-item w3-button">Register</a>
     <a href="/shop" class="w3-bar-item w3-button">Shop</a>
-    <button class="w3-bar-item w3-button" onclick="w3_close()">Close <img src="../images/close.svg" width="30px"></button>
+    {{#admin}}
+    <a href="/admin" class="w3-bar-item w3-button">Admin Page</a>
+    {{/admin}}
+    {{#user}}
+    <a href="/user" class="w3-bar-item w3-button">User Page</a>
+    {{/user}}
+    <button class="w3-bar-item w3-button" onclick="w3_close()">Close <img src="/images/close.svg" width="30px"></button>
 </nav>
 
 <!-- Header -->
 <header class="w3-container w3-theme w3-padding" id="myHeader">
-    <img src="../images/hamburger.svg" class="fa fa-bars w3-xlarge w3-button w3-theme" style="width: 80px;" onclick="w3_open()">
+    <img src="/images/hamburger.svg" class="fa fa-bars w3-xlarge w3-button w3-theme" style="width: 80px;" onclick="w3_open()">
     <div class="w3-center">
         <h4 style="font-weight: bold; font-size: 75px">Duck<span style="color: #F4432D;">Bit</span></h4>
-        <img src="../images/logo.jpg" style="width: 300px">
+        <img src="/images/logo.jpg" style="width: 300px">
         <h1 class="w3-xxxlarge w3-animate-bottom">Selling leaks with &#128151;</h1>
-        <!--<div class="w3-padding-32">
-            <button class="w3-btn w3-xlarge w3-dark-grey w3-hover-light-grey" onclick="document.getElementById('id01').style.display='block'" style="font-weight:900;">LEARN W3.CSS</button>
-        </div>-->
     </div>
 </header>
-
-<!-- Modal
-<div id="id01" class="w3-modal">
-    <div class="w3-modal-content w3-card-4 w3-animate-top">
-        <header class="w3-container w3-theme-l1">
-        <span onclick="document.getElementById('id01').style.display='none'"
-              class="w3-button w3-display-topright">×</span>
-            <h4>Oh snap! We just showed you a modal..</h4>
-            <h5>Because we can <i class="fa fa-smile-o"></i></h5>
-        </header>
-        <div class="w3-padding">
-            <p>Cool huh? Ok, enough teasing around..</p>
-            <p>Go to our <a class="w3-btn" href="/w3css/default.asp">W3.CSS Tutorial</a> to learn more!</p>
-        </div>
-        <footer class="w3-container w3-theme-l1">
-            <p>Modal footer</p>
-        </footer>
-    </div>
-</div>-->
 
 <div class="w3-row-padding w3-center w3-margin-top">
     <div class="w3-third">
         <div class="w3-card w3-container" style="min-height:460px">
             <h2 style="font-weight: bold">1</h2><br>
-            <img style="width: 100px" src="../images/coin.svg">
+            <img style="width: 100px" src="/images/coin.svg">
             <p>Buy credits</p>
             <p>The shop works with our own credits, we do not accept the state money</p>
         </div>
@@ -62,7 +46,7 @@
     <div class="w3-third">
         <div class="w3-card w3-container" style="min-height:460px">
             <h2 style="font-weight: bold">2</h2><br>
-            <img style="width: 100px" src="../images/target.svg">
+            <img style="width: 100px" src="/images/target.svg">
             <p>Search for a combo</p>
             <p>Just choose the one you like the most</p>
         </div>
@@ -70,24 +54,13 @@
     <div class="w3-third">
         <div class="w3-card w3-container" style="min-height:460px">
             <h2 style="font-weight: bold">3</h2><br>
-            <img style="width: 100px" src="../images/enjoy.svg">
+            <img style="width: 100px" src="/images/enjoy.svg">
             <p>Enjoy!</p>
             <p>You will be able to download the leaks from your profile</p>
         </div>
     </div>
 </div>
 
-
-
-<!--<h2 class="w3-center">Progress Bars</h2>
-<div class="w3-container">
-
-    <div class="w3-light-gray">
-        <div id="myBar" class="w3-center w3-padding w3-theme" style="width:5%">5%</div>
-    </div><br>
-    <button class="w3-btn w3-theme" onclick="move()">Click Me</button>
-</div>
-<hr>-->
 
 <!-- Footer -->
 <footer class="w3-container w3-theme-dark w3-padding-16">

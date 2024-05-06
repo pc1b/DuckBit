@@ -1,2 +1,4 @@
 .vscode
 *.txt
+/DuckBit/files/combo
+/DuckBit/src/test

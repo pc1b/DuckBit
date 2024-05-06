@@ -3,10 +3,16 @@ package dws.duckbit.services;
 import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.ComboRepository;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -14,11 +20,16 @@ import java.util.*;
 import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.Leak;
 
-import org.springframework.jdbc.core.JdbcTemplate; 
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 
 @Service
 public class ComboService
 {
+	private final Path COMBO_FOLDER = Paths.get("files/combo");
+
 	private final ComboRepository comboRepository;
 	public final LeakService leakService;
 	public final UserService userService;
@@ -62,9 +73,9 @@ public class ComboService
 			return 0;
 	}
 
-	public long getComboSize()
+	public Long getAvailableCombosSize()
 	{
-		return this.comboRepository.count();
+		return this.comboRepository.countCombosByUserDNull();
 	}
 
 	public Collection<Combo> findAll()
@@ -72,7 +83,7 @@ public class ComboService
 		return this.comboRepository.findAll();
 	}
 
-	public List<Combo> getAvilableCombos(){
+	public List<Combo> getAvailableCombos(){
 		return this.comboRepository.findCombosByUserDNull();
 	}
 
@@ -142,9 +153,58 @@ public class ComboService
 		this.soldCombos++;
 	}
 
+	public int checkCreateCombo(String name, String description, int price){
+		if (name.length() > 255)
+			return 1;
+		if (description.length() > 255)
+			return 2;
+		if (price <= 0)
+			return 3;
+		return 0;
+	}
+
+	public int checkEditCombo(String name, String description, int price, Long id, ComboService comboService, LeakService leakService, ArrayList<Integer> ids) throws IOException {
+		int check = this.checkCreateCombo(name, description, price);
+		if (check != 0)
+			return check;
+		Optional<Combo> c = comboService.findById(id);
+		ArrayList<Leak> leaksEdit = new ArrayList<>();
+		if (c.isPresent())
+		{
+			if (leakService.getNextId() > 0)
+			{
+				for (int i : ids)
+				{
+					Optional<Leak> leak = leakService.findByID(i);
+					if (leak.isPresent())
+					{
+						leaksEdit.add(leak.get());
+					}
+					else
+						return 4;
+				}
+				String nameFile = id + ".txt";
+				Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
+				Resource comboF = new UrlResource(comboPath.toUri());
+				if (comboF.exists())
+				{
+					Files.delete(comboPath);
+				}
+				comboService.editCombo(c.get(), name, price, leaksEdit, description);
+				comboService.save(c.get());
+			}
+			return 5;
+		}
+		return 6;
+	}
+
 	public Combo createCombo(String name, ArrayList<Long> leaksID, int price, String description) throws IOException
 	{
-		Combo c = new Combo(name, price, description);
+		// Sanitize the string "description"
+		PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+		String descriptionSanitized = policy.sanitize(description);
+
+		Combo c = new Combo(name, price, descriptionSanitized);
 		this.comboRepository.save(c);
 		for (Long lid : leaksID)
 		{
@@ -162,7 +222,11 @@ public class ComboService
 		return c;
 	}
 
-	public void editCombo(Combo c, String name, int price, ArrayList<Leak> leaksEdit, String description){
+	public void editCombo(Combo c, String name, int price, ArrayList<Leak> leaksEdit, String description)
+	{
+		// Sanitize the string "description"
+		PolicyFactory policy = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+		String descriptionSanitized = policy.sanitize(description);
 		List<Leak> leaks = this.leakService.findByCombo(c);
 		for (Leak l : leaks){
 			l.getCombos().remove(c);
@@ -172,30 +236,36 @@ public class ComboService
 			l.getCombos().add(c);
 			this.leakService.save(l);
 		}
-		c.editCombo(name, price, leaksEdit, description);
+		c.editCombo(name, price, leaksEdit, descriptionSanitized);
 	}
 
 // ---------- DELETE AND REMOVE ---------- //
 
-	public void delete(long id)
-	{
+	//@Transactional
+	public void delete(long id) throws IOException {
 		Combo c = this.comboRepository.findById(id).orElseThrow();
-		List<Leak> leaks = this.leakService.findByCombo(c);
-		for (Leak l : leaks){
+		for (Leak l : c.getLeaks()){
 			l.getCombos().remove(c);
 			this.leakService.save(l);
 		}
-		if (c.getUser() != null){
+		/*if (c.getUser() != null){
 			c.getUser().getCombos().remove(c);
 			this.userService.save(c.getUser());
 			c.setUser(null);
-		}
-		this.comboRepository.save(c);
+		}*/
+		//this.comboRepository.save(c);
 		this.comboRepository.deleteById(id);
+		Files.createDirectories(this.COMBO_FOLDER);
+		String nameFile = c.getId() + ".txt";
+		Path comboPath = this.COMBO_FOLDER.resolve(nameFile);
+		File combo = comboPath.toFile();
+		if (combo.exists())
+		{
+			combo.delete();
+		}
 	}
 
-	public boolean deleteUser(long id)
-	{
+	public boolean deleteUser(long id) throws IOException {
 		Optional<UserD> u = this.userService.findByID(id);
 		if (u.isPresent()){
 			for (Combo c : u.get().getCombos())

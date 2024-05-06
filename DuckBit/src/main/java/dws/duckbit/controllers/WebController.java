@@ -1,110 +1,135 @@
 package dws.duckbit.controllers;
 
-import dws.duckbit.entities.UserD;
-import org.hibernate.engine.jdbc.BlobProxy;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.core.io.UrlResource;
-
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
 
+import dws.duckbit.services.ImageService;
+import jakarta.servlet.ServletException;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import dws.duckbit.entities.Combo;
+import dws.duckbit.entities.Leak;
+import dws.duckbit.entities.UserD;
 import dws.duckbit.services.ComboService;
 import dws.duckbit.services.LeakService;
 import dws.duckbit.services.UserService;
-import dws.duckbit.entities.Combo;
-import dws.duckbit.entities.Leak;
+import jakarta.servlet.http.HttpServletRequest;
+
+import static org.springframework.http.ResponseEntity.status;
 
 
 @Controller
 public class WebController
 {
-    private final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
-    private final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
-    private final UserService userDB;
-    private final LeakService leakDB;
-    private final ComboService comboDB;
+    private final Path LEAKS_FOLDER = Paths.get("files/leaks");
+    private final Path COMBOS_FOLDER = Paths.get("files/combo");
+    private final UserService userService;
+    private final LeakService leakService;
+    private final ComboService comboService;
+    private final ImageService imageService;
 
     private int soldCombos = 0;
 
-    public WebController(UserService userDB, LeakService leakDB, ComboService comboDB) {
-        this.userDB = userDB;
-        this.leakDB = leakDB;
-        this.comboDB = comboDB;
+    public WebController(UserService userService, LeakService leakService, ComboService comboService, ImageService imageService) {
+        this.userService = userService;
+        this.leakService = leakService;
+        this.comboService = comboService;
+        this.imageService = imageService;
     }
 // ---------- INDEX ---------- //
 
     @GetMapping("/")
-    public String index()
+    public String index(Model model, HttpServletRequest request)
     {
+        model.addAttribute("admin", request.isUserInRole("ADMIN"));
+        model.addAttribute("user", request.isUserInRole("USER"));
         return "index";
+    }
+    
+    //Authorize(ADMIN)
+    //Authorize(USER)
+    @GetMapping({"/successLogin", "/successLogin/"})
+    public ModelAndView succesLogin(HttpServletRequest request)
+    {
+        if (request.isUserInRole("ADMIN")){
+            return new ModelAndView("redirect:/admin/");
+        }
+        if (request.isUserInRole("USER")){
+            return new ModelAndView("redirect:/user");
+        }
+        else
+            return new ModelAndView("redirect:/");
     }
 
 // ---------- USERS TYPES ---------- //
 
-    // Admin default page
+    //Authorize(ADMIN)
     @GetMapping({"/admin", "/admin/"})
-    public ModelAndView Admin(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView Admin(Model model, HttpServletRequest request)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userDB.IDExists(idNum)))     //Cookie check
+        String name = this.userService.findByID(1L).get().getUserd();
+        String email = this.userService.findByID(1L).get().getMail();
+        model.addAttribute("username", name);
+        List<Leak> leaks;
+        if (this.leakService.getNextId() > 0)
         {
-            idNum = -1L;
+            leaks = this.leakService.findAll();
+            model.addAttribute("leak", leaks);
         }
-        if (idNum == 1)                         //Admin check
+        Collection<Combo> c = this.comboService.getAvailableCombos();
+        if (!c.isEmpty())
         {
-            String name = this.userDB.findByID(idNum).get().getUserd();
-            String email = this.userDB.findByID(idNum).get().getMail();
-            model.addAttribute("username", name);
-            List<Leak> leaks = new ArrayList<>();
-            if (this.leakDB.getNextId() > 0)
-            {
-                leaks = this.leakDB.findAll();
-                model.addAttribute("leak", leaks);
-            }
-            Collection<Combo> c = this.comboDB.getAvilableCombos();
-            if (!c.isEmpty())
-            {
-                model.addAttribute("combos", c);
-            }
-            model.addAttribute("registredUsers", userDB.getSize());
-            model.addAttribute("combosCreated", comboDB.getComboSize() - soldCombos);
-            model.addAttribute("soldCombos", soldCombos);
-            model.addAttribute("email", email);
-            return new ModelAndView("admin");
+            model.addAttribute("combos", c);
         }
-        else if (idNum > 1)
-        {
-            return new ModelAndView("redirect:/user");
-        }
-        return new ModelAndView("redirect:/login");
+        model.addAttribute("registredUsers", userService.getSize());
+        model.addAttribute("combosCreated", comboService.getAvailableCombosSize());
+        model.addAttribute("soldCombos", soldCombos);
+        model.addAttribute("email", email);
+        return new ModelAndView("admin");
     }
 
-    // Client default page
-    @GetMapping({"/user", "/user/"})
-    public ModelAndView User(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    //Authorize(ADMIN)
+    @GetMapping({"/users", "/users/"})
+    public ModelAndView Users(Model model, HttpServletRequest request)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userDB.IDExists(idNum)))         // Cookie check (and if user exists)
+        List<UserD> users = userService.findAll();
+        model.addAttribute("users", users);
+        String name = this.userService.findByID(1l).get().getUserd();
+        String email = this.userService.findByID(1l).get().getMail();
+        model.addAttribute("username", name);
+        model.addAttribute("email", email);
+        return new ModelAndView("users");
+    }
+
+    //Authorize(USER)
+    @GetMapping({"/user", "/user/"})
+    public ModelAndView User(Model model, HttpServletRequest request)
+    {
+        Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
+        if (!(this.userService.IDExists(idNum)))         // Cookie check (and if user exists)
         {
             idNum = -1L;
         }
@@ -114,168 +139,207 @@ public class WebController
         }
         else if (idNum > 1)
         {
-            String name = this.userDB.findByID(idNum).get().getUserd();
-            int credits = this.userDB.findByID(idNum).get().getCredits();
-            String email = this.userDB.findByID(idNum).get().getMail();
-            List<Combo> combos = this.userDB.findByID(idNum).get().getCombos();
+            String name = this.userService.findByID(idNum).get().getUserd();
+            int credits = this.userService.findByID(idNum).get().getCredits();
+            String email = this.userService.findByID(idNum).get().getMail();
+            List<Combo> combos = this.userService.findByID(idNum).get().getCombos();
             model.addAttribute("credits", credits);
             model.addAttribute("username", name);
             model.addAttribute("combos", combos);
             model.addAttribute("email", email);
+            model.addAttribute("id", idNum);
             return new ModelAndView("user");
         }
         return new ModelAndView("redirect:/login");
+    }
+
+    @GetMapping({"/edit_user", "/edit_user/"})
+    public ModelAndView EditUserView(Model model, HttpServletRequest request){
+        Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
+        if (!(this.userService.IDExists(idNum)))         // Cookie check (and if user exists)
+        {
+            idNum = -1L;
+        }
+        if (idNum == 1)
+        {
+            return new ModelAndView("redirect:/users");
+        }
+        else if (idNum > 1)
+        {
+            String name = this.userService.findByID(idNum).get().getUserd();
+            int credits = this.userService.findByID(idNum).get().getCredits();
+            String email = this.userService.findByID(idNum).get().getMail();
+            List<Combo> combos = this.userService.findByID(idNum).get().getCombos();
+            model.addAttribute("credits", credits);
+            model.addAttribute("username", name);
+            model.addAttribute("combos", combos);
+            model.addAttribute("email", email);
+            model.addAttribute("id", idNum);
+            return new ModelAndView("edit_user");
+        }
+        return new ModelAndView("redirect:/login");
+    }
+
+    @PostMapping({"/edit_user", "/edit_user/"})
+    public ModelAndView EditUser(@RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
+        int check = this.userService.checkUser(usernameUpdate, password, mail);
+        if (check == 1){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("error");
+            modelAndView.addObject("username2Big", true);
+            return modelAndView;
+        }
+        if (check == 2){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("error");
+            modelAndView.addObject("password2Big", true);
+            return modelAndView;
+        }
+        if (check == 3){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("error");
+            modelAndView.addObject("email2Big", true);
+            return modelAndView;
+        }
+        if (usernameUpdate.isEmpty() || mail.isEmpty() || password.isEmpty())
+        {
+            return new ModelAndView("redirect:/success");
+        }
+        if (check == 4)
+        {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("error");
+            modelAndView.addObject("usernameAlreadyExists", true);
+            return modelAndView;
+        }
+        if (check == 0){
+            this.userService.editUser(request.getUserPrincipal().getName(), usernameUpdate, mail, password);
+            request.logout();
+            request.login(usernameUpdate, password);
+            return succesLogin(request);
+        }
+        return new ModelAndView("redirect:/error");
+    }
+
+    //Authorize(ADMIN)
+    //Authorize(USER)(DELETE ONLY THE SAME ID)
+    @DeleteMapping({"/delete_user/{userID}", "/delete_user/{userID}/"})
+    public ModelAndView deleteUser(@PathVariable int userID, HttpServletRequest request) throws IOException
+    {
+        if (request.isUserInRole("ADMIN"))
+        {
+            if (userID > 1)                                     //Check that the user to eliminate is not the admin
+                this.comboService.deleteUser(userID);
+            return new ModelAndView("redirect:/users");
+        }
+        else if (this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID() == userID)
+        {
+            this.comboService.deleteUser(userID);
+            return new ModelAndView("redirect:/");
+        }
+        return new ModelAndView("redirect:/user");
     }
 
 // ---------- LOGIN AND REGISTER ---------- //
 
     // Login page
     @GetMapping({"/login", "/login/"})
-    public ModelAndView Login(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView Login(Model model, HttpServletRequest request, @RequestParam Optional<String> fail)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userDB.IDExists(idNum)))
-        {
-            idNum = -1L;
-        }
-        if (idNum == 1)
-        {
-            return new ModelAndView("redirect:/admin");
-        }
-        else if (idNum > 1)
-        {
-            return new ModelAndView("redirect:/user");
-        }
+        if (fail.isPresent())
+            model.addAttribute("incorrectLogin", true);
         return new ModelAndView("login");
     }
 
     // Register page
     @GetMapping({"/register", "/register/"})
-    public ModelAndView Register(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView Register(Model model, HttpServletRequest request)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userDB.IDExists(idNum)))
-        {
-            idNum = -1L;
-        }
-        if (idNum == 1)
+        if (request.isUserInRole("ADMIN"))
         {
             return new ModelAndView("redirect:/admin");
         }
-        else if (idNum > 1)
+        else if (request.isUserInRole("USER"))
         {
             return new ModelAndView("redirect:/user");
         }
         return new ModelAndView("register");
     }
 
-    // Form sended to login
-    @PostMapping({"/login", "/login/"})
-    public ModelAndView Login(@RequestParam String userD, @RequestParam String pass, RedirectAttributes attributes, HttpServletResponse response)
+    @GetMapping({"/login_error"})
+    public ModelAndView loginError(Model model)
     {
-        Long userID = this.userDB.getIDUser(userD, pass);
-        Cookie cookie = new Cookie("id", String.valueOf(userID));
-        if (userID == 1)
-        {
-            response.addCookie(cookie);
-            return new ModelAndView("redirect:/admin");
-        }
-        else if (userID > 1)
-        {
-            response.addCookie(cookie);
-            return new ModelAndView("redirect:/user");
-        }
-        else
-        {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("login");
-            modelAndView.addObject("incorrectLogin", true);
-            return modelAndView;
-        }
+        model.addAttribute("incorrectLogin", true);
+        return new ModelAndView("login");
     }
 
     // Form sended to register
     @PostMapping({"/register", "/register/"})
     public ModelAndView Register(@RequestParam String userD, @RequestParam String pass, @RequestParam String mail)
     {
-        if (userD.length() > 255){
+        int check = this.userService.checkUser(userD, pass, mail);
+        if (check == 1){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("register");
             modelAndView.addObject("username2Big", true);
             return modelAndView;
         }
-        if (pass.length() > 255){
+        if (check == 2){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("register");
             modelAndView.addObject("password2Big", true);
             return modelAndView;
         }
-        if (mail.length() > 255){
+        if (check == 3){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("register");
             modelAndView.addObject("email2Big", true);
             return modelAndView;
         }
-        if (this.userDB.userExists(userD))
+        if (check == 4)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("register");
             modelAndView.addObject("userExists", true);
             return modelAndView;
         }
-        this.userDB.addUser(userD, mail, pass);
-        return new ModelAndView("redirect:/login");
-    }
-
-    // Logout
-    @GetMapping({"/logout", "/logout/"})
-    public ModelAndView Logout(@CookieValue(value = "id", defaultValue = "-1") String id, HttpServletResponse response)
-    {
-        Cookie cookie = new Cookie("id", null);
-        response.addCookie(cookie);
-        return new ModelAndView("redirect:/login");
+        if (check == 0){
+            this.userService.addUser(userD, mail, pass, "USER");
+            return new ModelAndView("redirect:/login");
+        }
+        return new ModelAndView("redirect:/error");
     }
 
 // ---------- SHOP ---------- //
 
-    //Default page for the shop
+    //Authorize(USER)
     @GetMapping({"/shop", "/shop/"})
-    public ModelAndView shop(Model model, @CookieValue(value = "id", defaultValue = "-1") String id) throws IOException
+    public ModelAndView shop(Model model, HttpServletRequest request) throws IOException
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userDB.IDExists(idNum)))
-        {
-            return new ModelAndView("redirect:/login");
-        }
-        Collection<Combo> c = this.comboDB.getAvilableCombos();
+        Collection<Combo> c = this.comboService.getAvailableCombos();
         if (!c.isEmpty())
         {
             model.addAttribute("combos", c);
         }
-        String name = this.userDB.findByID(idNum).get().getUserd();
-        int credits = this.userDB.findByID(idNum).get().getCredits();
+        String name = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getUserd();
+        int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
         return new ModelAndView("shop");
     }
 
-    //Filter in the shop
-    @GetMapping({"/query", "/query/"})
-    public ModelAndView getMethodName(Model model, @CookieValue(value = "id", defaultValue = "-1") String id, @RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
+    //Authorize(USER)
+    @PostMapping({"/query", "/query/"})
+    public ModelAndView getMethodName(Model model, HttpServletRequest request,@RequestParam(defaultValue = "") String enterprise, @RequestParam(defaultValue = "-1") Integer price)
     {
-        Long idNum = Long.parseLong(id);
-        if (!(this.userDB.IDExists(idNum)))
-        {
-            return new ModelAndView("redirect:/login");
-        }
         if (enterprise.equals("") && price <= 0)
         {
             return new ModelAndView("redirect:/shop");
         }
-        Collection<Combo> c = this.comboDB.findAll(enterprise, price);
+        Collection<Combo> c = this.comboService.findAll(enterprise, price);
         model.addAttribute("combos", c);
-        String name = this.userDB.findByID(idNum).get().getUserd();
-        int credits = this.userDB.findByID(idNum).get().getCredits();
+        String name = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getUserd();
+        int credits = this.userService.findByUsername(request.getUserPrincipal().getName()).get().getCredits();
         model.addAttribute("credits", credits);
         model.addAttribute("username", name);
         return new ModelAndView("shop");
@@ -285,18 +349,15 @@ public class WebController
 
     // Upload a new user image
     @PostMapping({"/upload_image", "/upload_image/"})
-    public ModelAndView uploadImage(@RequestParam String username, @RequestParam MultipartFile image, RedirectAttributes attributes)
-            throws IOException {
-
-        UserD user = this.userDB.findByUsername(username).orElseThrow();
-
-        user.setImageFile(BlobProxy.generateProxy(image.getInputStream(), image.getSize()));
-        this.userDB.save(user);
+    public ModelAndView uploadImage(@RequestParam MultipartFile image, RedirectAttributes attributes,HttpServletRequest request) throws IOException
+    {
+        UserD user = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow();
+        this.imageService.uploadImage(user,image);
         if (user.getID().equals(1L))
         {
             return new ModelAndView("redirect:/admin");
         }
-        attributes.addFlashAttribute("username", username);
+        attributes.addFlashAttribute("username", request.getUserPrincipal().getName());
         return new ModelAndView("redirect:/user");
     }
 
@@ -304,31 +365,14 @@ public class WebController
     @GetMapping({"/download_image", "/download_image/"})
     public ResponseEntity<Object> downloadImage(@RequestParam String username) throws SQLException
     {
-
-        UserD u = this.userDB.findByUsername(username).orElseThrow();
-
-        if (u.getImageFile() != null) {
-
-            Resource file = new InputStreamResource(u.getImageFile().getBinaryStream());
-
-            return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-                    .contentLength(u.getImageFile().length()).body(file);
-
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return this.imageService.getImage(username);
     }
 
     // Delete a user image
     @DeleteMapping({"/delete_image", "/delete_image/"})
-    public  ModelAndView  deleteImage(@CookieValue(value = "id", defaultValue = "-1") String id, RedirectAttributes attributes) throws IOException
+    public  ModelAndView  deleteImage(RedirectAttributes attributes, HttpServletRequest request) throws IOException
     {
-
-        UserD u = this.userDB.findByID(Long.parseLong(id)).orElseThrow();
-
-        u.setImageFile(null);
-
-        this.userDB.save(u);
+        UserD u = this.imageService.deleteImage(request);
         if (u.getID().equals(1L))
         {
             return new ModelAndView("redirect:/admin");
@@ -343,38 +387,39 @@ public class WebController
     @PostMapping({"/upload_leak", "/upload_leak/"})
     public ModelAndView UploadLeak(@RequestParam String leakName, @RequestParam String leakDate, @RequestParam MultipartFile leak) throws IOException
     {
-        String REGEX_PATTERN = "^[A-Za-z.]{1,255}$";
-        String REGEX_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
         String filename = leak.getOriginalFilename();
-        if (leakName.length() > 255)
+        int upload = leakService.upload(leak, leakName, this.leakService, leakDate);
+        if (upload == 1)
         {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("/error");
-            modelAndView.addObject("leakName2Big", true);
-            return modelAndView;
+            if (leakName.isEmpty())
+            {
+                ModelAndView modelAndView = new ModelAndView();
+                modelAndView.setViewName("/error");
+                modelAndView.addObject("leakEmptyName", true);
+                return modelAndView;
+            }
+            else {
+                ModelAndView modelAndView = new ModelAndView();
+                modelAndView.setViewName("/error");
+                modelAndView.addObject("leakName2Big", true);
+                return modelAndView;
+            }
         }
-        else if (leakName.isEmpty())
-        {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("/error");
-            modelAndView.addObject("leakEmptyName", true);
-            return modelAndView;
-        }
-        if (filename == null || !(filename.matches(REGEX_PATTERN)) || this.leakDB.existsLeakByFilename(filename))
+        if (upload == 2)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("incorrectFileName", true);
             return modelAndView;
         }
-        if (!(leakDate.matches(REGEX_DATE_PATTERN)) || Integer.parseInt(leakDate.toString().split("-")[0]) > 9990)
+        if (upload == 3)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("incorrectDate", true);
             return modelAndView;
         }
-        Leak l = this.leakDB.createLeak(leakName, leakDate, filename);
+        Leak l = this.leakService.createLeak(leakName, leakDate, filename);
 		if (l != null)
 		{
 			Files.createDirectories(LEAKS_FOLDER);
@@ -384,52 +429,64 @@ public class WebController
         return new ModelAndView("redirect:/admin");
     }
 
+    //Delete leak
+    @DeleteMapping({"/delete_leak/{id}", "/delete_leak/{id}/"})
+    public ModelAndView deleteLeak(@PathVariable int id) throws IOException
+    {
+        Optional<Leak> l = this.leakService.findByID(id);
+        if (l.isPresent())
+            this.leakService.delete(l.get());
+        return new ModelAndView("redirect:/admin");
+    }
+
 // ---------- COMBOS MANIPULATION ---------- //
 
     // Create a new combo
     @PostMapping({"/create_combo", "/create_combo/"} )
-    public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String description, @RequestParam String ... ids) throws IOException
+    public ModelAndView CreateCombo(Model model, @RequestParam String comboName, @RequestParam int price, @RequestParam String description, @RequestParam Long ... ids) throws IOException
     {
-        if (comboName.length() > 255)
+        int check = comboService.checkCreateCombo(comboName, description, price);
+        if (check == 1)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboName2Big", true);
             return modelAndView;
         }
-        if (description.length() > 255)
+        if (check == 2)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboDesc2Big", true);
             return modelAndView;
         }
-        if (price.length() > 10 || Integer.parseInt(price) <= 0)
+        if (check == 3)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboWrongPrice", true);
             return modelAndView;
         }
-        ArrayList<Long> idS = new ArrayList<>();
-        for (String i: ids)
-        {
-            idS.add(Long.parseLong(i));
-        }
-        Combo c = comboDB.createCombo(comboName, idS, Integer.parseInt(price), description);
-        comboDB.save(c);
+        ArrayList<Long> idS = new ArrayList<>(Arrays.asList(ids));
+        Combo c = comboService.createCombo(comboName, idS, price, description);
+        comboService.save(c);
         return new ModelAndView("redirect:/admin");
     }
 
     // Delete a combo
-    @DeleteMapping({"/delete_combo/{id}", "/delete_combo/{comboID}"})
-    public ResponseEntity<Object> deleteCombo(@CookieValue(value = "id", defaultValue = "-1") String id, @PathVariable int comboID) throws IOException
+    @DeleteMapping({"/delete_combo/{comboID}", "/delete_combo/{comboID}/"})
+    public ResponseEntity<Object> deleteCombo(@PathVariable Long comboID, HttpServletRequest request) throws IOException
     {
-        int idN = Integer.parseInt(id);
-        if(idN == 1)
+        Optional<Combo> c = this.comboService.findById((long) comboID);
+        if (c.isPresent())
         {
-            this.comboDB.delete(comboID);
-            return ResponseEntity.noContent().build();
+            if(request.isUserInRole("ADMIN") || this.userService.findByUsername(request.getUserPrincipal().getName()).get().equals(c.get().getUser())) {
+                this.comboService.delete(c.get().getId());
+                return ResponseEntity.ok().build();
+            }
+            else{
+                return status(HttpStatus.FORBIDDEN).build();
+            }
         }
         else
         {
@@ -439,26 +496,26 @@ public class WebController
 
     // Buy a combo
     @PostMapping({"/buy_combo", "/buy_combo/"})
-    public ModelAndView BuyCombo(Model model, @RequestParam Long combo, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView BuyCombo(Model model, @RequestParam Long combo, HttpServletRequest request)
     {
-        Long userID = Long.parseLong(id);
-        Optional<Combo> c = this.comboDB.findById(combo);
+        Long userID = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
+        Optional<Combo> c = this.comboService.findById(combo);
 		if (c.isEmpty())
 		{
 			return new ModelAndView("redirect:/shop");
 		}
-        if (!this.comboDB.getAvilableCombos().contains(c.get()))
+        if (!this.comboService.getAvailableCombos().contains(c.get()))
             return new ModelAndView("redirect:/shop");
-        int comboPrice = this.comboDB.getComboPrice(combo);
-        if (this.userDB.hasEnoughCredits(comboPrice, userID))
+        int comboPrice = this.comboService.getComboPrice(combo);
+        if (this.userService.hasEnoughCredits(comboPrice, userID))
         {
-            this.userDB.substractCreditsToUser(comboPrice, userID);
+            this.userService.substractCreditsToUser(comboPrice, userID);
             if (c.isPresent())
             {
                 Combo comboBought = c.get();
-                this.userDB.addComboToUser(comboBought, userID);
-                comboBought.setUser(this.userDB.findByID(userID).get());
-                this.comboDB.save(comboBought);
+                this.userService.addComboToUser(comboBought, userID);
+                comboBought.setUser(this.userService.findByID(userID).get());
+                this.comboService.save(comboBought);
                 soldCombos++;
             }
 
@@ -468,15 +525,15 @@ public class WebController
 
     // Download a combo
     @PostMapping({"/download_combo", "/download_combo/"})
-    public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam String idCombo, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ResponseEntity<InputStreamResource> downloadCombo(@RequestParam int idCombo, HttpServletRequest request)
             throws MalformedURLException, FileNotFoundException
     {
-        Long idNum = Long.parseLong(id);
-        if (this.userDB.IDExists(idNum))
+        Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
+        if (this.userService.IDExists(idNum))
         {
-            for (Combo combo : userDB.findByID(Long.parseLong(id)).get().getCombos())
+            for (Combo combo : userService.findByID(idNum).get().getCombos())
             {
-                if (Integer.parseInt(idCombo) == combo.getId())
+                if (idCombo == combo.getId())
                 {
                     String nameFile = idCombo + ".txt";
                     Path comboPath = COMBOS_FOLDER.resolve(nameFile);
@@ -490,7 +547,7 @@ public class WebController
                                 .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
                                 .body(inputStreamResource);
                     }
-                }
+                }  
             }
         }
         return ResponseEntity.notFound()
@@ -499,65 +556,37 @@ public class WebController
 
     // Edit a combo
     @PostMapping({"/edit_combo", "/edit_combo/"})
-    public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam String price, @RequestParam String id, @RequestParam String description, @RequestParam String ... ids) throws IOException
+    public ModelAndView EditCombo(Model model, @RequestParam String comboName, @RequestParam int price, @RequestParam Long id, @RequestParam String description, @RequestParam Integer ... ids) throws IOException
     {
-        if (comboName.length() > 255)
+        ArrayList<Integer> idS = new ArrayList<Integer>(Arrays.asList(ids));
+        int check = comboService.checkEditCombo(comboName, description, price, id, this.comboService, this.leakService, idS);
+        if (check == 1)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboName2Big", true);
             return modelAndView;
         }
-        if (description.length() > 255)
+        if (check == 2)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboDesc2Big", true);
             return modelAndView;
         }
-        if (price.length() > 10 || Integer.parseInt(price) <= 0)
+        if (check == 3)
         {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("/error");
             modelAndView.addObject("comboWrongPrice", true);
             return modelAndView;
         }
-        ArrayList<Integer> idS = new ArrayList<Integer>();
-        for (String i: ids)
+        if (check == 4)
         {
-            idS.add(Integer.parseInt(i));
-        }
-        Optional<Combo> c = comboDB.findById(Long.parseLong(id));
-        ArrayList<Leak> leaksEdit = new ArrayList<>();
-        if (c.isPresent())
-        {
-            if (this.leakDB.getNextId() > 0)
-            {
-                for (int i : idS)
-                {
-                    Optional<Leak> leak = this.leakDB.findByID(i);
-                    if (leak.isPresent())
-                    {
-                        leaksEdit.add(leak.get());
-                    }
-                    else
-                    {
-                        ModelAndView modelAndView = new ModelAndView();
-                        modelAndView.setViewName("/error");
-                        modelAndView.addObject("Leak " + i + " not found in the server", true);
-                        return modelAndView;
-                    }
-                }
-                String nameFile = id + ".txt";
-                Path comboPath = COMBOS_FOLDER.resolve(nameFile);
-                Resource comboF = new UrlResource(comboPath.toUri());
-                if (comboF.exists())
-                {
-                    Files.delete(comboPath);
-                }
-                this.comboDB.editCombo(c.get(), comboName, Integer.parseInt(price), leaksEdit, description);
-                this.comboDB.save(c.get());
-            }
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/error");
+            modelAndView.addObject("One of the leaks has not been found in the server", true);
+            return modelAndView;
         }
         return new ModelAndView("redirect:/admin");
     }
@@ -565,14 +594,14 @@ public class WebController
 // ---------- CREDITS ---------- //
 
     @PostMapping({"/add_credits", "/add_credits/"})
-    public ModelAndView AddCredits(Model model, @CookieValue(value = "id", defaultValue = "-1") String id)
+    public ModelAndView AddCredits(Model model, HttpServletRequest request)
     {
-        Long idNum = Long.parseLong(id);
-        if (this.userDB.IDExists(idNum))
+        Long idNum = this.userService.findByUsername(request.getUserPrincipal().getName()).orElseThrow().getID();
+        if (this.userService.IDExists(idNum))
         {
-            UserD userD = this.userDB.findByID(idNum).get();
+            UserD userD = this.userService.findByID(idNum).get();
             userD.addCredits(500);
-            this.userDB.save(userD);
+            this.userService.save(userD);
         }
         return new ModelAndView("redirect:/user");
     }

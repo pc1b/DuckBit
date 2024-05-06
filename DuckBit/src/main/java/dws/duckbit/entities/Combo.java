@@ -18,8 +18,8 @@ public class Combo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id = null;
-	private static final Path LEAKS_FOLDER = Paths.get("src/main/resources/static/leaks");
-	private static final Path COMBOS_FOLDER = Paths.get("src/main/resources/static/combo");
+	private static final Path LEAKS_FOLDER = Paths.get("files/leaks");
+	private static final Path COMBOS_FOLDER = Paths.get("files/combo");
 
 	private String name;
 	private int price;

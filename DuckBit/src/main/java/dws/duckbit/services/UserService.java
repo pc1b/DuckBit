@@ -1,27 +1,32 @@
 package dws.duckbit.services;
 
+import dws.duckbit.entities.Combo;
 import dws.duckbit.entities.UserD;
 import dws.duckbit.repositories.UserRepository;
-import dws.duckbit.entities.Combo;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.http.ResponseEntity.status;
 
 
 @Service
 public class UserService
 {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    //private final ComboService comboService;
 
 // ---------- CONSTRUCTOR ---------- //
 
-    public UserService(UserRepository userRepository)
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder)
     {
 	    this.userRepository = userRepository;
+	    //this.comboService = comboService;
+	    this.passwordEncoder = passwordEncoder;
     }
 
 // ---------- GET ---------- //
@@ -36,28 +41,6 @@ public class UserService
         return this.userRepository.findAll();
     }
 
-    public Long getIDUser(String user, String password)
-    {
-        byte[] userPassword = password.getBytes(StandardCharsets.UTF_8);
-        Optional<UserD> u;
-        try
-        {
-            u = this.userRepository.findByUserdAndPassword(user,MessageDigest.getInstance("MD5").digest(userPassword));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return (-1L);
-        }
-        if (u.isPresent())
-        {
-            return u.get().getID();
-        }
-        else
-        {
-            return (-1L);
-        }
-    }
 
     public Optional<UserD> findByUsername(String username)
     {
@@ -76,9 +59,10 @@ public class UserService
         this.userRepository.save(userD);
     }
 
-    public void addUser(String user, String mail, String password)
+    public void addUser(String user, String mail, String password, String... roles)
     {
-        UserD newUserD = new UserD(user, mail, password);
+        UserD newUserD = new UserD(user, mail, passwordEncoder.encode(password), roles);
+
         this.userRepository.save(newUserD);
     }
 
@@ -131,4 +115,33 @@ public class UserService
         this.userRepository.deleteById(id);
     }
 
+    public void editUser(String userd, String userdUpdated, String mail, String password){
+        this.userRepository.findByUserd(userd).get().editUser(userdUpdated, mail, passwordEncoder.encode(password));
+        this.userRepository.save(this.userRepository.findByUserd(userd).get());
+    }
+
+    public int checkUser(String username, String password, String mail){
+        if (username.length() > 255)
+            return 1;
+        if (password.length() > 255)
+            return 2;
+        if (mail.length() > 255)
+            return 3;
+        if (this.userExists(username))
+            return 4;
+        return 0;
+    }
+    //NOT FINISHED
+    public boolean buyCombo(Combo c, Long userid){
+        if (this.hasEnoughCredits(c.getPrice(), userid))
+        {
+            this.substractCreditsToUser(c.getPrice(), userid);
+            this.addComboToUser(c, userid);
+            c.setUser(this.findByID(userid).get());
+            //this.comboService.save(c);
+            //this.comboService.updateSoldCombo();
+            return true;
+        }
+        return false;
+    }
 }
