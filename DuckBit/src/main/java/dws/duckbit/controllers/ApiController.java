@@ -398,7 +398,7 @@ public class ApiController
 	public ResponseEntity<Object> EditUser(@RequestParam String username, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
 		if (username.isEmpty() || mail.isEmpty() || password.isEmpty())
 			return ResponseEntity.badRequest().body("FILL USERNAME, MAIL AND PASSWORD TO CHANGE");
-		int check = this.userService.checkUser(username, password, mail);
+		int check = this.userService.checkUser(request.getUserPrincipal().getName(), username, password, mail);
 		if (check == 1)
 			return status(HttpStatus.BAD_REQUEST).body("Username too long, the maximum is 255 characters");
 		if (check == 2)
