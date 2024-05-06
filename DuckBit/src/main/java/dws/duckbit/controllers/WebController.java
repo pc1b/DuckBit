@@ -182,7 +182,11 @@ public class WebController
 
     @PostMapping({"/edit_user", "/edit_user/"})
     public ModelAndView EditUser(@RequestParam String usernameUpdate, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
-        int check = this.userService.checkUser(usernameUpdate, password, mail);
+        if (usernameUpdate.isEmpty() || mail.isEmpty() || password.isEmpty())
+        {
+            return new ModelAndView("redirect:/success");
+        }
+        int check = this.userService.checkUser(request.getUserPrincipal().getName(), usernameUpdate, password, mail);
         if (check == 1){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("error");
@@ -200,10 +204,6 @@ public class WebController
             modelAndView.setViewName("error");
             modelAndView.addObject("email2Big", true);
             return modelAndView;
-        }
-        if (usernameUpdate.isEmpty() || mail.isEmpty() || password.isEmpty())
-        {
-            return new ModelAndView("redirect:/success");
         }
         if (check == 4)
         {
