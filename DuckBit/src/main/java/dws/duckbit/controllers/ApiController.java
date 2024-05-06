@@ -74,20 +74,6 @@ public class ApiController
 			return status(HttpStatus.NOT_FOUND).build();
 		}
 	}
-	//FOR ADMIN, DON'T KNOW IF NECESSARY
-//	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
-//	public ResponseEntity<Object> getUser(HttpServletRequest request)
-//	{
-//		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
-//		if (u.isPresent())
-//		{
-//			return ResponseEntity.ok(u);
-//		}
-//		else
-//		{
-//			return status(HttpStatus.NOT_FOUND).build();
-//		}
-//	}
 
 	//NUMBER OF USERS
 	@GetMapping(value = {"/user/number", "/user/number/"})
