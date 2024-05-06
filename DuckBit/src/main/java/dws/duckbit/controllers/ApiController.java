@@ -74,20 +74,6 @@ public class ApiController
 			return status(HttpStatus.NOT_FOUND).build();
 		}
 	}
-	//FOR ADMIN, DON'T KNOW IF NECESSARY
-//	@GetMapping(value = {"/user/{id}", "/user/{id}/"})
-//	public ResponseEntity<Object> getUser(HttpServletRequest request)
-//	{
-//		Optional<UserD> u = this.userService.findByUsername(request.getUserPrincipal().getName());
-//		if (u.isPresent())
-//		{
-//			return ResponseEntity.ok(u);
-//		}
-//		else
-//		{
-//			return status(HttpStatus.NOT_FOUND).build();
-//		}
-//	}
 
 	//NUMBER OF USERS
 	@GetMapping(value = {"/user/number", "/user/number/"})
@@ -412,7 +398,7 @@ public class ApiController
 	public ResponseEntity<Object> EditUser(@RequestParam String username, @RequestParam String mail, @RequestParam String password, HttpServletRequest request) throws IOException, ServletException {
 		if (username.isEmpty() || mail.isEmpty() || password.isEmpty())
 			return ResponseEntity.badRequest().body("FILL USERNAME, MAIL AND PASSWORD TO CHANGE");
-		int check = this.userService.checkUser(username, password, mail);
+		int check = this.userService.checkUser(request.getUserPrincipal().getName(), username, password, mail);
 		if (check == 1)
 			return status(HttpStatus.BAD_REQUEST).body("Username too long, the maximum is 255 characters");
 		if (check == 2)

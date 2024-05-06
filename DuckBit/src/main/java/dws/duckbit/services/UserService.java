@@ -131,7 +131,19 @@ public class UserService
             return 4;
         return 0;
     }
-    //NOT FINISHED
+
+    public int checkUser(String oldUser, String username, String password, String mail){
+        if (username.length() > 255)
+            return 1;
+        if (password.length() > 255)
+            return 2;
+        if (mail.length() > 255)
+            return 3;
+        if (this.userExists(username) && !(username.equals(oldUser)))
+            return 4;
+        return 0;
+    }
+
     public boolean buyCombo(Combo c, Long userid){
         if (this.hasEnoughCredits(c.getPrice(), userid))
         {
